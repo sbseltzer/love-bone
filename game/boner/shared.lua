@@ -15,6 +15,7 @@ local Meta = {
 	EventHandler = {}
 };
 
+-- Returns true if the metatable for t matches the metatable associated with mName. 
 local function isMeta(t, mName)
 	return getmetatable(t) == Meta[mName];
 end
@@ -59,6 +60,7 @@ local function rotate(cx, cy, angle, px, py)
 	return px, py;
 end
 
+-- Debug helper.
 local function print_r(t, i, found)
 	i = i or 1;
 	if (i == 1) then

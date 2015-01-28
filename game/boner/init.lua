@@ -2,16 +2,6 @@
 	BÖNER: Library for keyframe-based skeletal animations in LÖVE.
 	By Samuel Seltzer-Johnston
 --]]
--- TODO: Comment everything.
--- TODO: Clean up, make consistent.
--- TODO: Validate everything.
--- TODO: Add more robust start/pause/stop animation methods
--- TODO: Add sprite batching
--- TODO: Add intersection methods for body parts.
--- TODO: Split this into multiple files.
--- TODO: Add events.
--- TODO: Add keyframe rate.
--- TODO: Convert transformations to matrices to make coordinate finding more black-boxy
 
 local SHARED = require("boner.shared");
 local newBone = require("boner.bone");
@@ -22,6 +12,7 @@ local newActor = require("boner.actor");
 local newVisual = require("boner.visual");
 local newAttachment = require("boner.attachment");
 local newTransformer = require("boner.transformer");
+local newEventHandler = require("boner.eventhandler");
 
 -- Enable/disable debug rendering.
 local function setDebug(b)
@@ -42,7 +33,8 @@ return {
 	newActor = newActor,
 	newVisual = newVisual,
 	newAttachment = newAttachment,
-	newTransformer = newTransformer
+	newTransformer = newTransformer,
+	newEventHandler = newEventHandler
 };
 
 --[[
