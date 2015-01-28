@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<TextureDictionary>
+  <TexturePath>guy_spritesheet.png</TexturePath>
+  <Texture name="guy_head">
+    <X>0</X>
+    <Y>0</Y>
+    <Width>61</Width>
+    <Height>79</Height>
+    <OriginX>30</OriginX>
+    <OriginY>76</OriginY>
+  </Texture>
+  <Texture name="guy_foot">
+    <X>63</X>
+    <Y>0</Y>
+    <Width>48</Width>
+    <Height>21</Height>
+    <OriginX>6</OriginX>
+    <OriginY>9</OriginY>
+  </Texture>
+  <Texture name="guy_torso">
+    <X>63</X>
+    <Y>23</Y>
+    <Width>44</Width>
+    <Height>135</Height>
+    <OriginX>22</OriginX>
+    <OriginY>67</OriginY>
+  </Texture>
+  <Texture name="guy_upper_leg">
+    <X>0</X>
+    <Y>81</Y>
+    <Width>26</Width>
+    <Height>83</Height>
+    <OriginX>13</OriginX>
+    <OriginY>4</OriginY>
+  </Texture>
+  <Texture name="guy_lower_leg">
+    <X>28</X>
+    <Y>81</Y>
+    <Width>21</Width>
+    <Height>69</Height>
+    <OriginX>10</OriginX>
+    <OriginY>5</OriginY>
+  </Texture>
+  <Texture name="guy_upper_arm">
+    <X>113</X>
+    <Y>0</Y>
+    <Width>20</Width>
+    <Height>58</Height>
+    <OriginX>10</OriginX>
+    <OriginY>6</OriginY>
+  </Texture>
+  <Texture name="guy_lower_arm">
+    <X>109</X>
+    <Y>60</Y>
+    <Width>16</Width>
+    <Height>49</Height>
+    <OriginX>8</OriginX>
+    <OriginY>5</OriginY>
+  </Texture>
+  <Texture name="guy_hand">
+    <X>109</X>
+    <Y>111</Y>
+    <Width>15</Width>
+    <Height>19</Height>
+    <OriginX>7</OriginX>
+    <OriginY>4</OriginY>
+  </Texture>
+</TextureDictionary>
