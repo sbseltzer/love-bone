@@ -15,26 +15,15 @@ And that's that.
 ## Table of Contents
 
 * [Introduction](#introduction)
-* [Elements](#elements)
-  * [Button](#button)
-    * [Base attributes](#base-attributes)
-    * [Methods](#methods)
-    * [Basic button drawing](#basic-button-drawing)
-  * [Frame](#frame)
-    * [Base attributes](#base-attributes-1)
-    * [Close attributes](#close-attributes)
-    * [Drag attributes](#drag-attributes)
-    * [Resize attributes](#resize-attributes)
-    * [Methods](#methods-1)
-    * [Basic frame drawing](#basic-frame-drawing)
-  * [Textinput](#textinput)
-    * [Base attributes](#base-attributes-2)
-    * [Text attributes](text-attributes)
-    * [Methods](#methods-2)
-    * [Basic textinput drawing](#basic-textinput-drawing)
-* [Extensions](#extensions)
-* [Themes](#themes)
-
+* [Objects](#objects)
+  * [Actor](#actor)
+  * [Skeleton](#skeleton)
+  * [Bone](#bone)
+  * [Animation](#animation)
+  * [Visual](#visual)
+  * [Attachment](#attachment)
+  * [EventHandler](#event-handler)
+  * [Transformer](#transformer)
 ## Introduction
 
 ## Objects
@@ -97,9 +86,9 @@ Visuals are an abstraction for visible elements. They could be an image, a canva
 
 ```lua
 local visual;
-visual = boner.newVisual(texturePath | imageData | image | canvas, quad | x, y, w, h)
-visual = boner.newVisual(mesh)
+visual = boner.newVisual(imagePath | imageData | image | canvas, quad | x, y, w, h)
 visual = boner.newVisual(particleEmitter)
+visual = boner.newVisual(mesh)
 
 local vw, vh = visual:GetDimensions();
 visual:SetOrigin(vw/2, vh/2);
@@ -131,3 +120,5 @@ myActor:GetTransformer():Register(transformName, animName | transformTable | tra
 myActor:GetTransformer():SetPriotity(transformName, priority);
 myActor:GetTransformer():SetPower(transformName, power);
 ```
+
+The transformer is what represents the bone positions of an individual actor.
