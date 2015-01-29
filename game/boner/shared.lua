@@ -3,6 +3,7 @@ local SKELETON_ROOT_NAME = "__root__"; -- In conventional animation systems, thi
 local SKIN_ATTACHMENT_NAME = "__skin__"; -- In conventional animation systems, this would be the root scene node.
 local DEBUG = false;
 
+-- Metatables
 local Meta = {
 	Bone = {},
 	Skeleton = {},
@@ -19,6 +20,16 @@ local Meta = {
 local function isMeta(t, mName)
 	return getmetatable(t) == Meta[mName];
 end
+
+-- Error checking utilities
+local Error = {
+	BadArg = "bad argument #%d to '%s' (%s expected, got %s)",
+	BadMeta = "bad argument #%d to '%s' (%s[%s] expected, got [%s])",
+};
+local function errorArgs(errorType, ...)
+	return string.format(Error[errorType], ...), 2;
+end
+
 
 -- Linear Interpolation function.
 local function lerp(v0, v1, t)

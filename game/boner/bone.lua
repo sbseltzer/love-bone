@@ -10,10 +10,21 @@ local MBone = SHARED.Meta.Bone;
 MBone.__index = MBone;
 local function newBone(name, parent, layer, offset, defaultRotation, defaultTranslation, defaultScale)
 	layer = layer or 0;
+	
 	offset = offset or {0, 0};
+	offset[1] = tonumber(offset[1]) or 0;
+	offset[2] = tonumber(offset[2]) or 0;
+	
 	defaultRotation = defaultRotation or 0;
+	
 	defaultTranslation = defaultTranslation or {0, 0};
+	defaultTranslation[1] = tonumber(defaultTranslation[1]) or 0;
+	defaultTranslation[2] = tonumber(defaultTranslation[2]) or 0;
+	
 	defaultScale = defaultScale or {1, 1};
+	defaultScale[1] = tonumber(defaultScale[1]) or 1;
+	defaultScale[2] = tonumber(defaultScale[2]) or 1;
+	
 	local bone = setmetatable({}, MBone);
 	bone:SetName(name);
 	bone:SetParent(parent);
@@ -78,7 +89,7 @@ function MBone:SetDefaultScale(scaleX, scaleY)
 	self.Scale = {scaleX, scaleY};
 end
 function MBone:GetDefaultScale()
-	return unpack(self.Translation);
+	return unpack(self.Scale);
 end
 
 return newBone;

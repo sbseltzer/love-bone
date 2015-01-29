@@ -31,20 +31,24 @@ function MSkeleton:AddBone(boneObj)
 		boneObj:SetParent(SKELETON_ROOT_NAME);
 	end
 	self.Bones[boneObj:GetName()] = boneObj;
+	self.IsValid = false;
 end
 
 -- Adds a skin to the skeleton.
 function MSkeleton:AddSkin(skinName, skinData)
+	-- TODO: Validate?
 	self.Skins[skinName] = skinData;
 end
 
 -- Adds an animation to the skeleton.
 function MSkeleton:AddAnimation(animObj)
+	-- TODO: Validate?
 	self.Animations[animObj:GetName()] = animObj;
 end
 
 -- Rebuilds the rendering order of bones based on their current layer.
 function MSkeleton:BuildRenderOrder()
+	-- TODO: Validate?
 	self.RenderOrder = {};
 	for boneName, bone in pairs(self.Bones) do
 		local i = 1;
@@ -58,15 +62,18 @@ function MSkeleton:BuildRenderOrder()
 end
 
 function MSkeleton:GetBoneNames()
+	-- TODO: Validate?
 	return {unpack(self.RenderOrder)};
 end
 
 -- Get a bone object.
 function MSkeleton:GetBone(boneName)
+	-- TODO: Validate?
 	return self.Bones[boneName];
 end
 
 function MSkeleton:GetBoneTree(name, t)
+	-- TODO: Validate?
 	t = t or {};
 	table.insert(t, name);
 	local children = self:GetBone(name).Children;
@@ -78,6 +85,7 @@ function MSkeleton:GetBoneTree(name, t)
 	end
 	return t;
 end
+
 -- Checks all bones to see if parents are valid, and populates children lists.
 function MSkeleton:Validate()
 	self.IsValid = true;
@@ -106,8 +114,13 @@ function MSkeleton:Validate()
 	return self.IsValid;
 end
 
+function MSkeleton:IsValid()
+	return self.IsValid;
+end
+
 -- Returns the skeleton bind pose.
 function MSkeleton:GetBindPose()
+	-- TODO: Validate?
 	local pose = {};
 	for boneName, bone in pairs(self.Bones) do
 		local keyframe = {};
@@ -123,6 +136,7 @@ end
 
 -- Returns an empty transformation data structure.
 function MSkeleton:GetBlankTransformation()
+	-- TODO: Validate?
 	-- TODO: Perhaps we could cache this?
 	local bones = {};
 	for boneName, bone in pairs(self.Bones) do

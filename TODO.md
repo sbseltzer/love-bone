@@ -12,3 +12,4 @@ A todo list in no particular order.
 - Add sprite batching support.
 - Move debug toggling to Actor.
 - Look into adding 2D mesh rigging.
+- Add multithreading for calculations

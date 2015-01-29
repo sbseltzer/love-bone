@@ -49,25 +49,25 @@ function MVisual:SetVisualData(vis, ...)
 			end
 		elseif (#args >= 1) then
 			local quad = args[1];
-			if (quad and quad:typeOf("Quad")) then
+			if (quad and type(quad) == "userdata" and quad:typeOf("Quad")) then
 				self.Quad = quad;
 			end
 		end
 		-- If a Sprite ID was already set for this attachment
-		if (self.SpriteID) then
+		--[[if (self.SpriteID) then
 			-- If our previous visual was a sprite batch and is different from the new visual, remove it from the sprite batch.
 			if (self.Visual:typeOf("SpriteBatch") and vis ~= self.Visual) then
 				self.Visual:set(self.SpriteID, 0, 0, 0, 0, 0);
 				self.SpriteID = nil;
 			end
-		end
+		end]]
 	else
 		self.Quad = nil;
 	end
 	self.Visual = vis;
 end
 function MVisual:GetVisualData()
-	return self.Visual, self.Quad, self.SpriteID;
+	return self.Visual, self.Quad; --, self.SpriteID;
 end
 
 function MVisual:GetDimensions()
@@ -78,8 +78,8 @@ function MVisual:GetDimensions()
 	elseif (type(vis) == "userdata") then
 		if (vis:typeOf("Texture")) then
 			return vis:getDimensions();
-		elseif (vis:typeOf("SpriteBatch")) then
-			return vis:getTexture():getDimensions();
+		--[[elseif (vis:typeOf("SpriteBatch")) then
+			return vis:getTexture():getDimensions();]]
 		elseif (vis:typeOf("ParticleSystem")) then
 			local distribution, dx, dy = vis:getAreaSpread();
 			local w, h = 1, 1;
@@ -125,7 +125,7 @@ function MVisual:GetRotation()
 end
 
 function MVisual:Draw(attach)
-	local vis, quad, spriteID = self:GetVisualData();
+	local vis, quad = self:GetVisualData(); --, spriteID
 	local x, y = 0, 0;--attach:GetTranslation();
 	local r = self:GetRotation(); --+ attach:GetRotation();
 	local sx, sy = 1, 1; --attach:GetScale();
@@ -135,15 +135,15 @@ function MVisual:Draw(attach)
 		table.insert(params, 1, quad);
 	end
 	--print(unpack(params));
-	if (vis.typeOf and vis:typeOf("SpriteBatch")) then
+	--[[if (vis.typeOf and vis:typeOf("SpriteBatch")) then
 		if (not self.SpriteID) then
 			self.SpriteID = vis:add(unpack(params));
 		else
 			vis:set(self.SpriteID, unpack(params));
 		end
-	else
+	else]]
 		love.graphics.draw(vis, unpack(params));
-	end
+	--end
 end
 
 return newVisual;

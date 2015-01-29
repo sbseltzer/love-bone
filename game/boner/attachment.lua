@@ -6,15 +6,16 @@ local SHARED = require("boner.shared");
 --]]
 local MAttachment = SHARED.Meta.Attachment;
 MAttachment.__index = MAttachment;
-local function newAttachment()
-	local t = {};
-	t.Origin = {0,0};
+local function newAttachment(visual)
+	local t = setmetatable({}, MAttachment);
+	t:SetVisual(visual);
+	--t.Origin = {0,0};
 	t.Rotation = 0;
 	t.Translation = {0,0};
 	t.Scale = {1,1};
 	t.LayerOffset = 0;
 	t.Color = {255, 255, 255, 255};
-	return setmetatable(t, MAttachment);
+	return t;
 end
 
 function MAttachment:SetVisual(vis)

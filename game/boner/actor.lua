@@ -23,21 +23,20 @@ MActor.__index = MActor;
 MActor.Speed = 1;
 MActor.TimeElapsed = 0;
 MActor.State = "stopped";
-local function newActor()
+local function newActor(skeleton)
 	local t = setmetatable({}, MActor);
-	-- Attachments
+	
+	-- Attachments (this includes skin)
 	t.Attachments = {};
 	
 	-- Events
 	t.EventHandler = newEventHandler(t);
 	
+	-- Transformer
 	t.Transformer = newTransformer(t);
 	
-	-- Bone Transformation Tables
-	--[[t.TransformationObjects = {};
-	t.TransformationPower = {}
-	t.TransformationPriority = {}
-	t.TransformationFilter = {};]]
+	t:SetSkeleton(skeleton);
+	
 	return t;
 end
 
@@ -51,12 +50,7 @@ end
 -- Skeleton reference
 function MActor:SetSkeleton(skeleton)
 	self.Skeleton = skeleton;
-	
-	self.Transformer:Initialize(skeleton);
-	--[[self.LocalTransform = skeleton:GetBlankTransformation();
-	self.ActorTransform = skeleton:GetBlankTransformation();
-	self:CalculateLocalTransformation(nil, self.LocalTransform);
-	self:CalculateActorTransformation(self.ActorTransform, self.LocalTransform);]]
+	self:GetTransformer():Initialize(skeleton);
 end
 function MActor:GetSkeleton()
 	return self.Skeleton;
@@ -231,7 +225,10 @@ function MActor:DrawAttachmentsDebug(transformed, boxColor)
 end
 
 function MActor:Draw()
-	local transformed = self.Transformer.TransformGlobal;
+	if (not self:GetSkeleton()) then
+		return;
+	end
+	local transformed = self:GetTransformer().TransformGlobal;
 	if (not transformed) then
 		return;
 	end
@@ -242,14 +239,31 @@ function MActor:Draw()
 	end
 end
 
--- Speed multiplier for animations.
+-- Update the animation.
+function MActor:Update(dt)
+	if (not self:GetSkeleton()) then
+		return;
+	end
+	if (self.State == "playing") then
+		self.TimeElapsed = self.TimeElapsed + dt;
+	end
+	if (self.State == "playing") then
+		local transformations = self:GetTransformer():GetObjects();
+		self:GetTransformer():CalculateLocal(transformations);
+		self:GetTransformer():CalculateGlobal();
+		if (self.FlipH) then
+			--self:FlipActorTransformation(self.ActorTransform);
+		end
+	end
+end
+
+-- TODO: Rewrite these
 function MActor:SetSpeed(rate)
 	self.Speed = rate;
 end
 function MActor:GetSpeed()
 	return self.Speed;
 end
-
 function MActor:Start(startTime)
 	self.State = "playing";
 	self.TimeElapsed = startTime or self.TimeElapsed or 0;
@@ -263,88 +277,4 @@ function MActor:Stop()
 	self:Update(0);
 end
 
--- FLIP ME
-function MActor:FlipActorTransformation(transformedActor)
-	for boneName, boneData in pairs(transformedActor) do
-		boneData.rotation = -boneData.rotation + math.pi;
-		boneData.translation[1] = -boneData.translation[1];
-		boneData.scale[2] = -boneData.scale[2];
-	end
-end
-
-
--- Getters for absolute bone orientations
-function MActor:GetBoneAngle(boneName)
-	local boneData = self.Transformer.TransformGlobal[boneName];
-	if (not boneData or not boneData.rotation) then
-		return 0;
-	end
-	return boneData.rotation;
-end
-function MActor:GetBonePosition(boneName, offset)
-	local boneData = self.Transformer.TransformGlobal[boneName];
-	local sx, sy = self:GetBoneScale(boneName);
-	local x, y = unpack(boneData.translation);
-	return x, y;
-end
-function MActor:GetBoneScale(boneName)
-	local boneData = self.Transformer.TransformGlobal[boneName];
-	if (not boneData or not boneData.scale) then
-		return 1, 1;
-	end
-	return unpack(boneData.scale);
-end
-
--- Getters for absolute attachment orientations
-function MActor:GetAttachmentAngle(boneName, attachName)
-	local boneRot = self:GetBoneAngle(boneName) or 0;
-	local attach = self:GetAttachment(boneName, attachName);
-	local attachRot;
-	if (attach) then
-		attachRot = attach:GetRotation();
-	else
-		attachRot = 0;
-	end
-	return boneRot + attachRot;
-end
-function MActor:GetAttachmentPosition(boneName, attachName, offset)
-	local bonePos = {self:GetBonePosition(boneName)};
-	local attach = self:GetAttachment(boneName, attachName);
-	local attachPos;
-	if (attach) then
-		attachPos = {attach:GetTranslation()};
-	else
-		attachPos = {0, 0};
-	end
-	offset = offset or {0, 0};
-	offset = {rotate(0, 0, self:GetAttachmentAngle(boneName, attachName), attachPos[1] + offset[1], attachPos[2] + offset[2])};
-	return bonePos[1] + offset[1], bonePos[2] + offset[2];
-end
-function MActor:GetAttachmentScale(boneName, attachName)
-	local boneScale = {self:GetBoneScale(boneName)};
-	local attach = self:GetAttachment(boneName, attachName);
-	local attachScale;
-	if (attach) then
-		attachScale = {attach:GetScale()};
-	else
-		attachScale = {1, 1};
-	end
-	return boneScale[1] * attachScale[1], boneScale[2] * attachScale[2];
-end
-
--- Update the animation.
-function MActor:Update(dt)
-	if (self.State == "playing") then
-		self.TimeElapsed = self.TimeElapsed + dt;
-	end
-	if (self.State == "playing") then
-		local transformations = self.Transformer:GetObjects();
-		self.Transformer:CalculateLocal(transformations);
-		self.Transformer:CalculateGlobal(SKELETON_ROOT_NAME);
-		if (self.FlipH) then
-			--self:FlipActorTransformation(self.ActorTransform);
-		end
-	end
-end
-
-return newActor, MActor;
+return newActor;

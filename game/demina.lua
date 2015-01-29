@@ -114,7 +114,7 @@ local function RipBone(boneNode)
 	local texture = -1;
 	local position = {0,0};
 	local rotation = 0;
-	local scale = {0,0};
+	local scale = {1,1};
 	for i = 1, #boneNode.ChildNodes do
 		local node = boneNode.ChildNodes[i];
 		if (node.Name == "ParentIndex") then
@@ -264,9 +264,8 @@ local function MakeSkeleton(fileData)
 	skeleton:AddAnimation(bindAnim);
 	return skeleton;
 end
-local function MakeAnimation(fileData, skeleton)
-	local anim = boner.newAnimation();
-	anim:SetSkeleton(skeleton);
+local function MakeAnimation(fileData, animName, skeleton)
+	local anim = boner.newAnimation(animName, skeleton);
 	local firstFrame = {};
 	for frameIndex, frameData in ipairs(fileData.keyframes) do
 		local boneName, keyTime, rotation, translation, scale;
@@ -284,14 +283,14 @@ local function MakeAnimation(fileData, skeleton)
 			translation[2] = translation[2] - yOffset;
 			anim:AddKeyFrame(boneName, keyTime, rotation, translation)
 			if (not firstFrame[boneName]) then
-				firstFrame[boneName] = {boneName, keyTime, rotation, translation};
+				firstFrame[boneName] = {boneName, keyTime, rotation, translation, scale};
 			end
 		end
 	end
 	for name, data in pairs(firstFrame) do
-		local boneName, keyTime, rotation, translation = unpack(data);
+		local boneName, keyTime, rotation, translation, scale = unpack(data);
 		keyTime = fileData.loopFrame / fileData.frameRate;
-		anim:AddKeyFrame(boneName, keyTime, rotation, translation);
+		anim:AddKeyFrame(boneName, keyTime, rotation, translation, scale);
 	end
 	return anim;
 end
@@ -304,7 +303,7 @@ local function MakeSkin(fileData, texturePath, skeleton)
 			local boneName, image, origin, quad, angle, scale;
 			boneName = boneData.boneName;
 			local texIndex = boneData.textureIndex;
-			print(texIndex, fileData.textures[texIndex])
+			--print(texIndex, fileData.textures[texIndex])
 			if (texIndex and fileData.textures[texIndex]) then
 				local texData = fileData.textures[texIndex];
 				if (texData.dictionaryPath) then
@@ -339,8 +338,7 @@ local function ImportSkeleton(filename)
 end
 local function ImportAnimation(filename, skeleton, animName)
 	local fileData = ParseDeminaFile(filename);
-	local anim = MakeAnimation(fileData, skeleton);
-	anim:SetName(animName);
+	local anim = MakeAnimation(fileData, animName, skeleton);
 	skeleton:AddAnimation(anim);
 end
 local function ImportSkin(filename, skeleton, skinName)

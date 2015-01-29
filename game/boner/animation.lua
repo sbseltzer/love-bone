@@ -9,12 +9,14 @@ local lerp = SHARED.lerp;
 --]]
 local MAnimation = SHARED.Meta.Animation;
 MAnimation.__index = MAnimation;
-local function newAnimation()
-	local t = {};
+local function newAnimation(name, skeleton)
+	local t = setmetatable({}, MAnimation);
 	t.KeyFrames = {};
 	t.Events = {};
 	t.Duration = 0;
-	return setmetatable(t, MAnimation);
+	t:SetName(name);
+	t:SetSkeleton(skeleton);
+	return t;
 end
 
 function MAnimation:SetName(name)
@@ -26,7 +28,9 @@ end
 
 function MAnimation:SetSkeleton(skeleton)
 	self.Skeleton = skeleton;
-	self:InitializeKeyFrames(skeleton);
+	if (skeleton) then
+		self:InitializeKeyFrames(skeleton);
+	end
 end
 function MAnimation:GetSkeleton()
 	return self.Skeleton;
@@ -34,6 +38,7 @@ end
 
 -- Initialize the first frame (time=0) to have all bones in their bine-pose.
 function MAnimation:InitializeKeyFrames(skeleton)
+	-- TODO: Check if skeleton is valid?
 	skeleton = skeleton or self:GetSkeleton();
 	if (not skeleton) then
 		error("Please give the animation a skeleton before attempting to initialize keyframes!", 2);
@@ -51,8 +56,22 @@ function MAnimation:AddKeyFrame(boneName, keyTime, rotation, translation, scale)
 	self.KeyFrames = self.KeyFrames or {};
 	self.KeyFrames[boneName] = self.KeyFrames[boneName] or {};
 	
-	if (not rotation and not translation) then
+	-- Can't add a keyframe with no data.
+	if (not (rotation or translation or scale)) then
 		return;
+	end
+	
+	-- Make sure everything is valid.
+	if (rotation) then
+		rotation = tonumber(rotation) or 0;
+	end
+	if (translation) then
+		translation[1] = tonumber(translation[1]) or 0;
+		translation[2] = tonumber(translation[2]) or 0;
+	end
+	if (scale) then
+		scale[1] = tonumber(scale[1]) or 1;
+		scale[2] = tonumber(scale[2]) or 1;
 	end
 	
 	-- Update duration.
@@ -106,6 +125,7 @@ function MAnimation:GetDuration()
 	return self.Duration;
 end
 
+-- TODO: Add separate tracks for each possible transformation?
 -- Returns two values: prevKeyframe, nextKeyframe
 --	1. The last occurring keyframe before or at keyTime for the bone with name boneName.
 --	2. The first occurring keyframe after keyTime for the bone with name boneName.
@@ -114,6 +134,7 @@ end
 function MAnimation:GetKeyFrames(boneName, keyTime)
 	local prevIndex, nextIndex = {}, {};
 	local keyframes = self.KeyFrames[boneName];
+	-- TODO: Check if keyframes is valid.
 	-- Find start/end of current rotation for this bone.
 	for i = 1, #keyframes do
 		local data = keyframes[i];
@@ -197,18 +218,18 @@ function MAnimation:Interpolate(boneName, keyTime)
 	local nextScaleData = self.KeyFrames[boneName][nextIndex.s];
 	local newScale = {1, 1};
 	if (prevScaleData and nextScaleData) then
-		newScale = {unpack(prevScaleData.translation)};
+		newScale = {unpack(prevScaleData.scale)};
 		if (prevScaleData.scale ~= nextScaleData.scale) then
 			local lerpAmount = (keyTime - prevScaleData.time) / (nextScaleData.time - prevScaleData.time);
-			local prevX, prevY = unpack(prevScaleData.translation);
-			local nextX, nextY = unpack(nextScaleData.translation);
+			local prevX, prevY = unpack(prevScaleData.scale);
+			local nextX, nextY = unpack(nextScaleData.scale);
 			newScale = {
 				lerp(prevX, nextX, lerpAmount),
 				lerp(prevY, nextY, lerpAmount)
 			};
 		end
 	end
-	return {rotation = newRot, translation = newTrans};
+	return {rotation = newRot, translation = newTrans, scale = newScale};
 end
 
 return newAnimation;
