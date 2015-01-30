@@ -5,9 +5,9 @@ A 2D Skeletal Animation framework for LÖVE.
 ## Table of Contents
 
 * [Usage](#usage)
-  * [Basic](#basic-usage)
-  * [Intermediate](#intermediate-usage)
-  * [Advanced](#advanced-usage)
+  * [Basic](#basic)
+  * [Intermediate](#intermediate)
+  * [Advanced](#advanced)
 * [Objects](#objects)
   * [Actor](#actor)
   * [Skeleton](#skeleton)
