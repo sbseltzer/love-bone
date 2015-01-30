@@ -117,24 +117,34 @@ Now we can look at our actor, but we can't look at this animation quite yet. Fir
 myActor:GetTransformer():Register("anim_curl", myAnimation, mySkeleton:GetBoneTree("bone1"));
 ```
 
+We're almost done, but before we finish up, we should reposition this actor.
+
 ```lua
+-- Move it toward the center and stand it upright.
+myActor:GetTransformer():GetRoot().rotation = math.rad(-90);
+myActor:GetTransformer():GetRoot().translation = {love.graphics.getWidth() / 2, love.graphics.getHeight() / 1.25};
+```
+
+Now we call the Draw and Update methods.
+
+```lua
+-- Call the Draw and Update methods.
 function love.draw()
 	myActor:Draw();
 end
 function love.update(dt)
 	myActor:Update(dt);
 end
+```
+
+One last step. We need to tell the animation to start.
+
+```lua
+-- Tell the animation to start.
 function love.keypressed(key, isRepeat)
 	if (key == ' ') then
 		myActor:Start();
-	elseif (key == 'p') then
-		local power = myActor:GetTransformer():GetPower("anim_curl");
-		if (power == 1) then
-			power = 0;
-		else 
-			power = 1;
-		end
-		myActor:GetTransformer():SetPower("anim_curl", power);
+		myActor:GetTransformer():SetPower("anim_curl", 1);
 	end
 end
 ```
@@ -144,6 +154,8 @@ And the result:
 <p align="center">
   <img src="https://github.com/geekwithalife/boner/blob/master/images/basic.gif?raw=true" alt="button"/>
 </p>
+
+[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/main-sample.lua)
 
 ## Objects
 
