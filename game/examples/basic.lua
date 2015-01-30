@@ -71,25 +71,27 @@ function love.load()
 	end
 	
 	-- Register the animation as a transformation.
-	myActor:GetTransformer():Register("anim_curl", myAnimation, mySkeleton:GetBoneTree("bone1"));
+	myActor:GetTransformer():Register("anim_curl", myAnimation);
 	
 	-- Move it toward the center and stand it upright.
 	myActor:GetTransformer():GetRoot().rotation = math.rad(-90);
 	myActor:GetTransformer():GetRoot().translation = {love.graphics.getWidth() / 2, love.graphics.getHeight() / 1.25};
 end
 
--- Call the Draw and Update methods.
 function love.draw()
 	myActor:Draw();
 end
 function love.update(dt)
+	if (myActor:GetTransformer():GetPower("anim_curl") > 0) then
+		local vars = myActor:GetTransformer():GetVariables("anim_curl");
+		vars.time = vars.time + dt;
+	end
 	myActor:Update(dt);
 end
 
 -- Tell the animation to start.
 function love.keypressed(key, isRepeat)
 	if (key == ' ') then
-		myActor:Start();
 		myActor:GetTransformer():SetPower("anim_curl", 1);
 	end
 end

@@ -17,7 +17,7 @@ local Meta = {
 
 -- Returns true if the metatable for t matches the metatable associated with mName. 
 local function isMeta(t, mName)
-	return getmetatable(t) == Meta[mName];
+	return type(t) == "table" and getmetatable(t) == Meta[mName];
 end
 
 -- Error checking utilities

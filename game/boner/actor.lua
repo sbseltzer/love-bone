@@ -234,32 +234,8 @@ function MActor:Update(dt)
 	if (not self:GetSkeleton()) then
 		return;
 	end
-	if (self.State == "playing") then
-		self.TimeElapsed = self.TimeElapsed + dt;
-	end
-	local transformations = self:GetTransformer():GetObjects();
-	self:GetTransformer():CalculateLocal(transformations);
+	self:GetTransformer():CalculateLocal();
 	self:GetTransformer():CalculateGlobal();
-end
-
--- TODO: Rewrite these
-function MActor:SetSpeed(rate)
-	self.Speed = rate;
-end
-function MActor:GetSpeed()
-	return self.Speed;
-end
-function MActor:Start(startTime)
-	self.State = "playing";
-	self.TimeElapsed = startTime or self.TimeElapsed or 0;
-end
-function MActor:Pause()
-	self.State = "paused";
-end
-function MActor:Stop()
-	self.State = "stopped";
-	self.TimeElapsed = 0;
-	self:Update(0);
 end
 
 return newActor;

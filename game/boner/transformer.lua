@@ -3,14 +3,53 @@ local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
 local rotate = SHARED.rotate;
 local lerp = SHARED.lerp;
 
+-- Helper methods for transformation tables.
 local function newTransformation(rotation, translateX, translateY, scaleX, scaleY, layer, visual, vFlip, hFlip)
 	rotation = rotation or 0;
 	translateX = translateX or 0;
 	translateY = translateY or 0;
 	scaleX = scaleX or 1;
 	scaleY = scaleY or 1;
-	return {rotation = rotation, translation = {translateX,translateY}, scale = {scaleX, scaleY}, layer = layer, visual = visual, vFlip = vFlip, hFlip = hFlip};
+	return {rotation = rotation, translation = {translateX, translateY}, scale = {scaleX, scaleY}, layer = layer, visual = visual, vFlip = vFlip, hFlip = hFlip};
 end
+local function isValidTransformation(t)
+	local valid = type(t) == "table";
+	if (valid) then
+		if (t.rotation) then
+			valid = valid and tonumber(t.rotation);
+		end
+		if (t.translation) then
+			valid = valid and type(t.translation) == "table" and tonumber(t.translation[1]) and tonumber(t.translation[2]);
+		end
+		if (t.scale) then
+			valid = valid and type(t.scale) == "table" and tonumber(t.scale[1]) and tonumber(t.scale[2]);
+		end
+		if (t.layer) then
+			valid = valid and tonumber(t.layer);
+		end
+		if (t.visual) then
+			valid = valid and SHARED.isMeta(t.visual, "Visual");
+		end
+	end
+	-- We don't need to check vFlip and hFlip as they are booleans.
+	return valid;
+end
+local function isValidTransformationObject(obj)
+	if (type(obj) == "table") then
+		if (not SHARED.isMeta(obj, "Animation")) then
+			for boneName, trans in pairs(obj) do
+				--print(boneName, trans);
+				if (not isValidTransformation(trans)) then
+					return false;
+				end
+			end
+		end
+	elseif (not type(obj) == "function") then
+		return false;
+	end
+	return true;
+end
+
 
 --[[
 	The actor bone transformation code took up so much space that it really deserved its own file.
@@ -26,10 +65,11 @@ local function newTransformer(actor)
 	t.TransformLocal = {};
 	t.TransformGlobal = {};
 	
-	t.Objects = {};
-	t.Power = {};
-	t.BoneMask = {};
-	t.Priority = {};
+	t.Transformations = {};
+	t.Powers = {};
+	t.BoneMasks = {};
+	t.Priorities = {};
+	t.Variables = {};
 	
 	t.FlipH = false;
 	t.FlipV = false;
@@ -58,87 +98,95 @@ end
 
 -- Adds a transformation to the list of transformer objects with an optional bone filter.
 function MTransformer:Register(name, obj, boneMask)
-	if (obj == nil) then
-		self.Objects[name] = nil;
-		self.Power[name] = nil;
-		self.BoneMask[name] = nil;
+	if (not obj) then
+		self.Transformations[name] = nil;
+		self.Powers[name] = nil;
+		self.BoneMasks[name] = nil;
+		self.Variables[name] = nil;
 		for boneName, _ in pairs(self.Actor:GetSkeleton().Bones) do
-			if (self.Priority[boneName]) then
-				self.Priority[boneName][name] = nil;
+			if (self.Priorities[boneName]) then
+				self.Priorities[boneName][name] = nil;
 			end
 		end
 		return;
 	end
 	if (boneMask) then
-		self.BoneMask[name] = {};
+		self.BoneMasks[name] = {};
 		if (type(boneMask) == "table") then
 			for i = 1, #boneMask do
 				local boneName = boneMask[i];
-				self.BoneMask[name][boneName] = true;
+				self.BoneMasks[name][boneName] = true;
 			end
 		end
 	else
-		self.BoneMask[name] = nil;
+		self.BoneMasks[name] = nil;
 	end
-	if (type(obj) == "table") then
-		if (not SHARED.isMeta(obj, "Animation") and obj.bone and self.Actor:GetSkeleton():GetBone(obj.bone)) then
-			-- Tables must have a valid transformation aspect.
-			local hasValidRotation = obj.rotation and tonumber(obj.rotation);
-			local hasValidTranslation = obj.translation and type(obj.translation) == "table" and #obj.translation == 2 and tonumber(obj.translation[1]) and tonumber(obj.translation[2]);
-			local hasValidScale = obj.scale and type(obj.scale) == "table" and #obj.scale == 2 and tonumber(obj.scale[1]) and tonumber(obj.scale[2]);
-			if (not (hasValidRotation or hasValidTranslation or hasValidScale)) then
-				obj = nil;
-			end
+	if (isValidTransformationObject(obj)) then
+		self.Transformations[name] = obj;
+		self.Powers[name] = 0;
+		local vars = {};
+		if (SHARED.isMeta(obj, "Animation")) then
+			vars.time = 0;
+			vars.speed = 1;
 		end
-	elseif(not type(obj) == "function" and not type(obj) == "string") then
-		obj = nil;
-	end
-	if (obj) then
-		self.Objects[name] = obj;
-		self.Power[name] = 0;
 		for boneName, _ in pairs(self.Actor:GetSkeleton().Bones) do
-			self.Priority[boneName] = self.Priority[boneName] or {};
-			self.Priority[boneName][name] = self.Priority[boneName][name] or 0;
+			self.Priorities[boneName] = self.Priorities[boneName] or {};
+			self.Priorities[boneName][name] = self.Priorities[boneName][name] or 0;
 		end
+		self.Variables[name] = vars;
+		return vars;
+	end
+end
+
+function MTransformer:IsType(name, typeName)
+	if (typeName == "Animation") then
+		return SHARED.isMeta(self.Transformations[name], typeName);
 	else
-		error("Failed to add transformation '" .. name .. "' to actor: Invalid object!", 2);
+		return type(self.Transformations[name]) == typeName;
 	end
 end
 
 function MTransformer:SetPower(name, power)
 	power = math.max(0, math.min(power, 1)); -- clamp to [0,1]
-	self.Power[name] = power;
+	self.Powers[name] = power;
 end
 function MTransformer:GetPower(name)
-	if (self.Power[name] == nil) then
+	if (self.Powers[name] == nil) then
 		return -1;
 	end
-	return self.Power[name];
+	return self.Powers[name];
 end
 
 function MTransformer:SetPriority(name, boneList, priority)
 	for i = 1, #boneList do
 		local boneName = boneList[i];
-		self.Priority[boneName] = self.Priority[boneName] or {};
-		self.Priority[boneName][name] = priority;
+		self.Priorities[boneName] = self.Priorities[boneName] or {};
+		self.Priorities[boneName][name] = priority;
 	end
 end
 function MTransformer:GetPriority(name, boneName, priority)
-	if (self.Priority[boneName] == nil) then
+	if (self.Priorities[boneName] == nil) then
 		return -1;
 	end
-	return self.Priority[boneName][name];
+	return self.Priorities[boneName][name];
 end
 
-function MTransformer:GetObjects()
+function MTransformer:GetVariables(name)
+	if (name and self.Variables[name]) then
+		return self.Variables[name];
+	end
+	return self.Variables;
+end
+
+function MTransformer:GetActiveTransformations()
 	local actor = self:GetActor();
 	local transformations = {};
-	for name, power in pairs(self.Power) do
+	for name, power in pairs(self.Powers) do
 		if (power > 0) then
-			local obj = self.Objects[name];
+			local obj = self.Transformations[name];
 			local trans;
 			if (obj) then
-				if (SHARED.isMeta(obj, "Animation")) then
+				--[[if (SHARED.isMeta(obj, "Animation")) then
 					-- Calculate keyTime
 					-- TODO: Speed per transformation.
 					local animDuration = obj:GetDuration() / actor.Speed;
@@ -146,15 +194,13 @@ function MTransformer:GetObjects()
 					if (keyTime < 0) then
 						keyTime = animDuration + keyTime;
 					end
-					trans = {name = name, object = obj, time = keyTime};
+					trans = {name = name, object = obj};
 				elseif (type(obj) == "function") then
-					trans = {name = name, object = obj, time = actor.TimeElapsed * actor.Speed};
+					trans = {name = name, object = obj};
 				elseif (type(obj) == "table") then
 					trans = {name = name, object = obj};
-				end
-				if (trans) then
-					table.insert(transformations, trans);
-				end
+				end]]
+				table.insert(transformations, {name = name, object = obj});
 			end
 		end
 	end
@@ -163,21 +209,21 @@ end
 
 -- TODO: Replace the first loop with a priority queue or something.
 function MTransformer:GetModifiedPower(boneName, transformations)
-	if (not transformations) then
+	if (not transformations or #transformations == 0) then
 		return {};
 	end
-	self.Priority[boneName] = self.Priority[boneName] or {};
-	if (not self.Priority[boneName]) then
+	self.Priorities[boneName] = self.Priorities[boneName] or {};
+	if (not self.Priorities[boneName]) then
 		return {};
 	end
 	for i = 1, #transformations do
 		local transName = transformations[i].name;
-		self.Priority[boneName][transName] = self.Priority[boneName][transName] or 0;
+		self.Priorities[boneName][transName] = self.Priorities[boneName][transName] or 0;
 	end
 	
 	local sortedPriority = {};
 	local realPowers = {};
-	for transName, priority in pairs(self.Priority[boneName]) do
+	for transName, priority in pairs(self.Priorities[boneName]) do
 		local i = 1;
 		while (sortedPriority[i] and sortedPriority[i] and sortedPriority[i].priority > priority) do
 			i = i + 1;
@@ -186,9 +232,10 @@ function MTransformer:GetModifiedPower(boneName, transformations)
 			table.insert(sortedPriority, i, {priority = priority, names = {}, total = 0});
 		end
 		table.insert(sortedPriority[i].names, transName);
-		sortedPriority[i].total = sortedPriority[i].total + self.Power[transName];
+		sortedPriority[i].total = sortedPriority[i].total + self.Powers[transName];
 		realPowers[transName] = 1;
 	end
+	
 	-- Next, we calculate new transformation powers for this bone.
 	for i = 1, #sortedPriority do
 		local layerTransNames = sortedPriority[i].names;
@@ -197,7 +244,7 @@ function MTransformer:GetModifiedPower(boneName, transformations)
 			layerPowerPrev = sortedPriority[i-1].total / #sortedPriority[i-1].names;
 		end
 		for j = 1, #layerTransNames do
-			realPowers[layerTransNames[j]] = self.Power[layerTransNames[j]] * (1 - layerPowerPrev);
+			realPowers[layerTransNames[j]] = self.Powers[layerTransNames[j]] * (1 - layerPowerPrev);
 		end
 	end
 	return realPowers;
@@ -209,31 +256,34 @@ end
 
 --
 function MTransformer:CalculateLocal(transformList, boneName)
+	transformList = transformList or self:GetActiveTransformations();
 	boneName = boneName or SKELETON_ROOT_NAME;
 	
 	local boneData = self.TransformLocal[boneName];
 	boneData.rotation = 0;
-	boneData.translation = {0,0};
+	boneData.translation = {0, 0};
 	boneData.scale = {1, 1};
 	
 	-- Apply transformation objects to addData - This will usually just be interpolated animation data.
-	if (not transformList) then
-		self.TransformLocal = self:GetActor():GetSkeleton():GetBindPose();
-		return;
-	end
-	
 	local powers = self:GetModifiedPower(boneName, transformList);
 	for i = 1, #transformList do
 		local name = transformList[i].name;
-		local keyTime = transformList[i].time;
 		local obj = transformList[i].object;
-		if (not self.BoneMask[name] or self.BoneMask[name][boneName]) then
+		if (not self.BoneMasks[name] or self.BoneMasks[name][boneName]) then
 			local data;
 			if (SHARED.isMeta(obj, "Animation")) then
+				local animDuration = obj:GetDuration();
+				local keyTime = tonumber(self:GetVariables(name).time) or 0;
+				local animSpeed = tonumber(self:GetVariables(name).speed) or 1;
+				keyTime = keyTime * animSpeed;
+				keyTime = (keyTime % animDuration);
+				if (keyTime < 0) then
+					keyTime = animDuration + keyTime;
+				end
 				data = obj:Interpolate(boneName, keyTime);
 				self:GetActor():GetEventHandler():Check(obj, keyTime);
 			elseif (type(obj) == "function") then
-				data = obj(self:GetActor(), boneName);
+				data = obj(self:GetActor(), boneName, self:GetVariables(name));
 			elseif (type(obj) == "table") then
 				if (obj[boneName]) then
 					data = {};

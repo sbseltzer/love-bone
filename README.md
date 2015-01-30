@@ -3,7 +3,8 @@
 A 2D Skeletal Animation framework for LÖVE.
 
 ## Table of Contents
-
+* [Introduction](#introduction)
+  * [Vocabulary](#vocabulary)
 * [Usage](#usage)
   * [Basic](#basic)
   * [Intermediate](#intermediate)
@@ -15,8 +16,18 @@ A 2D Skeletal Animation framework for LÖVE.
   * [Animation](#animation)
   * [Visual](#visual)
   * [Attachment](#attachment)
-  * [EventHandler](#event-handler)
+  * [EventHandler](#eventhandler)
   * [Transformer](#transformer)
+
+## Introduction
+
+BÖNER is loosely modelled after advanced animation frameworks like ASSIMP.  It's designed to accommodate almost any animation scenario at the cost of being complex.
+
+As such, BÖNER is meant to be used as the backbone (hehe) for animations in your game. It takes care of the hard stuff. If you want a skin manager or play/pause/stop methods, you need to add them yourself.
+
+### Vocabulary
+
+Coming soon.
 
 ## Usage
 
@@ -129,7 +140,7 @@ First we need to register the animation with the [Transformer](#transformer) of 
 
 ```lua
 -- Register the animation as a transformation.
-myActor:GetTransformer():Register("anim_curl", myAnimation, mySkeleton:GetBoneTree("bone1"));
+myActor:GetTransformer():Register("anim_curl", myAnimation);
 ```
 
 We're almost done, but before we finish up, we should reposition this actor so it's easier to see the full animation.
@@ -144,17 +155,35 @@ myActor:GetTransformer():GetRoot().rotation = math.rad(-90);
 myActor:GetTransformer():GetRoot().translation = {love.graphics.getWidth() / 2, love.graphics.getHeight() / 1.25};
 ```
 
-Now we call the Draw and Update methods.
+Tell the actor to update:
 
 ```lua
--- Call the Draw and Update methods.
-function love.draw()
-	myActor:Draw();
-end
 function love.update(dt)
+	if (myActor:GetTransformer():GetPower("anim_curl") > 0) then
+		local vars = myActor:GetTransformer():GetVariables("anim_curl");
+		vars.time = vars.time + dt;
+	end
 	myActor:Update(dt);
 end
 ```
+
+Calling the `Update` method on the actor will not advance time for animations. Multiple animations could be playing at once. Animations could also be playing at different speeds with different start times.
+
+To accommodate this, Animations make use of Transformer variables. Each registered transformation automatically gets its own table to keep track of its state. How that table is utilized is up to the programmer.
+
+Animations automatically come with two state variables.
+
+| Variable | Description |
+| :------- | :---------- |
+| time | the amount of time that has elapsed in seconds |
+| speed | a speed multiplier for the animation (negative values make the animation play backwards) |
+
+Tell the actor to draw:
+
+```lua
+function love.draw()
+	myActor:Draw();
+end
 
 One last step. We need to tell the animation to start.
 
@@ -162,7 +191,6 @@ One last step. We need to tell the animation to start.
 -- Tell the animation to start.
 function love.keypressed(key, isRepeat)
 	if (key == ' ') then
-		myActor:Start();
 		myActor:GetTransformer():SetPower("anim_curl", 1);
 	end
 end

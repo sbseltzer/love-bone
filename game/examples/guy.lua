@@ -19,7 +19,7 @@ local increasePower = {};
 local pews = {};
 
 -- Transformation table binding
-local zomg = {head = {translation={0,0}}, direction = -1};
+local zomg = {object = {head = {translation={0,0}}}, direction = -1};
 
 -- Skin cycling
 local curSkin = 1;
@@ -82,40 +82,43 @@ function love.load()
 		end
 		local shoot = function(actor, boneName)
 			if (boneName == "back_lower_arm") then
-				if (actor.clickTime and actor.TimeElapsed - actor.clickTime >= 0.1) then
+				if (actor.clickTime and love.timer.getTime() - actor.clickTime >= 0.1) then
 					actor:GetTransformer():SetPower("anim_shot", 0);
 				end
 				return {rotation = -math.pi/3};
 			end
 		end
-		bonedActor:GetTransformer():Register("anim_main", animWalk);
+		
+		local transformer = bonedActor:GetTransformer();
+		
+		transformer:Register("anim_main", animWalk);
 		--bonedActor:GetTransformer():SetPriority("anim_main", skeleton:GetBoneTree("torso"), 0);
-		bonedActor:GetTransformer():SetPower("anim_main", 0);
+		transformer:SetPower("anim_main", 0);
 		
-		bonedActor:GetTransformer():Register("anim_gest", animPump, skeleton:GetBoneTree("front_upper_arm"));
-		bonedActor:GetTransformer():SetPriority("anim_gest", skeleton:GetBoneTree("front_upper_arm"), 1);
-		bonedActor:GetTransformer():SetPower("anim_gest", 0);
+		transformer:Register("anim_gest", animPump, skeleton:GetBoneTree("front_upper_arm"));
+		transformer:SetPriority("anim_gest", skeleton:GetBoneTree("front_upper_arm"), 1);
+		transformer:SetPower("anim_gest", 0);
 		
-		bonedActor:GetTransformer():Register("anim_ctrl", point, skeleton:GetBoneTree("back_upper_arm"));
-		bonedActor:GetTransformer():SetPriority("anim_ctrl", skeleton:GetBoneTree("back_upper_arm"), 1);
-		bonedActor:GetTransformer():SetPower("anim_ctrl", 0);
+		transformer:Register("anim_ctrl", point, skeleton:GetBoneTree("back_upper_arm"));
+		transformer:SetPriority("anim_ctrl", skeleton:GetBoneTree("back_upper_arm"), 1);
+		transformer:SetPower("anim_ctrl", 0);
 		
-		bonedActor:GetTransformer():Register("anim_shot", shoot, skeleton:GetBoneTree("back_lower_arm"));
-		bonedActor:GetTransformer():SetPriority("anim_shot", skeleton:GetBoneTree("back_lower_arm"), 2);
-		bonedActor:GetTransformer():SetPower("anim_shot", 0);
+		transformer:Register("anim_shot", shoot, skeleton:GetBoneTree("back_lower_arm"));
+		transformer:SetPriority("anim_shot", skeleton:GetBoneTree("back_lower_arm"), 2);
+		transformer:SetPower("anim_shot", 0);
 		
-		bonedActor:GetTransformer():Register("anim_zomg", zomg, skeleton:GetBoneTree("head"));
-		bonedActor:GetTransformer():SetPriority("anim_zomg", skeleton:GetBoneTree("head"), 1);
-		bonedActor:GetTransformer():SetPower("anim_zomg", 0);
+		transformer:Register("anim_zomg", zomg.object, skeleton:GetBoneTree("head"));
+		transformer:SetPriority("anim_zomg", skeleton:GetBoneTree("head"), 1);
+		transformer:SetPower("anim_zomg", 0);
 		
 		local boomCallback = function(actor, animName, eventName)
 			if (actor:GetTransformer():GetPower("anim_gest") > 0.8 and actor:GetTransformer():GetPower("anim_zomg") == 1) then
-				if (zomg.head.translation[2] <= -100 and zomg.direction < 0) then
+				if (zomg.object.head.translation[2] <= -100 and zomg.direction < 0) then
 					zomg.direction = 1;
-				elseif (zomg.head.translation[2] >= 0 and zomg.direction > 0) then
+				elseif (zomg.object.head.translation[2] >= 0 and zomg.direction > 0) then
 					zomg.direction = -1;
 				end
-				zomg.head.translation[2] = zomg.head.translation[2] + 25 * zomg.direction;
+				zomg.object.head.translation[2] = zomg.object.head.translation[2] + 25 * zomg.direction;
 			end
 		end
 		bonedActor:GetEventHandler():Register("pump", "boom", boomCallback);
@@ -131,8 +134,6 @@ function love.load()
 		end
 		--bonedActor:GetEventHandler():Register("walk", "foot_down", footDownCallback);
 		
-		bonedActor:SetSpeed(1);
-		bonedActor:Start();
 		table.insert(bonedActors, bonedActor);
 	end
 end
@@ -156,10 +157,17 @@ function love.draw()
 end
 function love.update(dt)
 	for i = 1, #bonedActors do
-		bonedActors[i]:Update(dt);
-		for transName, direction in pairs(increasePower) do
-			bonedActors[i]:GetTransformer():SetPower(transName, bonedActors[i]:GetTransformer():GetPower(transName) + direction * dt);
+		local transformer = bonedActors[i]:GetTransformer();
+		for transformName, vars in pairs(transformer:GetVariables()) do
+			if (not transformer:IsType(transformName, "Animation") or not vars.paused) then
+				local direction = increasePower[transformName] or 0;
+				transformer:SetPower(transformName, transformer:GetPower(transformName) + direction * dt);
+			end
+			if (transformer:IsType(transformName, "Animation") and transformer:GetPower(transformName) > 0 and not vars.paused) then
+				vars.time = vars.time + dt;
+			end
 		end
+		bonedActors[i]:Update(dt);
 	end
 	for i = 1, #pews do
 		local x, y = unpack(pews[i].pos);
@@ -173,12 +181,17 @@ end
 
 function love.keypressed(key, isrepeat)
 	print("pressed", key);
-	if (key == " ") then
+	if (tonumber(key) and toggleTransforms[tonumber(key)]) then
+		local name = toggleTransforms[tonumber(key)];
+		increasePower[name] = increasePower[name] or -1;
+		increasePower[name] = increasePower[name] * -1;
+	elseif (key == " ") then
 		for i = 1, #bonedActors do
-			if (bonedActors[i].State ~= "playing") then
-				bonedActors[i]:Start();
-			else
-				bonedActors[i]:Pause();
+			local transformer = bonedActors[i]:GetTransformer();
+			for transformName, vars in pairs(transformer:GetVariables()) do
+				if (transformer:IsType(transformName, "Animation")) then
+					vars.paused = not vars.paused;
+				end
 			end
 		end
 	elseif (key == "v") then
@@ -199,32 +212,52 @@ function love.keypressed(key, isrepeat)
 				bonedActors[i]:Start();
 			end]]
 		end
-	elseif (key == "r") then
-		for i = 1, #bonedActors do
-			if (bonedActors[i].State ~= "stopped") then
-				bonedActors[i]:Stop();
-			else
-				bonedActors[i]:Start();
-			end
-		end
-	elseif (key == "e") then
+	elseif (key == "w") then
 		for i = 1, #bonedActors do
 			--if (bonedActors[i].State ~= "playing") then
-				bonedActors[i].TimeElapsed = bonedActors[i].TimeElapsed + 0.1;
+			local vars;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_main");
+			vars.time = vars.time + 0.1;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_gest");
+			vars.time = vars.time + 0.1;
+			print(vars.time);
 			--end
 		end
 	elseif (key == "q") then
 		for i = 1, #bonedActors do
 			--if (bonedActors[i].State ~= "playing") then
-				bonedActors[i].TimeElapsed = bonedActors[i].TimeElapsed - 0.1;
+			local vars;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_main");
+			vars.time = vars.time - 0.1;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_gest");
+			vars.time = vars.time - 0.1;
+			print(vars.time);
+			--end
+		end
+	elseif (key == "r") then
+		for i = 1, #bonedActors do
+			--if (bonedActors[i].State ~= "playing") then
+			local vars;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_main");
+			vars.speed = vars.speed + 0.1;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_gest");
+			vars.speed = vars.speed + 0.1;
+			print(vars.speed);
+			--end
+		end
+	elseif (key == "e") then
+		for i = 1, #bonedActors do
+			--if (bonedActors[i].State ~= "playing") then
+			local vars;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_main");
+			vars.speed = vars.speed - 0.1;
+			vars = bonedActors[i]:GetTransformer():GetVariables("anim_gest");
+			vars.speed = vars.speed - 0.1;
+			print(vars.speed);
 			--end
 		end
 	elseif (key == "d") then
 		boner.setDebug(not boner.getDebug());
-	elseif (tonumber(key) and toggleTransforms[tonumber(key)]) then
-		local name = toggleTransforms[tonumber(key)];
-		increasePower[name] = increasePower[name] or -1;
-		increasePower[name] = increasePower[name] * -1;
 	elseif (key == "f") then
 		for i = 1, #bonedActors do
 			local attach = bonedActors[i]:GetAttachment("back_hand", "gun");
@@ -259,13 +292,13 @@ function love.keypressed(key, isrepeat)
 		end
 		curSkin = curSkin + 1;
 	elseif (key == "up") then
-		zomg.head.translation[2] = zomg.head.translation[2] - 5;
+		zomg.object.head.translation[2] = zomg.object.head.translation[2] - 5;
 	elseif (key == "down") then
-		zomg.head.translation[2] = zomg.head.translation[2] + 5;
+		zomg.object.head.translation[2] = zomg.object.head.translation[2] + 5;
 	elseif (key == "left") then
-		zomg.head.translation[1] = zomg.head.translation[1] - 5;
+		zomg.object.head.translation[1] = zomg.object.head.translation[1] - 5;
 	elseif (key == "right") then
-		zomg.head.translation[1] = zomg.head.translation[1] + 5;
+		zomg.object.head.translation[1] = zomg.object.head.translation[1] + 5;
 	end
 end
 
@@ -279,7 +312,7 @@ function love.mousepressed(x, y, button)
 	if (button == "l") then
 		for i = 1, #bonedActors do
 			local attach = bonedActors[i]:GetAttachment("back_hand", "gun");
-			if (attach:GetScale() > 0 and bonedActors[i]:GetTransformer():GetPower("anim_ctrl") == 1 and (not bonedActors[i].clickTime or bonedActors[i].TimeElapsed - bonedActors[i].clickTime > 0.5)) then
+			if (attach:GetScale() > 0 and bonedActors[i]:GetTransformer():GetPower("anim_ctrl") == 1 and (not bonedActors[i].clickTime or love.timer.getTime() - bonedActors[i].clickTime > 0.5)) then
 				
 				local sx, sy = bonedActors[i]:GetTransformer():GetAttachmentScale("back_hand", "gun");
 				local oX, oY = attach:GetVisual():GetOrigin();
@@ -315,7 +348,7 @@ function love.mousepressed(x, y, button)
 					pews.index = pews.index + 1;
 					pews[pews.index] = p;
 				end
-				bonedActors[i].clickTime = bonedActors[i].TimeElapsed;
+				bonedActors[i].clickTime = love.timer.getTime();
 				bonedActors[i]:GetTransformer():SetPower("anim_shot", 1);
 			end
 		end
