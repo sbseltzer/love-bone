@@ -162,7 +162,7 @@ function MActor:DrawAttachment(transformed, boneName, attachment)
 	love.graphics.translate(attachment:GetTranslation());
 	love.graphics.rotate(attachment:GetRotation());
 	love.graphics.scale(attachment:GetScale());
-	attachment:GetVisual():Draw(attachment);
+	attachment:GetVisual():Draw();
 	love.graphics.pop();
 end
 
@@ -236,13 +236,10 @@ function MActor:Update(dt)
 	end
 	if (self.State == "playing") then
 		self.TimeElapsed = self.TimeElapsed + dt;
-		local transformations = self:GetTransformer():GetObjects();
-		self:GetTransformer():CalculateLocal(transformations);
-		self:GetTransformer():CalculateGlobal();
-	elseif (self.State == "stopped") then
-		self:GetTransformer().TransformLocal = self:GetSkeleton():GetBindPose();
-		self:GetTransformer():CalculateGlobal();
 	end
+	local transformations = self:GetTransformer():GetObjects();
+	self:GetTransformer():CalculateLocal(transformations);
+	self:GetTransformer():CalculateGlobal();
 end
 
 -- TODO: Rewrite these

@@ -266,64 +266,66 @@ function MTransformer:CalculateLocal(transformList, boneName)
 	boneData.translation = {0,0};
 	boneData.scale = {1, 1};
 	
-	local powers = self:GetModifiedPower(boneName, transformList);
-	
 	-- Apply transformation objects to addData - This will usually just be interpolated animation data.
-	if (transformList) then
-		for i = 1, #transformList do
-			local name = transformList[i].name;
-			local keyTime = transformList[i].time;
-			local obj = transformList[i].object;
-			if (not self.BoneMask[name] or self.BoneMask[name][boneName]) then
-				local data;
-				if (SHARED.isMeta(obj, "Animation")) then
-					data = obj:Interpolate(boneName, keyTime);
-					self:GetActor():GetEventHandler():Check(obj, keyTime);
-				elseif (type(obj) == "function") then
-					data = obj(self:GetActor(), boneName);
-				elseif (type(obj) == "table") then
-					if (obj[boneName]) then
-						data = {};
-						data.rotation = obj[boneName].rotation;
-						if (obj[boneName].translation) then
-							data.translation = {unpack(obj[boneName].translation)};
-						end
-						if (obj[boneName].scale) then
-							data.scale = {unpack(obj[boneName].scale)};
-						end
+	if (not transformList) then
+		self.TransformLocal = self:GetActor():GetSkeleton():GetBindPose();
+		return;
+	end
+	
+	local powers = self:GetModifiedPower(boneName, transformList);
+	for i = 1, #transformList do
+		local name = transformList[i].name;
+		local keyTime = transformList[i].time;
+		local obj = transformList[i].object;
+		if (not self.BoneMask[name] or self.BoneMask[name][boneName]) then
+			local data;
+			if (SHARED.isMeta(obj, "Animation")) then
+				data = obj:Interpolate(boneName, keyTime);
+				self:GetActor():GetEventHandler():Check(obj, keyTime);
+			elseif (type(obj) == "function") then
+				data = obj(self:GetActor(), boneName);
+			elseif (type(obj) == "table") then
+				if (obj[boneName]) then
+					data = {};
+					data.rotation = obj[boneName].rotation;
+					if (obj[boneName].translation) then
+						data.translation = {unpack(obj[boneName].translation)};
+					end
+					if (obj[boneName].scale) then
+						data.scale = {unpack(obj[boneName].scale)};
 					end
 				end
-				
-				-- Make sure we end up with valid data.
-				data = data or {};
-				data.rotation = data.rotation or 0;
-				data.translation = data.translation or {0, 0};
-				data.scale = data.scale or {1, 1};
-				
-				local power = powers[name] or 0;
-				
-				--local targetRot = math.fmod(data.rotation, 2 * math.pi);
-				--local curRot = math.fmod(self.TransformLocal[boneName].rotation, 2 * math.pi);
-				
-				-- TODO: Replace lerp with something that won't be negatively affected by user-input? Perhaps that responsibility should rest on the user.
-				data.rotation = lerp(0, data.rotation, power);
-				data.translation[1] = lerp(0, data.translation[1], power);
-				data.translation[2] = lerp(0, data.translation[2], power);
-				data.scale[1] = lerp(1, data.scale[1], power);
-				data.scale[2] = lerp(1, data.scale[2], power);
-				
-				-- Do the math.
-				boneData.rotation = boneData.rotation + data.rotation;
-				boneData.translation[1] = boneData.translation[1] + data.translation[1];
-				boneData.translation[2] = boneData.translation[2] + data.translation[2];
-				boneData.scale[1] = boneData.scale[1] * data.scale[1];
-				boneData.scale[2] = boneData.scale[2] * data.scale[2];
 			end
+			
+			-- Make sure we end up with valid data.
+			data = data or {};
+			data.rotation = data.rotation or 0;
+			data.translation = data.translation or {0, 0};
+			data.scale = data.scale or {1, 1};
+			
+			local power = powers[name] or 0;
+			
+			--local targetRot = math.fmod(data.rotation, 2 * math.pi);
+			--local curRot = math.fmod(self.TransformLocal[boneName].rotation, 2 * math.pi);
+			
+			-- TODO: Replace lerp with something that won't be negatively affected by user-input? Perhaps that responsibility should rest on the user.
+			data.rotation = lerp(0, data.rotation, power);
+			data.translation[1] = lerp(0, data.translation[1], power);
+			data.translation[2] = lerp(0, data.translation[2], power);
+			data.scale[1] = lerp(1, data.scale[1], power);
+			data.scale[2] = lerp(1, data.scale[2], power);
+			
+			-- Do the math.
+			boneData.rotation = boneData.rotation + data.rotation;
+			boneData.translation[1] = boneData.translation[1] + data.translation[1];
+			boneData.translation[2] = boneData.translation[2] + data.translation[2];
+			boneData.scale[1] = boneData.scale[1] * data.scale[1];
+			boneData.scale[2] = boneData.scale[2] * data.scale[2];
 		end
 	end
 	
 	-- Recursive step: transform children.
-	local children = self.Actor:GetSkeleton().Bones[boneName].Children;
+	local children = self:GetActor():GetSkeleton().Bones[boneName].Children;
 	if (children) then
 		for i = 1, #children do
 			self:CalculateLocal(transformList, children[i]);

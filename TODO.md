@@ -9,7 +9,7 @@ A todo list in no particular order.
 - Make variable naming conventions more consistent.
 - Comment ALL THE THINGS.
 - Add more robust start/pause/stop methods
-- Add sprite batching support.
+- Add sprite batching support?
 - Move debug toggling to Actor.
 - Look into adding 2D mesh rigging.
 - Add multithreading for calculations

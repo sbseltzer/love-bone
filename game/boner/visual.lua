@@ -15,6 +15,7 @@ local function newVisual(vis, ...)
 	t:SetVisualData(vis, ...);
 	t:SetOrigin(0, 0);
 	t:SetRotation(0);
+	t:SetScale(1,1);
 	return t;
 end
 
@@ -123,12 +124,18 @@ end
 function MVisual:GetRotation()
 	return self.Rotation;
 end
+function MVisual:SetScale(x, y)
+	self.Scale = {x, y};
+end
+function MVisual:GetScale()
+	return unpack(self.Scale);
+end
 
-function MVisual:Draw(attach)
+function MVisual:Draw()
 	local vis, quad = self:GetVisualData(); --, spriteID
 	local x, y = 0, 0;--attach:GetTranslation();
 	local r = self:GetRotation(); --+ attach:GetRotation();
-	local sx, sy = 1, 1; --attach:GetScale();
+	local sx, sy = self:GetScale();
 	local ox, oy = self:GetOrigin();
 	local params = {x, y, r, sx, sy, ox, oy};
 	if (quad) then
