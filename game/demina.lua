@@ -293,13 +293,13 @@ local function MakeAnimation(fileData, animName, skeleton)
 	return anim;
 end
 local function MakeSkin(fileData, texturePath, skeleton)
-	local skin = boner.newSkin();
-	skin:SetSkeleton(skeleton);
+	local skin = {};
 	if (fileData.keyframes) then
 		local bindData = fileData.keyframes[1];
 		for boneIndex, boneData in ipairs(bindData.bones) do
 			local boneName, image, origin, quad, angle, scale;
 			boneName = boneData.boneName;
+			origin = {0, 0};
 			local texIndex = boneData.textureIndex;
 			--print(texIndex, fileData.textures[texIndex])
 			if (texIndex and fileData.textures[texIndex]) then
@@ -322,8 +322,11 @@ local function MakeSkin(fileData, texturePath, skeleton)
 			if (image) then
 				angle = 0;
 				scale = boneData.scale;
-				skin:RegisterTexture(texIndex, image, origin, quad, angle, scale);
-				skin:SetBoneTexture(boneName, texIndex);
+				local vis = boner.newVisual(image, quad);
+				vis:SetOrigin(unpack(origin));
+				vis:SetRotation(angle);
+				--vis:SetScale(scale);
+				skin[boneName] = vis;
 			end
 		end
 	end
@@ -338,10 +341,8 @@ local function ImportAnimation(filename, skeleton, animName)
 	local fileData = ParseDeminaFile(filename);
 	return MakeAnimation(fileData, animName, skeleton);
 end
-local function ImportSkin(filename, skeleton, skinName)
-	local skin;
+local function ImportSkin(filename, skeleton)
 	local fileData = ParseDeminaFile(filename);
-	skin = MakeSkin(fileData, getDirectory(filename), skeleton);
-	skeleton:AddSkin(skinName, skin);
+	return MakeSkin(fileData, getDirectory(filename), skeleton);
 end
 return {ImportSkeleton = ImportSkeleton, ImportAnimation = ImportAnimation, ImportSkin = ImportSkin};

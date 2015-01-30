@@ -6,7 +6,6 @@
 local SHARED = require("boner.shared");
 local newBone = require("boner.bone");
 local newSkeleton = require("boner.skeleton");
-local newSkin = require("boner.skin");
 local newAnimation = require("boner.animation");
 local newActor = require("boner.actor");
 local newVisual = require("boner.visual");
@@ -27,8 +26,7 @@ return {
 	setDebug = setDebug,
 	getDebug = getDebug;
 	newBone = newBone,
-	newSkeleton = newSkeleton, 
-	newSkin = newSkin,
+	newSkeleton = newSkeleton,
 	newAnimation = newAnimation, 
 	newActor = newActor,
 	newVisual = newVisual,

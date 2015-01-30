@@ -22,7 +22,7 @@ local pews = {};
 local zomg = {head = {translation={0,0}}, direction = -1};
 
 -- Skin cycling
-local curSkin = 0;
+local curSkin = 1;
 
 -- Attachment cycling
 local curPart = 0;
@@ -37,8 +37,8 @@ function love.load()
 	
 	local animWalk = demina.ImportAnimation("guy/guy_walk.anim", skeleton, "walk");
 	local animPump = demina.ImportAnimation("guy/guy_fistpump.anim", skeleton, "pump");
-	demina.ImportSkin("guy/guy_default.anim", skeleton, "default");
-	demina.ImportSkin("guy/guy_skin.anim", skeleton, "guy");
+	local skinDefault = demina.ImportSkin("guy/guy_default.anim", skeleton);
+	local skinGuy = demina.ImportSkin("guy/guy_skin.anim", skeleton);
 	
 	local gun = boner.newVisual("guy/gun.png");
 	local aw, ah = gun:GetDimensions();
@@ -53,7 +53,8 @@ function love.load()
 	local actorX, actorY = love.graphics.getWidth() / 2, love.graphics.getHeight() / 2;
 	for i = 1, NUM_ACTORS do
 		local bonedActor = boner.newActor(skeleton);
-		bonedActor:SetSkin("default");
+		bonedActor.Skins = {skinDefault, skinGuy};
+		bonedActor:SetSkin(skinDefault);
 		local root = bonedActor:GetTransformer():GetRoot();
 		root.translation[1] = actorX;
 		root.translation[2] = actorY;
@@ -253,12 +254,8 @@ function love.keypressed(key, isrepeat)
 		end
 	elseif (key == "s") then
 		for i = 1, #bonedActors do
-			local skins = bonedActors[i]:GetSkeleton().Skins;
-			local skinList = {};
-			for k, v in pairs(skins) do
-				table.insert(skinList, k);
-			end
-			bonedActors[i]:SetSkin(skinList[(curSkin % #skinList) + 1]);
+			local skins = bonedActors[i].Skins;
+			bonedActors[i]:SetSkin(skins[(curSkin % #skins) + 1]);
 		end
 		curSkin = curSkin + 1;
 	elseif (key == "up") then

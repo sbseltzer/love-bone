@@ -16,7 +16,6 @@ local function newSkeleton()
 	skeleton.Bones = {};
 	skeleton.Bones[SKELETON_ROOT_NAME] = newBone(SKELETON_ROOT_NAME);
 	skeleton.RenderOrder = {};
-	skeleton.Skins = {};
 	skeleton.IsValid = false;
 	return skeleton;
 end
@@ -31,12 +30,6 @@ function MSkeleton:AddBone(boneObj)
 	end
 	self.Bones[boneObj:GetName()] = boneObj;
 	self.IsValid = false;
-end
-
--- Adds a skin to the skeleton.
-function MSkeleton:AddSkin(skinName, skinData)
-	-- TODO: Validate?
-	self.Skins[skinName] = skinData;
 end
 
 -- Rebuilds the rendering order of bones based on their current layer.

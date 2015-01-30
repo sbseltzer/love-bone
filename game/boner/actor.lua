@@ -88,27 +88,17 @@ function MActor:GetAttachmentList(boneName)
 end
 
 -- Skin reference
-function MActor:SetSkin(skinName)
-	if (not skinName or not self:GetSkeleton().Skins[skinName]) then
-		return;
-	end
-	local skin = self:GetSkeleton().Skins[skinName];
-	for _, boneName in ipairs(self:GetSkeleton().RenderOrder) do
-		if (skin:GetImage(boneName)) then
-			local visual = newVisual(skin:GetImage(boneName), skin:GetQuad(boneName));
-			visual:SetOrigin(skin:GetOrigin(boneName));
+function MActor:SetSkin(visuals)
+	for boneName, visual in pairs(visuals) do
+		if (SHARED.isMeta(visual, "Visual")) then
+			print(boneName, visual);
 			local attach = newAttachment();
 			attach:SetVisual(visual);
-			--attach:SetOrigin(skin:GetOrigin(boneName));
-			attach:SetRotation(skin:GetAngle(boneName));
-			attach:SetScale(skin:GetScale(boneName));
+			attach:SetRotation(0);
+			attach:SetScale(1);
 			self:SetAttachment(boneName, SKIN_ATTACHMENT_NAME, attach);
 		end
 	end
-	self.CurrentSkin = skinName;
-end
-function MActor:GetSkin()
-	return self.CurrentSkin;
 end
 
 -- Drawing bones (used for debugging)

@@ -8,7 +8,6 @@ local Meta = {
 	Bone = {},
 	Skeleton = {},
 	Animation = {},
-	Skin = {},
 	Actor = {},
 	Visual = {},
 	Attachment = {},
@@ -29,7 +28,6 @@ local Error = {
 local function errorArgs(errorType, ...)
 	return string.format(Error[errorType], ...), 2;
 end
-
 
 -- Linear Interpolation function.
 local function lerp(v0, v1, t)
