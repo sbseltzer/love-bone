@@ -57,15 +57,14 @@ for i = 1, NUM_SEGMENTS do
 	mySkeleton:AddBone(bone);
 end
 ```
-
-Whenever you modify the bone structure of a skeleton, or bone properties of a bone in a skeleton, you must call `Validate`. This checks the bone hierarchy for inconsistencies (i.e. missing bones) and then builds the render order for the bones based on their layer.
-
-The skeleton will not be usable until it is validated, so this step is important.
+The skeleton will not be usable until it is validated:
 
 ```lua
 -- Validate the skeleton!
 mySkeleton:Validate();
 ```
+
+Whenever you modify the bone structure of a skeleton, or bone properties of a bone in a skeleton, you must call `Validate`. This checks the bone hierarchy for inconsistencies (i.e. missing bones) and then builds the render order for the bones based on their layer.
 
 Create an [Animation](#animation):
 
