@@ -16,7 +16,6 @@ local function newSkeleton()
 	skeleton.Bones = {};
 	skeleton.Bones[SKELETON_ROOT_NAME] = newBone(SKELETON_ROOT_NAME);
 	skeleton.RenderOrder = {};
-	skeleton.Animations = {};
 	skeleton.Skins = {};
 	skeleton.IsValid = false;
 	return skeleton;
@@ -38,12 +37,6 @@ end
 function MSkeleton:AddSkin(skinName, skinData)
 	-- TODO: Validate?
 	self.Skins[skinName] = skinData;
-end
-
--- Adds an animation to the skeleton.
-function MSkeleton:AddAnimation(animObj)
-	-- TODO: Validate?
-	self.Animations[animObj:GetName()] = animObj;
 end
 
 -- Rebuilds the rendering order of bones based on their current layer.
@@ -121,6 +114,7 @@ end
 -- Returns the skeleton bind pose.
 function MSkeleton:GetBindPose()
 	-- TODO: Validate?
+	-- TODO: Cache this?
 	local pose = {};
 	for boneName, bone in pairs(self.Bones) do
 		local keyframe = {};

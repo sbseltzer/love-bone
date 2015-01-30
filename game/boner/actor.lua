@@ -246,14 +246,12 @@ function MActor:Update(dt)
 	end
 	if (self.State == "playing") then
 		self.TimeElapsed = self.TimeElapsed + dt;
-	end
-	if (self.State == "playing") then
 		local transformations = self:GetTransformer():GetObjects();
 		self:GetTransformer():CalculateLocal(transformations);
 		self:GetTransformer():CalculateGlobal();
-		if (self.FlipH) then
-			--self:FlipActorTransformation(self.ActorTransform);
-		end
+	elseif (self.State == "stopped") then
+		self:GetTransformer().TransformLocal = self:GetSkeleton():GetBindPose();
+		self:GetTransformer():CalculateGlobal();
 	end
 end
 

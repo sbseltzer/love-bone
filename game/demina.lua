@@ -245,23 +245,21 @@ local function MakeSkeleton(fileData)
 	local bindData = fileData.keyframes[1];
 	local layerData = {};
 	for boneIndex, boneData in ipairs(bindData.bones) do
-		local name, parent, layer, offset, defaultRotation, defaultTranslation;
+		local name, parent, layer, offset, defaultRotation, defaultTranslation, defaultScale;
 		name = boneData.boneName;
 		layer = boneIndex;
 		offset = boneData.position;
 		defaultRotation = boneData.rotation;
 		defaultTranslation = nil;
+		defaultScale = nil;
 		if (boneData.parentIndex >= 1) then
 			parent = bindData.bones[boneData.parentIndex].boneName;
 		end
-		local bone = boner.newBone(name, parent, layer, offset, defaultRotation, defaultTranslation);
+		local bone = boner.newBone(name, parent, layer, offset, defaultRotation, defaultTranslation, defaultScale);
 		skeleton:AddBone(bone);
 	end
 	skeleton:Validate();
-	local bindAnim = boner.newAnimation();
-	bindAnim:SetName("__bind__");
-	bindAnim:SetSkeleton(skeleton);
-	skeleton:AddAnimation(bindAnim);
+	--local bindAnim = boner.newAnimation("__bind__", skeleton);
 	return skeleton;
 end
 local function MakeAnimation(fileData, animName, skeleton)
@@ -281,7 +279,7 @@ local function MakeAnimation(fileData, animName, skeleton)
 			local xOffset, yOffset = skeleton:GetBone(boneName):GetOffset();
 			translation[1] = translation[1] - xOffset;
 			translation[2] = translation[2] - yOffset;
-			anim:AddKeyFrame(boneName, keyTime, rotation, translation)
+			anim:AddKeyFrame(boneName, keyTime, rotation, translation, scale);
 			if (not firstFrame[boneName]) then
 				firstFrame[boneName] = {boneName, keyTime, rotation, translation, scale};
 			end
@@ -338,8 +336,7 @@ local function ImportSkeleton(filename)
 end
 local function ImportAnimation(filename, skeleton, animName)
 	local fileData = ParseDeminaFile(filename);
-	local anim = MakeAnimation(fileData, animName, skeleton);
-	skeleton:AddAnimation(anim);
+	return MakeAnimation(fileData, animName, skeleton);
 end
 local function ImportSkin(filename, skeleton, skinName)
 	local skin;

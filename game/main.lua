@@ -33,10 +33,10 @@ function love.load()
 
 	local skeleton = demina.ImportSkeleton("guy/guy_default.anim");
 	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
-	skeleton:BuildRenderOrder();
+	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
 	
-	demina.ImportAnimation("guy/guy_walk.anim", skeleton, "walk");
-	demina.ImportAnimation("guy/guy_fistpump.anim", skeleton, "pump");
+	local animWalk = demina.ImportAnimation("guy/guy_walk.anim", skeleton, "walk");
+	local animPump = demina.ImportAnimation("guy/guy_fistpump.anim", skeleton, "pump");
 	demina.ImportSkin("guy/guy_default.anim", skeleton, "default");
 	demina.ImportSkin("guy/guy_skin.anim", skeleton, "guy");
 	
@@ -87,11 +87,11 @@ function love.load()
 				return {rotation = -math.pi/3};
 			end
 		end
-		bonedActor:GetTransformer():Register("anim_main", "walk");
-		bonedActor:GetTransformer():SetPriority("anim_main", skeleton:GetBoneTree("torso"), 0);
+		bonedActor:GetTransformer():Register("anim_main", animWalk);
+		--bonedActor:GetTransformer():SetPriority("anim_main", skeleton:GetBoneTree("torso"), 0);
 		bonedActor:GetTransformer():SetPower("anim_main", 0);
 		
-		bonedActor:GetTransformer():Register("anim_gest", "pump", skeleton:GetBoneTree("front_upper_arm"));
+		bonedActor:GetTransformer():Register("anim_gest", animPump, skeleton:GetBoneTree("front_upper_arm"));
 		bonedActor:GetTransformer():SetPriority("anim_gest", skeleton:GetBoneTree("front_upper_arm"), 1);
 		bonedActor:GetTransformer():SetPower("anim_gest", 0);
 		

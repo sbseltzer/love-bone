@@ -1,20 +1,10 @@
-# BÖNER - WIP
+# BÖNER [WIP]
 
 A 2D Skeletal Animation framework for LÖVE.
 
-## Usage
-
-Require the [library](https://github.com/GeekWithALife/boner/tree/master/game/boner):
-
-```lua
-local boner = require 'boner'
-```
-
-And that's that.
-
 ## Table of Contents
 
-* [Introduction](#introduction)
+* [Crash Course](#crash-course)
 * [Objects](#objects)
   * [Actor](#actor)
   * [Skeleton](#skeleton)
@@ -24,10 +14,138 @@ And that's that.
   * [Attachment](#attachment)
   * [EventHandler](#event-handler)
   * [Transformer](#transformer)
-## Introduction
+
+## Crash Course
+
+Require the [library](https://github.com/GeekWithALife/boner/tree/master/game/boner):
+
+```lua
+local boner = require 'boner'
+```
+
+Create a [Skeleton](#skeleton) out of [Bones](#bone):
+
+```lua
+-- Create the skeleton.
+local mySkeleton = boner.newSkeleton();
+
+-- Add bones to the skeleton
+local boneLength = 50;
+local boneName = "bone";
+for i = 1, 10 do
+	local name = boneName .. i;
+	local parent = boneName .. (i - 1);
+	if (i == 1) then
+		parent = nil; -- The first bone is the "root", so it shouldn't have a parent.
+	end
+	local offset = {boneLength, 0};
+	if (i == 1) then
+		offset[1] = 0; -- The first bone is the "root", so it doesn't need an offset.
+	end
+	local rotation = 0;
+	local translation = {0, 0};
+	local scale = {1, 1};
+	local bone = boner.newBone(name, parent, i, offset, rotation, translation, scale);
+	mySkeleton:AddBone(bone);
+end
+
+-- Validate the skeleton!
+mySkeleton:Validate();
+```
+
+Create an [Animation](#animation).
+
+```lua
+-- Create an animation.
+local myAnimation = boner.newAnimation("curl", mySkeleton);
+for i = 1, 10 do
+	local name = boneName .. i;
+	myAnimation:AddKeyFrame(name, 2, math.rad(5*i), nil, nil);
+	myAnimation:AddKeyFrame(name, 2.5, math.rad(0), nil, nil);
+	myAnimation:AddKeyFrame(name, 4.5, -math.rad(5*i), nil, nil);
+	myAnimation:AddKeyFrame(name, 5, math.rad(0), nil, nil);
+end
+```
+
+Create an [Actor](#actor).
+
+```lua
+-- Create an actor.
+myActor = boner.newActor(mySkeleton);
+```
+
+But this actor will be invisible without a skin. Skins are really just a set of attachments.
+
+We must first create a [Visual](#visual).
+
+```lua
+-- Create the visual elements for the actor
+local boneVisuals = {};
+for i = 1, 10 do
+	local name = boneName .. i;
+	local imageData = love.image.newImageData(boneLength, 20);
+	imageData:mapPixel(function(x, y, r, g, b, a) 
+		local hasRed = (i % 3) == 0;
+		local hasGreen = (i % 3) == 1;
+		local hasBlue = (i % 3) == 2;
+		if (hasRed) then r = 255; end
+		if (hasGreen) then g = 255; end
+		if (hasBlue) then b = 255; end
+		return r, g, b, 255;
+	end);
+	boneVisuals[i] = boner.newVisual(imageData);
+	local vw, vh = boneVisuals[i]:GetDimensions();
+	boneVisuals[i]:SetOrigin(0, vh/2);
+end
+```
+
+Now we can make the attachments that will form the skin.
+
+```lua
+-- Add attachments to the actor using the visual elements.
+for i = 1, 10 do
+	local name = boneName .. i;
+	local myAttachment = boner.newAttachment(boneVisuals[i]);
+	myActor:SetAttachment(name, "skin", myAttachment);
+end
+```
+
+Now we can look at our actor, but we can't look at this animation quite yet. First we need to register it with the actors transformer.
+
+```lua
+-- Register the animation as a transformation.
+myActor:GetTransformer():Register("anim_curl", myAnimation, mySkeleton:GetBoneTree("bone1"));
+```
+
+```lua
+function love.draw()
+	myActor:Draw();
+end
+function love.update(dt)
+	myActor:Update(dt);
+end
+function love.keypressed(key, isRepeat)
+	if (key == ' ') then
+		myActor:Start();
+	elseif (key == 'p') then
+		local power = myActor:GetTransformer():GetPower("anim_curl");
+		if (power == 1) then
+			power = 0;
+		else 
+			power = 1;
+		end
+		myActor:GetTransformer():SetPower("anim_curl", power);
+	end
+end
+```
+
+And the result:
+
+<p align="center">
+  <img src="https://github.com/geekwithalife/boner/blob/master/images/basic.gif?raw=true" alt="button"/>
+</p>
 
 ## Objects
-
 
 ### Actor
 

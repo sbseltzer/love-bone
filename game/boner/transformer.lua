@@ -181,32 +181,24 @@ function MTransformer:GetPriority(name, boneName, priority)
 end
 
 function MTransformer:GetObjects()
+	local actor = self:GetActor();
 	local transformations = {};
-	local overridePriorities = {};
 	for name, power in pairs(self.Power) do
 		if (power > 0) then
 			local obj = self.Objects[name];
 			local trans;
-			-- If the object is a string, quickly translate it to an animation if one exists.
-			if (type(obj) == "string") then
-				if (self.Actor:GetSkeleton().Animations[obj]) then
-					obj = self.Actor:GetSkeleton().Animations[obj];
-				else
-					obj = nil;
-				end
-			end
 			if (obj) then
 				if (SHARED.isMeta(obj, "Animation")) then
 					-- Calculate keyTime
 					-- TODO: Speed per transformation.
-					local animDuration = obj:GetDuration() / self.Actor.Speed;
-					local keyTime = (self.Actor.TimeElapsed % animDuration) * self.Actor.Speed;
+					local animDuration = obj:GetDuration() / actor.Speed;
+					local keyTime = (actor.TimeElapsed % animDuration) * actor.Speed;
 					if (keyTime < 0) then
 						keyTime = animDuration + keyTime;
 					end
 					trans = {name = name, object = obj, time = keyTime};
 				elseif (type(obj) == "function") then
-					trans = {name = name, object = obj, time = self.Actor.TimeElapsed * self.Actor.Speed};
+					trans = {name = name, object = obj, time = actor.TimeElapsed * actor.Speed};
 				elseif (type(obj) == "table") then
 					trans = {name = name, object = obj};
 				end

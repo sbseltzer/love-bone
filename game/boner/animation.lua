@@ -15,7 +15,9 @@ local function newAnimation(name, skeleton)
 	t.Events = {};
 	t.Duration = 0;
 	t:SetName(name);
-	t:SetSkeleton(skeleton);
+	if (skeleton) then
+		t:InitializeKeyFrames(skeleton);
+	end
 	return t;
 end
 
@@ -26,20 +28,9 @@ function MAnimation:GetName()
 	return self.Name;
 end
 
-function MAnimation:SetSkeleton(skeleton)
-	self.Skeleton = skeleton;
-	if (skeleton) then
-		self:InitializeKeyFrames(skeleton);
-	end
-end
-function MAnimation:GetSkeleton()
-	return self.Skeleton;
-end
-
--- Initialize the first frame (time=0) to have all bones in their bine-pose.
+-- Initialize the first frame (time=0) to have all bones in their bind-pose.
 function MAnimation:InitializeKeyFrames(skeleton)
 	-- TODO: Check if skeleton is valid?
-	skeleton = skeleton or self:GetSkeleton();
 	if (not skeleton) then
 		error("Please give the animation a skeleton before attempting to initialize keyframes!", 2);
 	end
