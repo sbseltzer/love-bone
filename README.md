@@ -161,9 +161,15 @@ myActor:GetTransformer():Register("anim_curl", myAnimation);
 
 We're almost done, but before we finish up, we should reposition this actor so it's easier to see the full animation.
 
-To do that, we use `GetRoot`, which returns the base transformation table for the the actor. Unless modified, it will always have a rotation of 0, translation of (0,0), and scale of (1,1).
+To do that, we use `GetRoot`, which returns table with orientation data for the actor. It has the following values.
 
-This transformation table will modify the transformation of the root bone in the skeleton, so modifying the translation will move the actor. Likewise, you can use this to rotate and scale the actor as well.
+| Variable | Description |
+| :------- | :---------- |
+| rotation | Angle of the actor in radians. Default = 0 |
+| translation | Position vector of the actor in pixels. Default = {0, 0} |
+| scale | Scaling vector of the actor. Default = {1, 1} |
+
+Modifying this table will directly affect the actor. The purpose is to provide an easy way to move the actor around. 
 
 ```lua
 -- Move it toward the center and stand it upright.
