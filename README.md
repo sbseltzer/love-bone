@@ -33,13 +33,20 @@ Coming soon.
 
 ### Basic
 
-In this use-case, we will build a skeleton, animation, and skin from scratch.
+In this tutorial, we will go over the basics of the BÖNER API.
+- Building a skeleton
+- Making an animation for the skeleton
+- Making an actor that uses the skeleton
+- Making a visual appearance for the actor
+- Making the actor play the animation
 
 Require the [library](https://github.com/GeekWithALife/boner/tree/master/game/boner):
 
 ```lua
 local boner = require("boner");
 ```
+
+#### Making the skeleton
 
 Create a [Skeleton](#skeleton) out of [Bones](#bone):
 
@@ -68,6 +75,7 @@ for i = 1, NUM_SEGMENTS do
 	mySkeleton:AddBone(bone);
 end
 ```
+
 The skeleton will not be usable until it is validated:
 
 ```lua
@@ -76,6 +84,8 @@ mySkeleton:Validate();
 ```
 
 Whenever you modify the bone structure of a skeleton, or bone properties of a bone in a skeleton, you must call `Validate`. This checks the bone hierarchy for inconsistencies (i.e. missing bones) and then builds the render order for the bones based on their layer.
+
+#### Making the animation
 
 Create an [Animation](#animation):
 
@@ -90,6 +100,10 @@ for i = 1, NUM_SEGMENTS do
 	myAnimation:AddKeyFrame(name, 5, math.rad(0), nil, nil);
 end
 ```
+
+When we play this animation, everything will be automatically interpolated for us.
+
+#### Making the actor
 
 Create an [Actor](#actor):
 
@@ -136,6 +150,8 @@ end
 
 These attachments create the skin for our actor, who is now visible to us. However, we can't look at this animation quite yet. 
 
+#### Adding transformations
+
 First we need to register the animation with the [Transformer](#transformer) of our actor:
 
 ```lua
@@ -154,6 +170,8 @@ This transformation table will modify the transformation of the root bone in the
 myActor:GetTransformer():GetRoot().rotation = math.rad(-90);
 myActor:GetTransformer():GetRoot().translation = {love.graphics.getWidth() / 2, love.graphics.getHeight() / 1.25};
 ```
+
+#### Playing the animation
 
 Tell the actor to update:
 
@@ -175,8 +193,8 @@ Animations automatically come with two state variables.
 
 | Variable | Description |
 | :------- | :---------- |
-| time | the amount of time that has elapsed in seconds |
-| speed | a speed multiplier for the animation (negative values make the animation play backwards) |
+| time | The amount of time that has elapsed since the start of the animation in seconds. Default = 0 |
+| speed | Speed multiplier for the animation. Negative values make the animation play backwards. Default = 1 |
 
 Tell the actor to draw:
 
@@ -196,7 +214,7 @@ function love.keypressed(key, isRepeat)
 end
 ```
 
-And the result:
+#### The Result
 
 <p align="center">
   <img src="https://github.com/geekwithalife/boner/blob/master/images/basic.gif?raw=true" alt="button"/>
