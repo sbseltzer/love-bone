@@ -161,7 +161,15 @@ myActor:GetTransformer():Register("anim_curl", myAnimation);
 
 We're almost done, but before we finish up, we should reposition this actor so it's easier to see the full animation.
 
-To do that, we use `GetRoot`, which returns table with orientation data for the actor. It has the following values.
+To do that, we use `GetRoot`, which returns table with orientation data for the actor.
+
+```lua
+-- Move it toward the center and stand it upright.
+myActor:GetTransformer():GetRoot().rotation = math.rad(-90);
+myActor:GetTransformer():GetRoot().translation = {love.graphics.getWidth() / 2, love.graphics.getHeight() / 1.25};
+```
+
+The table returned by `GetRoot` has the following values.
 
 | Variable | Description |
 | :------- | :---------- |
@@ -171,11 +179,6 @@ To do that, we use `GetRoot`, which returns table with orientation data for the 
 
 Modifying this table will directly affect the actor. The purpose is to provide an easy way to move the actor around. 
 
-```lua
--- Move it toward the center and stand it upright.
-myActor:GetTransformer():GetRoot().rotation = math.rad(-90);
-myActor:GetTransformer():GetRoot().translation = {love.graphics.getWidth() / 2, love.graphics.getHeight() / 1.25};
-```
 
 #### Playing the animation
 
