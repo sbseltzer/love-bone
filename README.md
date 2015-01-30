@@ -21,6 +21,9 @@ A 2D Skeletal Animation framework for LÖVE.
 ## Usage
 
 ### Basic
+
+In this use-case, we will build a skeleton, animation, and skin from scratch.
+
 Require the [library](https://github.com/GeekWithALife/boner/tree/master/game/boner):
 
 ```lua
@@ -53,12 +56,18 @@ for i = 1, NUM_SEGMENTS do
 	local bone = boner.newBone(name, parent, i, offset, rotation, translation, scale);
 	mySkeleton:AddBone(bone);
 end
+```
 
+Whenever you modify the bone structure of a skeleton, or bone properties of a bone in a skeleton, you must call `Validate`. This checks the bone hierarchy for inconsistencies (i.e. missing bones) and then builds the render order for the bones based on their layer.
+
+The skeleton will not be usable until it is validated, so this step is important.
+
+```lua
 -- Validate the skeleton!
 mySkeleton:Validate();
 ```
 
-Create an [Animation](#animation).
+Create an [Animation](#animation):
 
 ```lua
 -- Create an animation.
@@ -72,7 +81,7 @@ for i = 1, NUM_SEGMENTS do
 end
 ```
 
-Create an [Actor](#actor).
+Create an [Actor](#actor):
 
 ```lua
 -- Create an actor.
@@ -81,17 +90,17 @@ myActor = boner.newActor(mySkeleton);
 
 Now we have an actor, but it's just a set of bones right now. We need to attach a skin to it.
 
-We must first create a [Visual](#visual) for each bone.
+Before we can create the skin, we must first create a [Visual](#visual) for each possible [Bone](#bone) appearance:
 
 ```lua
 -- Create the visual elements for the actor
 local boneVisuals = {};
-for i = 1, NUM_SEGMENTS do
+for i = 1, 3 do
 	local imageData = love.image.newImageData(boneLength, 20);
 	imageData:mapPixel(function(x, y, r, g, b, a) 
-		local hasRed = (i % 3) == 0;
-		local hasGreen = (i % 3) == 1;
-		local hasBlue = (i % 3) == 2;
+		local hasRed = i == 1;
+		local hasGreen = i == 2;
+		local hasBlue = i == 3;
 		if (hasRed) then r = 255; end
 		if (hasGreen) then g = 255; end
 		if (hasBlue) then b = 255; end
@@ -103,25 +112,32 @@ for i = 1, NUM_SEGMENTS do
 end
 ```
 
-Now we can make the attachments that will form the skin.
+Using the visuals we just made, make an [Attachment](#attachment) for each [Bone](#bone):
 
 ```lua
 -- Add attachments to the actor using the visual elements.
 for i = 1, NUM_SEGMENTS do
 	local name = boneName .. i;
-	local myAttachment = boner.newAttachment(boneVisuals[i]);
+	local vis = boneVisuals[((i - 1) % 3) + 1];
+	local myAttachment = boner.newAttachment(vis);
 	myActor:SetAttachment(name, "skin", myAttachment);
 end
 ```
 
-Now we can look at our actor, but we can't look at this animation quite yet. First we need to register it with the actors transformer.
+These attachments create the skin for our actor, who is now visible to us. However, we can't look at this animation quite yet. 
+
+First we need to register the animation with the [Transformer](#transformer) of our actor:
 
 ```lua
 -- Register the animation as a transformation.
 myActor:GetTransformer():Register("anim_curl", myAnimation, mySkeleton:GetBoneTree("bone1"));
 ```
 
-We're almost done, but before we finish up, we should reposition this actor.
+We're almost done, but before we finish up, we should reposition this actor so it's easier to see the full animation.
+
+To do that, we use `GetRoot`, which returns the base transformation table for the the actor. Unless modified, it will always have a rotation of 0, translation of (0,0), and scale of (1,1).
+
+This transformation table will modify the transformation of the root bone in the skeleton, so modifying the translation will move the actor. Likewise, you can use this to rotate and scale the actor as well.
 
 ```lua
 -- Move it toward the center and stand it upright.

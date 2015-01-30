@@ -46,26 +46,27 @@ function love.load()
 	
 	-- Create the visual elements for the actor
 	local boneVisuals = {};
-	for i = 0, NUM_SEGMENTS-1 do
+	for i = 1, 3 do
 		local imageData = love.image.newImageData(boneLength, 20);
 		imageData:mapPixel(function(x, y, r, g, b, a) 
-			local hasRed = (i % 3) == 0;
-			local hasGreen = (i % 3) == 1;
-			local hasBlue = (i % 3) == 2;
+			local hasRed = i == 1;
+			local hasGreen = i == 2;
+			local hasBlue = i == 3;
 			if (hasRed) then r = 255; end
 			if (hasGreen) then g = 255; end
 			if (hasBlue) then b = 255; end
 			return r, g, b, 255;
 		end);
-		boneVisuals[i+1] = boner.newVisual(imageData);
-		local vw, vh = boneVisuals[i+1]:GetDimensions();
-		boneVisuals[i+1]:SetOrigin(0, vh/2);
+		boneVisuals[i] = boner.newVisual(imageData);
+		local vw, vh = boneVisuals[i]:GetDimensions();
+		boneVisuals[i]:SetOrigin(0, vh/2);
 	end
 	
 	-- Add attachments to the actor using the visual elements.
 	for i = 1, NUM_SEGMENTS do
 		local name = boneName .. i;
-		local myAttachment = boner.newAttachment(boneVisuals[i]);
+		local vis = boneVisuals[((i - 1) % 3) + 1];
+		local myAttachment = boner.newAttachment(vis);
 		myActor:SetAttachment(name, "skin", myAttachment);
 	end
 	
