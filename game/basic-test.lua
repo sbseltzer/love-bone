@@ -8,9 +8,10 @@ function love.load()
 	local mySkeleton = boner.newSkeleton();
 	
 	-- Add bones to the skeleton
+	local NUM_SEGMENTS = 9;
 	local boneLength = 50;
 	local boneName = "bone";
-	for i = 1, 10 do
+	for i = 1, NUM_SEGMENTS do
 		local name = boneName .. i;
 		local parent = boneName .. (i - 1);
 		if (i == 1) then
@@ -32,7 +33,7 @@ function love.load()
 	
 	-- Create an animation.
 	local myAnimation = boner.newAnimation("curl", mySkeleton);
-	for i = 1, 10 do
+	for i = 1, NUM_SEGMENTS do
 		local name = boneName .. i;
 		myAnimation:AddKeyFrame(name, 2, math.rad(5*i), nil, nil);
 		myAnimation:AddKeyFrame(name, 2.5, math.rad(0), nil, nil);
@@ -45,8 +46,7 @@ function love.load()
 	
 	-- Create the visual elements for the actor
 	local boneVisuals = {};
-	for i = 1, 10 do
-		local name = boneName .. i;
+	for i = 0, NUM_SEGMENTS-1 do
 		local imageData = love.image.newImageData(boneLength, 20);
 		imageData:mapPixel(function(x, y, r, g, b, a) 
 			local hasRed = (i % 3) == 0;
@@ -57,13 +57,13 @@ function love.load()
 			if (hasBlue) then b = 255; end
 			return r, g, b, 255;
 		end);
-		boneVisuals[i] = boner.newVisual(imageData);
-		local vw, vh = boneVisuals[i]:GetDimensions();
-		boneVisuals[i]:SetOrigin(0, vh/2);
+		boneVisuals[i+1] = boner.newVisual(imageData);
+		local vw, vh = boneVisuals[i+1]:GetDimensions();
+		boneVisuals[i+1]:SetOrigin(0, vh/2);
 	end
 	
 	-- Add attachments to the actor using the visual elements.
-	for i = 1, 10 do
+	for i = 1, NUM_SEGMENTS do
 		local name = boneName .. i;
 		local myAttachment = boner.newAttachment(boneVisuals[i]);
 		myActor:SetAttachment(name, "skin", myAttachment);

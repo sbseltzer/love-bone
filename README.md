@@ -30,9 +30,10 @@ Create a [Skeleton](#skeleton) out of [Bones](#bone):
 local mySkeleton = boner.newSkeleton();
 
 -- Add bones to the skeleton
+local NUM_SEGMENTS = 9;
 local boneLength = 50;
 local boneName = "bone";
-for i = 1, 10 do
+for i = 1, NUM_SEGMENTS do
 	local name = boneName .. i;
 	local parent = boneName .. (i - 1);
 	if (i == 1) then
@@ -58,7 +59,7 @@ Create an [Animation](#animation).
 ```lua
 -- Create an animation.
 local myAnimation = boner.newAnimation("curl", mySkeleton);
-for i = 1, 10 do
+for i = 1, NUM_SEGMENTS do
 	local name = boneName .. i;
 	myAnimation:AddKeyFrame(name, 2, math.rad(5*i), nil, nil);
 	myAnimation:AddKeyFrame(name, 2.5, math.rad(0), nil, nil);
@@ -74,15 +75,14 @@ Create an [Actor](#actor).
 myActor = boner.newActor(mySkeleton);
 ```
 
-But this actor will be invisible without a skin. Skins are really just a set of attachments.
+Now we have an actor, but it's just a set of bones right now. We need to attach a skin to it.
 
-We must first create a [Visual](#visual).
+We must first create a [Visual](#visual) for each bone.
 
 ```lua
 -- Create the visual elements for the actor
 local boneVisuals = {};
-for i = 1, 10 do
-	local name = boneName .. i;
+for i = 1, NUM_SEGMENTS do
 	local imageData = love.image.newImageData(boneLength, 20);
 	imageData:mapPixel(function(x, y, r, g, b, a) 
 		local hasRed = (i % 3) == 0;
@@ -103,7 +103,7 @@ Now we can make the attachments that will form the skin.
 
 ```lua
 -- Add attachments to the actor using the visual elements.
-for i = 1, 10 do
+for i = 1, NUM_SEGMENTS do
 	local name = boneName .. i;
 	local myAttachment = boner.newAttachment(boneVisuals[i]);
 	myActor:SetAttachment(name, "skin", myAttachment);
