@@ -4,7 +4,10 @@ A 2D Skeletal Animation framework for LÖVE.
 
 ## Table of Contents
 
-* [Crash Course](#crash-course)
+* [Usage](#usage)
+  * [Basic](#basic-usage)
+  * [Intermediate](#intermediate-usage)
+  * [Advanced](#advanced-usage)
 * [Objects](#objects)
   * [Actor](#actor)
   * [Skeleton](#skeleton)
@@ -15,12 +18,13 @@ A 2D Skeletal Animation framework for LÖVE.
   * [EventHandler](#event-handler)
   * [Transformer](#transformer)
 
-## Crash Course
+## Usage
 
+### Basic
 Require the [library](https://github.com/GeekWithALife/boner/tree/master/game/boner):
 
 ```lua
-local boner = require 'boner'
+local boner = require("boner");
 ```
 
 Create a [Skeleton](#skeleton) out of [Bones](#bone):
@@ -155,7 +159,15 @@ And the result:
   <img src="https://github.com/geekwithalife/boner/blob/master/images/basic.gif?raw=true" alt="button"/>
 </p>
 
-[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/main-sample.lua)
+[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/examples/basic.lua)
+
+### Intermediate
+
+Coming soon.
+
+### Advanced
+
+Coming soon.
 
 ## Objects
 
