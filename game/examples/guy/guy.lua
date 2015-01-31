@@ -35,8 +35,8 @@ function love.load()
 	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
 	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
 	
-	local animWalk = demina.ImportAnimation("guy/guy_walk.anim", skeleton, "walk");
-	local animPump = demina.ImportAnimation("guy/guy_fistpump.anim", skeleton, "pump");
+	local animWalk = demina.ImportAnimation("guy/guy_walk.anim", skeleton);
+	local animPump = demina.ImportAnimation("guy/guy_fistpump.anim", skeleton);
 	local skinDefault = demina.ImportSkin("guy/guy_default.anim", skeleton);
 	local skinGuy = demina.ImportSkin("guy/guy_skin.anim", skeleton);
 	
@@ -121,7 +121,7 @@ function love.load()
 				zomg.object.head.translation[2] = zomg.object.head.translation[2] + 25 * zomg.direction;
 			end
 		end
-		bonedActor:GetEventHandler():Register("pump", "boom", boomCallback);
+		bonedActor:GetEventHandler():Register(animPump, "boom", boomCallback);
 		
 		local stepSound = love.audio.newSource( "guy/step.wav" );
 		local footDownCallback = function(actor, animName, eventName)
@@ -132,8 +132,9 @@ function love.load()
 				stepSound:play();
 			--end
 		end
-		--bonedActor:GetEventHandler():Register("walk", "foot_down", footDownCallback);
-		
+		if (i == 1) then
+			bonedActor:GetEventHandler():Register(animWalk, "foot_down", footDownCallback);
+		end
 		table.insert(bonedActors, bonedActor);
 	end
 end

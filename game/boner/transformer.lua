@@ -89,8 +89,6 @@ end
 -- Called by actor to initialize transformer.
 function MTransformer:Initialize(skeleton)
 	if (skeleton) then
-		self.TransformLocal = skeleton:GetBlankTransformation();
-		self.TransformGlobal = skeleton:GetBlankTransformation();
 		self:CalculateLocal();
 		self:CalculateGlobal();
 	end
@@ -259,6 +257,8 @@ function MTransformer:CalculateLocal(transformList, boneName)
 	transformList = transformList or self:GetActiveTransformations();
 	boneName = boneName or SKELETON_ROOT_NAME;
 	
+	self.TransformLocal[boneName] = self.TransformLocal[boneName] or {};
+	
 	local boneData = self.TransformLocal[boneName];
 	boneData.rotation = 0;
 	boneData.translation = {0, 0};
@@ -344,8 +344,14 @@ function MTransformer:CalculateGlobal(boneName, parentData)
 	parentData.scale[1] = parentData.scale[1] or 1;
 	parentData.scale[2] = parentData.scale[2] or 1;
 	
-	local addData = self.TransformLocal[boneName];
+	self.TransformGlobal[boneName] = self.TransformGlobal[boneName] or {};
+	
 	local boneData = self.TransformGlobal[boneName];
+	boneData.rotation = 0;
+	boneData.translation = {0, 0};
+	boneData.scale = {1, 1};
+	
+	local addData = self.TransformLocal[boneName];
 	local boneObj = self.Actor:GetSkeleton():GetBone(boneName);
 	local xOffset, yOffset = boneObj:GetOffset();
 	

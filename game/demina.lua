@@ -262,8 +262,8 @@ local function MakeSkeleton(fileData)
 	--local bindAnim = boner.newAnimation("__bind__", skeleton);
 	return skeleton;
 end
-local function MakeAnimation(fileData, animName, skeleton)
-	local anim = boner.newAnimation(animName, skeleton);
+local function MakeAnimation(fileData, skeleton)
+	local anim = boner.newAnimation(skeleton);
 	local firstFrame = {};
 	for frameIndex, frameData in ipairs(fileData.keyframes) do
 		local boneName, keyTime, rotation, translation, scale;
@@ -337,9 +337,9 @@ local function ImportSkeleton(filename)
 	local fileData = ParseDeminaFile(filename);
 	return MakeSkeleton(fileData);
 end
-local function ImportAnimation(filename, skeleton, animName)
+local function ImportAnimation(filename, skeleton)
 	local fileData = ParseDeminaFile(filename);
-	return MakeAnimation(fileData, animName, skeleton);
+	return MakeAnimation(fileData, skeleton);
 end
 local function ImportSkin(filename, skeleton)
 	local fileData = ParseDeminaFile(filename);

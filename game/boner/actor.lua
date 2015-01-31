@@ -23,7 +23,7 @@ MActor.__index = MActor;
 MActor.Speed = 1;
 MActor.TimeElapsed = 0;
 MActor.State = "stopped";
-local function newActor(skeleton)
+local function newActor(skeleton, skinData)
 	local t = setmetatable({}, MActor);
 	
 	-- Attachments (this includes skin)
@@ -35,7 +35,12 @@ local function newActor(skeleton)
 	-- Transformer
 	t.Transformer = newTransformer(t);
 	
-	t:SetSkeleton(skeleton);
+	if (skeleton) then
+		t:SetSkeleton(skeleton);
+	end
+	if (skinData) then
+		t:SetSkin(skinData);
+	end
 	
 	return t;
 end
@@ -87,7 +92,7 @@ function MActor:GetAttachmentList(boneName)
 	return t;
 end
 
--- Skin reference
+-- A helper function to setting skins.
 function MActor:SetSkin(visuals)
 	for boneName, visual in pairs(visuals) do
 		if (SHARED.isMeta(visual, "Visual")) then

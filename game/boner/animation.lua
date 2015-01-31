@@ -9,23 +9,15 @@ local lerp = SHARED.lerp;
 --]]
 local MAnimation = SHARED.Meta.Animation;
 MAnimation.__index = MAnimation;
-local function newAnimation(name, skeleton)
+local function newAnimation(skeleton)
 	local t = setmetatable({}, MAnimation);
 	t.KeyFrames = {};
 	t.Events = {};
 	t.Duration = 0;
-	t:SetName(name);
 	if (skeleton) then
 		t:InitializeKeyFrames(skeleton);
 	end
 	return t;
-end
-
-function MAnimation:SetName(name)
-	self.Name = name;
-end
-function MAnimation:GetName()
-	return self.Name;
 end
 
 -- Initialize the first frame (time=0) to have all bones in their bind-pose.

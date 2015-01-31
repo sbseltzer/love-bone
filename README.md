@@ -225,11 +225,11 @@ end
 
 #### The Result
 
+[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/examples/basic.lua)
+
 <p align="center">
   <img src="https://github.com/geekwithalife/boner/blob/master/images/basic.gif?raw=true" alt="button"/>
 </p>
-
-[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/examples/basic.lua)
 
 ### Intermediate
 

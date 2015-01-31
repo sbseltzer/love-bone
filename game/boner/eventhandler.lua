@@ -26,29 +26,28 @@ function MEventHandler:GetActor()
 	return self.Actor;
 end
 
-function MEventHandler:Register(animName, eventName, funcCallback)
-	if (not animName or type(animName) ~= "string") then
-		error(SHARED.errorArgs("BadArg", 1, "Register", "string", type(animName)));
+function MEventHandler:Register(animObj, eventName, funcCallback)
+	if (not animObj or not SHARED.isMeta(animObj, "Animation")) then
+		error(SHARED.errorArgs("BadMeta", 1, "Register", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
 		error(SHARED.errorArgs("BadArg", 2, "Register", "string", type(eventName)));
 	elseif (not funcCallback or type(funcCallback) ~= "function") then
 		error(SHARED.errorArgs("BadArg", 3, "Register", "function", type(eventName)));
 	end
-	self.Callbacks[animName] = self.Callbacks[animName] or {};
-	self.Callbacks[animName][eventName] = self.Callbacks[animName][eventName] or {};
-	table.insert(self.Callbacks[animName][eventName], funcCallback);
+	self.Callbacks[animObj] = self.Callbacks[animObj] or {};
+	self.Callbacks[animObj][eventName] = self.Callbacks[animObj][eventName] or {};
+	table.insert(self.Callbacks[animObj][eventName], funcCallback);
 end
 
-function MEventHandler:Fire(animName, eventName)
-	if (not animName or type(animName) ~= "string") then
-		error(errorArgs("BadArg", 1, "Fire", "string", type(animName)));
+function MEventHandler:Fire(animObj, eventName)
+	if (not animObj or not SHARED.isMeta(animObj, "Animation")) then
+		error(SHARED.errorArgs("BadMeta", 1, "Fire", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
 		error(errorArgs("BadArg", 2, "Fire", "string", type(eventName)));
 	end
-	if (animName and self.Callbacks[animName] and eventName and self.Callbacks[animName][eventName]) then
-		for i = 1, #self.Callbacks[animName][eventName] do
-			--print("Fire callback",animName, eventName, i);
-			self.Callbacks[animName][eventName][i](self:GetActor(), animName, eventName);
+	if (animObj and self.Callbacks[animObj] and eventName and self.Callbacks[animObj][eventName]) then
+		for i = 1, #self.Callbacks[animObj][eventName] do
+			self.Callbacks[animObj][eventName][i](self:GetActor(), animObj, eventName);
 		end
 	end
 end
@@ -69,18 +68,18 @@ function MEventHandler:Check(animObj, keyTime)
 	end
 	
 	-- Did we already checked for events on this animation this frame?
-	if (self.Checked[animObj:GetName()] and self.Checked[animObj:GetName()] == keyTime) then
+	if (self.Checked[animObj] and self.Checked[animObj] == keyTime) then
 		return;
 	end
-	self.Checked[animObj:GetName()] = self.Checked[animObj:GetName()] or 0;
+	self.Checked[animObj] = self.Checked[animObj] or 0;
 	
-	local events = animObj:GetEventsInRange(self.Checked[animObj:GetName()], keyTime);
+	local events = animObj:GetEventsInRange(self.Checked[animObj], keyTime);
 	for i = 1, #events do
-		self:Fire(animObj:GetName(), events[i].name);
+		self:Fire(animObj, events[i].name);
 	end
 	
 	--self.lastCheck = keyTime;
-	self.Checked[animObj:GetName()] = keyTime;
+	self.Checked[animObj] = keyTime;
 end
 
 return newEventHandler;

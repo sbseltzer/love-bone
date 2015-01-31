@@ -16,8 +16,40 @@ local function newSkeleton()
 	skeleton.Bones = {};
 	skeleton.Bones[SKELETON_ROOT_NAME] = newBone(SKELETON_ROOT_NAME);
 	skeleton.RenderOrder = {};
-	skeleton.IsValid = false;
+	skeleton.Valid = true;
 	return skeleton;
+end
+
+function MSkeleton:IsValid()
+	return self.Valid;
+end
+
+-- Checks all bones to see if parents are valid, and populates children lists.
+function MSkeleton:Validate()
+	self.Valid = true;
+	for boneName, bone in pairs(self.Bones) do
+		local parentName = bone:GetParent();
+		if (parentName) then
+			if (not self.Bones[parentName]) then
+				print("Validation failed: Could not find parent '" .. parentName .. "' for bone '" .. boneName .. "'");
+				self.Valid = false;
+				break;
+			else
+				local parent = self.Bones[parentName];
+				parent.Children = parent.Children or {};
+				print("Adding child",boneName,"to",parentName);
+				table.insert(parent.Children, boneName);
+			end
+		elseif (boneName ~= SKELETON_ROOT_NAME) then
+			print("Validation failed: No parent found for bone '" .. boneName .. "'");
+			self.Valid = false;
+			break;
+		end
+	end
+	if (self.Valid) then
+		self:BuildRenderOrder();
+	end
+	return self.Valid;
 end
 
 -- Adds a bone to the skeleton.
@@ -29,7 +61,7 @@ function MSkeleton:AddBone(boneObj)
 		boneObj:SetParent(SKELETON_ROOT_NAME);
 	end
 	self.Bones[boneObj:GetName()] = boneObj;
-	self.IsValid = false;
+	self.Valid = false;
 end
 
 -- Rebuilds the rendering order of bones based on their current layer.
@@ -72,38 +104,6 @@ function MSkeleton:GetBoneTree(name, t)
 	return t;
 end
 
--- Checks all bones to see if parents are valid, and populates children lists.
-function MSkeleton:Validate()
-	self.IsValid = true;
-	for boneName, bone in pairs(self.Bones) do
-		local parentName = bone:GetParent();
-		if (parentName) then
-			if (not self.Bones[parentName]) then
-				print("Validation failed: Could not find parent '" .. parentName .. "' for bone '" .. boneName .. "'");
-				self.IsValid = false;
-				break;
-			else
-				local parent = self.Bones[parentName];
-				parent.Children = parent.Children or {};
-				print("Adding child",boneName,"to",parentName);
-				table.insert(parent.Children, boneName);
-			end
-		elseif (boneName ~= SKELETON_ROOT_NAME) then
-			print("Validation failed: No parent found for bone '" .. boneName .. "'");
-			self.IsValid = false;
-			break;
-		end
-	end
-	if (self.IsValid) then
-		self:BuildRenderOrder();
-	end
-	return self.IsValid;
-end
-
-function MSkeleton:IsValid()
-	return self.IsValid;
-end
-
 -- Returns the skeleton bind pose.
 function MSkeleton:GetBindPose()
 	-- TODO: Validate?
@@ -119,21 +119,6 @@ function MSkeleton:GetBindPose()
 		pose[boneName] = keyframe;
 	end
 	return pose;
-end
-
--- Returns an empty transformation data structure.
-function MSkeleton:GetBlankTransformation()
-	-- TODO: Validate?
-	-- TODO: Perhaps we could cache this?
-	local bones = {};
-	for boneName, bone in pairs(self.Bones) do
-		local boneData = {};
-		boneData.rotation = 0;
-		boneData.translation = {0, 0};
-		boneData.scale = {1, 1};
-		bones[boneName] = boneData;
-	end
-	return bones;
 end
 
 return newSkeleton;
