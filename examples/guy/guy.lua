@@ -31,16 +31,16 @@ local bodyParts = {};
 
 function love.load()
 
-	local skeleton = demina.ImportSkeleton("assets/guy/guy_default.anim");
+	local skeleton = demina.ImportSkeleton("examples/assets/guy/guy_default.anim");
 	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
 	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
 	
-	local animWalk = demina.ImportAnimation("assets/guy/guy_walk.anim", skeleton);
-	local animPump = demina.ImportAnimation("assets/guy/guy_fistpump.anim", skeleton);
-	local skinDefault = demina.ImportSkin("assets/guy/guy_default.anim", skeleton);
-	local skinGuy = demina.ImportSkin("assets/guy/guy_skin.anim", skeleton);
+	local animWalk = demina.ImportAnimation("examples/assets/guy/guy_walk.anim", skeleton);
+	local animPump = demina.ImportAnimation("examples/assets/guy/guy_fistpump.anim", skeleton);
+	local skinDefault = demina.ImportSkin("examples/assets/guy/guy_default.anim", skeleton);
+	local skinGuy = demina.ImportSkin("examples/assets/guy/guy_skin.anim", skeleton);
 	
-	local gun = boner.newVisual("assets/guy/gun.png");
+	local gun = boner.newVisual("examples/assets/guy/gun.png");
 	local aw, ah = gun:GetDimensions();
 	gun:SetOrigin(aw/10, ah/1.5);
 	
@@ -123,7 +123,7 @@ function love.load()
 		end
 		bonedActor:GetEventHandler():Register(animPump, "boom", boomCallback);
 		
-		local stepSound = love.audio.newSource( "assets/guy/step.wav" );
+		local stepSound = love.audio.newSource( "examples/assets/guy/step.wav" );
 		local footDownCallback = function(actor, animName, eventName)
 			--print(actor, animName, eventName);
 			--if (actor:GetTransformer():GetPower("anim_main") > 0.2) then

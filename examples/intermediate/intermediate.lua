@@ -13,15 +13,15 @@ local toggleAnims = {"walk", "pump"}
 local pews = {};
 
 function love.load()
-	local skeleton = demina.ImportSkeleton("assets/guy/guy_default.anim");
+	local skeleton = demina.ImportSkeleton("examples/assets/guy/guy_default.anim");
 	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
 	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
 	
-	local animWalk = demina.ImportAnimation("assets/guy/guy_walk.anim", skeleton);
-	local animPump = demina.ImportAnimation("assets/guy/guy_fistpump.anim", skeleton);
+	local animWalk = demina.ImportAnimation("examples/assets/guy/guy_walk.anim", skeleton);
+	local animPump = demina.ImportAnimation("examples/assets/guy/guy_fistpump.anim", skeleton);
 	
-	local skinDefault = demina.ImportSkin("assets/guy/guy_default.anim", skeleton);
-	local skinGuy = demina.ImportSkin("assets/guy/guy_skin.anim", skeleton);
+	local skinDefault = demina.ImportSkin("examples/assets/guy/guy_default.anim", skeleton);
+	local skinGuy = demina.ImportSkin("examples/assets/guy/guy_skin.anim", skeleton);
 	
 	for i = 1, NUM_ACTORS do
 		local c = newCharacter(skeleton);
