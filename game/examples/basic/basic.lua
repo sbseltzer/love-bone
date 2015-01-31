@@ -32,7 +32,7 @@ function love.load()
 	mySkeleton:Validate();
 	
 	-- Create an animation.
-	local myAnimation = boner.newAnimation("curl", mySkeleton);
+	local myAnimation = boner.newAnimation(mySkeleton);
 	for i = 1, NUM_SEGMENTS do
 		local name = boneName .. i;
 		myAnimation:AddKeyFrame(name, 2, math.rad(5*i), nil, nil);

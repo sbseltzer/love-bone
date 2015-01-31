@@ -70,6 +70,23 @@ function MActor:GetAttachment(boneName, attachName)
 		return self.Attachments[boneName][attachName];
 	end
 end
+
+-- A helper function to setting skins.
+function MActor:SetAttachmentVisuals(slotName, visuals)
+	slotName = slotName or SKIN_ATTACHMENT_NAME;
+	for boneName, visual in pairs(visuals) do
+		if (SHARED.isMeta(visual, "Visual")) then
+			local attach = newAttachment();
+			attach:SetVisual(visual);
+			attach:SetRotation(0);
+			attach:SetScale(1);
+			self:SetAttachment(boneName, slotName, attach);
+		else
+			print("Warning: failed to set attachment for '" .. boneName .. "' - was not of type Visual");
+		end
+	end
+end
+
 function MActor:GetAttachmentList(boneName)
 	local t = {};
 	if (boneName) then
@@ -92,19 +109,6 @@ function MActor:GetAttachmentList(boneName)
 	return t;
 end
 
--- A helper function to setting skins.
-function MActor:SetSkin(visuals)
-	for boneName, visual in pairs(visuals) do
-		if (SHARED.isMeta(visual, "Visual")) then
-			print(boneName, visual);
-			local attach = newAttachment();
-			attach:SetVisual(visual);
-			attach:SetRotation(0);
-			attach:SetScale(1);
-			self:SetAttachment(boneName, SKIN_ATTACHMENT_NAME, attach);
-		end
-	end
-end
 
 -- Drawing bones (used for debugging)
 function MActor:DrawBones(transformed, boneColor, boneNameColor)

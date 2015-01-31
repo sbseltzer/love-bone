@@ -91,7 +91,7 @@ Create an [Animation](#animation):
 
 ```lua
 -- Create an animation.
-local myAnimation = boner.newAnimation("curl", mySkeleton);
+local myAnimation = boner.newAnimation(mySkeleton);
 for i = 1, NUM_SEGMENTS do
 	local name = boneName .. i;
 	myAnimation:AddKeyFrame(name, 2, math.rad(5*i), nil, nil);
@@ -286,7 +286,7 @@ local bone = boner.newBone(name, parent, layer, offset, defaultRotation, default
 Animations are a convenient way to apply transformations to your actors.
 
 ```lua
-local animation = boner.newAnimation(animName, skeleton);
+local animation = boner.newAnimation(skeleton);
 animation:AddKeyFrame(boneName, keyTime, rotation, translation, scale);
 ...
 skeleton:AddAnimation(animation);
