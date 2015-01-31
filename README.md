@@ -2,6 +2,8 @@
 
 A 2D Skeletal Animation framework for LÖVE.
 
+Edit main.lua to change which example you want to test.
+
 ## Table of Contents
 * [Introduction](#introduction)
   * [Vocabulary](#vocabulary)
@@ -21,9 +23,9 @@ A 2D Skeletal Animation framework for LÖVE.
 
 ## Introduction
 
-BÖNER is loosely modelled after advanced animation frameworks like ASSIMP.  It's designed to accommodate almost any animation scenario at the cost of being complex.
+BÖNER is loosely modelled after advanced animation frameworks like ASSIMP.  It's designed to accommodate almost any animation scenario, but it can be a little complicated to use.
 
-As such, BÖNER is meant to be used as the backbone (hehe) for animations in your game. It takes care of the hard stuff. If you want a skin manager or play/pause/stop methods, you need to add them yourself.
+You could say that BÖNER is meant to be used as the backbone for animations in your game. It takes care of the really hard stuff.
 
 ### Vocabulary
 
@@ -40,7 +42,7 @@ In this tutorial, we will go over the basics of the BÖNER API.
 - Making a visual appearance for the actor
 - Making the actor play the animation
 
-Require the [library](https://github.com/GeekWithALife/boner/tree/master/game/boner):
+Require the [library](https://github.com/GeekWithALife/boner/tree/master/boner):
 
 ```lua
 local boner = require("boner");
@@ -226,7 +228,7 @@ end
 
 #### The Result
 
-[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/examples/basic/)
+[Full Code](https://github.com/GeekWithALife/boner/blob/master/examples/basic/)
 
 <p align="center">
   <img src="https://github.com/geekwithalife/boner/blob/master/images/basic.gif?raw=true" alt="button"/>

@@ -1,27 +1,27 @@
 
 local boner = require("boner");
-local demina = require("demina");
+local demina = require("examples.util.demina");
 local newCharacter = require("examples.intermediate.character");
 
 -- Actor list
 local NUM_ACTORS = 1; -- Increase for stress testing
 local characters = {};
-
+local curSkin = 1;
 local toggleAnims = {"walk", "pump"}
 
 -- "pews"
 local pews = {};
 
 function love.load()
-	local skeleton = demina.ImportSkeleton("guy/guy_default.anim");
+	local skeleton = demina.ImportSkeleton("assets/guy/guy_default.anim");
 	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
 	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
 	
-	local animWalk = demina.ImportAnimation("guy/guy_walk.anim", skeleton);
-	local animPump = demina.ImportAnimation("guy/guy_fistpump.anim", skeleton);
+	local animWalk = demina.ImportAnimation("assets/guy/guy_walk.anim", skeleton);
+	local animPump = demina.ImportAnimation("assets/guy/guy_fistpump.anim", skeleton);
 	
-	local skinDefault = demina.ImportSkin("guy/guy_default.anim", skeleton);
-	local skinGuy = demina.ImportSkin("guy/guy_skin.anim", skeleton);
+	local skinDefault = demina.ImportSkin("assets/guy/guy_default.anim", skeleton);
+	local skinGuy = demina.ImportSkin("assets/guy/guy_skin.anim", skeleton);
 	
 	for i = 1, NUM_ACTORS do
 		local c = newCharacter(skeleton);
@@ -69,14 +69,18 @@ function love.keypressed(key, isrepeat)
 		local animName = toggleAnims[tonumber(key)];
 		for i = 1, #characters do
 			for animName, _ in pairs(characters[i].Animations) do
-				characters[i]:ToggleAnimation(animName);
+				characters[i]:ToggleAnimationPlaying(animName);
 			end
 		end
 	elseif (key == "d") then
 		boner.setDebug(not boner.getDebug());
 	elseif (key == "s") then
 		for i = 1, #characters do
-			local skins = characters[i].Skins;
+			local s = characters[i].Skins;
+			local skins = {};
+			for k, v in pairs(s) do
+				table.insert(skins, k);
+			end
 			characters[i]:SetSkin(skins[(curSkin % #skins) + 1]);
 		end
 		curSkin = curSkin + 1;

@@ -29,7 +29,7 @@ function MCharacter:RegisterSkin(skinName, skinData)
 end
 
 function MCharacter:SetSkin(skinName)
-	self.Actor:SetSkin(self.Skins[skinName]);
+	self.Actor:SetAttachmentVisuals("skin", self.Skins[skinName]);
 end
 
 function MCharacter:SetPosition(x, y)
@@ -72,7 +72,7 @@ function MCharacter:EndAnimation(animName, blendTime)
 	self.Blend[animName] = {direction = -1, time = blendTime, start = curTime};
 end
 
-function MCharacter:ToggleAnimation(animName)
+function MCharacter:ToggleAnimationPlaying(animName)
 	if (self.State[animName] == "paused") then
 		self.State[animName] = "playing";
 	elseif (self.State[animName] == "playing") then
@@ -89,8 +89,8 @@ end
 function MCharacter:Update(dt)
 	for animName, _ in pairs(self.Animations) do
 		if (self.State[animName] == "playing") then
-			local transformer = self.Actor:GetTransformer();
 			local transformName = "anim_" .. animName;
+			local transformer = self.Actor:GetTransformer();
 			local vars = transformer:GetVariables(transformName);
 			
 			vars.time = vars.time + dt;
@@ -106,7 +106,6 @@ function MCharacter:Update(dt)
 			if (power == 0) then
 				self.State[animName] = "stopped";
 			end
-			--print();
 		end
 	end
 	self.Actor:Update();

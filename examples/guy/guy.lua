@@ -1,6 +1,6 @@
 
 local boner = require("boner");
-local demina = require("demina");
+local demina = require("examples.util.demina");
 
 -- Actor list
 local NUM_ACTORS = 1; -- Increase for stress testing
@@ -31,16 +31,16 @@ local bodyParts = {};
 
 function love.load()
 
-	local skeleton = demina.ImportSkeleton("guy/guy_default.anim");
+	local skeleton = demina.ImportSkeleton("assets/guy/guy_default.anim");
 	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
 	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
 	
-	local animWalk = demina.ImportAnimation("guy/guy_walk.anim", skeleton);
-	local animPump = demina.ImportAnimation("guy/guy_fistpump.anim", skeleton);
-	local skinDefault = demina.ImportSkin("guy/guy_default.anim", skeleton);
-	local skinGuy = demina.ImportSkin("guy/guy_skin.anim", skeleton);
+	local animWalk = demina.ImportAnimation("assets/guy/guy_walk.anim", skeleton);
+	local animPump = demina.ImportAnimation("assets/guy/guy_fistpump.anim", skeleton);
+	local skinDefault = demina.ImportSkin("assets/guy/guy_default.anim", skeleton);
+	local skinGuy = demina.ImportSkin("assets/guy/guy_skin.anim", skeleton);
 	
-	local gun = boner.newVisual("guy/gun.png");
+	local gun = boner.newVisual("assets/guy/gun.png");
 	local aw, ah = gun:GetDimensions();
 	gun:SetOrigin(aw/10, ah/1.5);
 	
@@ -54,7 +54,7 @@ function love.load()
 	for i = 1, NUM_ACTORS do
 		local bonedActor = boner.newActor(skeleton);
 		bonedActor.Skins = {skinDefault, skinGuy};
-		bonedActor:SetSkin(skinDefault);
+		bonedActor:SetAttachmentVisuals("skin", skinDefault);
 		local root = bonedActor:GetTransformer():GetRoot();
 		root.translation[1] = actorX;
 		root.translation[2] = actorY;
@@ -123,7 +123,7 @@ function love.load()
 		end
 		bonedActor:GetEventHandler():Register(animPump, "boom", boomCallback);
 		
-		local stepSound = love.audio.newSource( "guy/step.wav" );
+		local stepSound = love.audio.newSource( "assets/guy/step.wav" );
 		local footDownCallback = function(actor, animName, eventName)
 			--print(actor, animName, eventName);
 			--if (actor:GetTransformer():GetPower("anim_main") > 0.2) then
@@ -274,7 +274,7 @@ function love.keypressed(key, isrepeat)
 			local attachData = bodyParts[attachID];
 			print(curPart, #bodyParts, attachID, attachData[1], attachData[2]);
 			local attach = attachData[3];
-			bonedActors[i]:SetAttachment("head", "__skin__", attach);
+			bonedActors[i]:SetAttachment("head", "skin", attach);
 		end
 		curPart = curPart + 1;
 	elseif (key == "z") then
@@ -283,13 +283,13 @@ function love.keypressed(key, isrepeat)
 			local attachData = bodyParts[attachID];
 			print(curPart, #bodyParts, attachID, attachData[1], attachData[2]);
 			local attach = attachData[3];
-			bonedActors[i]:SetAttachment("head", "__skin__", attach);
+			bonedActors[i]:SetAttachment("head", "skin", attach);
 			curPart = curPart - 1;
 		end
 	elseif (key == "s") then
 		for i = 1, #bonedActors do
 			local skins = bonedActors[i].Skins;
-			bonedActors[i]:SetSkin(skins[(curSkin % #skins) + 1]);
+			bonedActors[i]:SetAttachmentVisuals("skin", skins[(curSkin % #skins) + 1]);
 		end
 		curSkin = curSkin + 1;
 	elseif (key == "up") then
