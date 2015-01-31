@@ -211,6 +211,7 @@ Tell the actor to draw:
 function love.draw()
 	myActor:Draw();
 end
+```
 
 One last step. We need to tell the animation to start.
 
@@ -225,7 +226,7 @@ end
 
 #### The Result
 
-[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/examples/basic.lua)
+[Full Code](https://github.com/GeekWithALife/boner/blob/master/game/examples/basic/)
 
 <p align="center">
   <img src="https://github.com/geekwithalife/boner/blob/master/images/basic.gif?raw=true" alt="button"/>
