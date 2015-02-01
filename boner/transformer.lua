@@ -355,23 +355,19 @@ function MTransformer:CalculateGlobal(boneName, parentData)
 	local boneObj = self.Actor:GetSkeleton():GetBone(boneName);
 	local xOffset, yOffset = boneObj:GetOffset();
 	
-	if (self.FlipH) then
+	local shouldFlipH = self.FlipH;
+	if (self.FlipV) then
+		if (boneName == SKELETON_ROOT_NAME) then
+			addData.rotation = math.pi;
+		end
+		shouldFlipH = not shouldFlipH;
+	end
+	if (shouldFlipH) then
 		xOffset = -xOffset;
 		addData.rotation = math.pi - addData.rotation;
 		addData.translation[1] = -addData.translation[1];
 		addData.scale[2] = -addData.scale[2];
 	end
-	
-	-- TODO: Fix vertical flip.
-	--[[if (self.FlipV) then
-		yOffset = -yOffset;
-		addData.rotation = 2 * math.pi - addData.rotation;
-		--addData.translation[1] = -addData.translation[1];
-		addData.translation[2] = -addData.translation[2];
-		--addData.scale[1] = -addData.scale[1];
-		addData.scale[2] = -addData.scale[2];
-	end]]
-	
 	
 	-- The rotation will be the key data rotation plus its parents rotation
 	boneData.rotation = parentData.rotation + addData.rotation;
@@ -455,6 +451,17 @@ function MTransformer:GetAttachmentScale(boneName, attachName)
 	end
 	return boneScale[1] * attachScale[1], boneScale[2] * attachScale[2];
 end
-
+function MTransformer:GetAttachmentForward(boneName, attachName)
+	local ang = self:GetAttachmentAngle(boneName, attachName);
+	local fx, fy = math.cos(ang), math.sin(ang);
+	if (self.FlipH and not self.FlipV or self.FlipV and not self.FlipH) then
+		fx = -fx;
+	end
+	return fx, fy;
+end
+function MTransformer:GetAttachmentUp(boneName, attachName)
+	local uy, ux = self:GetAttachmentForward(boneName, attachName);
+	return ux, uy;
+end
 
 return newTransformer;

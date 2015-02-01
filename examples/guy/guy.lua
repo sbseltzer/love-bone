@@ -77,6 +77,9 @@ function love.load()
 				if (actor:GetTransformer().FlipH) then
 					rot = math.pi - rot;
 				end
+				if (actor:GetTransformer().FlipV) then
+					rot = -rot;
+				end
 				return {rotation = rot - math.pi/2};
 			end
 		end
@@ -316,15 +319,12 @@ function love.mousepressed(x, y, button)
 			if (attach:GetScale() > 0 and bonedActors[i]:GetTransformer():GetPower("anim_ctrl") == 1 and (not bonedActors[i].clickTime or love.timer.getTime() - bonedActors[i].clickTime > 0.5)) then
 				
 				local sx, sy = bonedActors[i]:GetTransformer():GetAttachmentScale("back_hand", "gun");
-				local oX, oY = attach:GetVisual():GetOrigin();
 				local w, h = attach:GetVisual():GetDimensions();
-				if (bonedActors[i]:GetTransformer().FlipH) then
-					oX = -oX;
-					oY = -oY;
-					w = -w;
-					h = -h;
-				end
-				local gunX, gunY = bonedActors[i]:GetTransformer():GetAttachmentPosition("back_hand", "gun", {-oX*sx + w*sx, -oY*sy + (h/10)*sy})
+				local fx, fy = bonedActors[i]:GetTransformer():GetAttachmentForward();
+				local ux, uy = bonedActors[i]:GetTransformer():GetAttachmentUp();
+				h = h * 0.6;
+				local offset = {sx * ((fx * w) + (ux * h)), -sy * ((fy * w) + (uy * h))};
+				local gunX, gunY = bonedActors[i]:GetTransformer():GetAttachmentPosition("back_hand", "gun", offset)
 				
 				local armX, armY = bonedActors[i]:GetTransformer():GetBonePosition("back_upper_arm");
 				

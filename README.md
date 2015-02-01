@@ -231,7 +231,9 @@ end
 
 ### Intermediate
 
-Coming soon.
+Tutorial coming soon.
+
+[Full Code](https://github.com/GeekWithALife/boner/blob/master/examples/intermediate/)
 
 ### Advanced
 
