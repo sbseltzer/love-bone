@@ -99,6 +99,7 @@ function MSkeleton:GetBoneTree(name, t)
 		print("Warning: Could not get bone tree for invalid skeleton!");
 		return;
 	end
+	name = name or SKELETON_ROOT_NAME;
 	t = t or {};
 	table.insert(t, name);
 	local children = self:GetBone(name).Children;

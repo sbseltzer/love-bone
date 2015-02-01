@@ -14,15 +14,9 @@ local SKIN_ATTACHMENT_NAME = SHARED.SKIN_ATTACHMENT_NAME;
 
 --[[
 	Actor
-	Actors are the top level structure for the systems.
-	They contain a skeleton reference and do the actual animation calculations.
-	They also have their own Attachment/Event handlers.
 --]]
 local MActor = SHARED.Meta.Actor;
 MActor.__index = MActor;
-MActor.Speed = 1;
-MActor.TimeElapsed = 0;
-MActor.State = "stopped";
 local function newActor(skeleton, skinData)
 	local t = setmetatable({}, MActor);
 	
@@ -34,6 +28,8 @@ local function newActor(skeleton, skinData)
 	
 	-- Transformer
 	t.Transformer = newTransformer(t);
+	
+	t.Debug = {};
 	
 	if (skeleton) then
 		t:SetSkeleton(skeleton);
@@ -52,10 +48,28 @@ function MActor:GetEventHandler()
 	return self.EventHandler;
 end
 
+function MActor:SetDebug(boneList, on, settings)
+	for i = 1, #boneList do
+		self.Debug[boneList[i]] = self.Debug[boneList[i]] or {};
+		self.Debug[boneList[i]].enabled = on;
+		self.Debug[boneList[i]].settings = settings;
+	end
+end
+function MActor:GetDebug(boneName)
+	return self.Debug[boneName].enabled;
+end
+function MActor:GetDebugSettings(boneName)
+	return self.Debug[boneName].settings;
+end
+
 -- Skeleton reference
 function MActor:SetSkeleton(skeleton)
 	if (not skeleton or not SHARED.isMeta(skeleton, "Skeleton")) then
 		error(SHARED.errorArgs("BadMeta", 1, "SetSkeleton", "Skeleton", tostring(SHARED.Meta.Skeleton), tostring(getmetatable(skeleton))));
+	end
+	if (self.Skeleton ~= skeleton) then
+		self.Debug = {};
+		self:SetDebug(skeleton:GetBoneTree(SKELETON_ROOT_NAME), false);
 	end
 	self.Skeleton = skeleton;
 end
@@ -87,8 +101,6 @@ function MActor:SetAttachmentVisuals(slotName, visuals)
 		if (SHARED.isMeta(visual, "Visual")) then
 			local attach = newAttachment();
 			attach:SetVisual(visual);
-			attach:SetRotation(0);
-			attach:SetScale(1);
 			self:SetAttachment(boneName, slotName, attach);
 		else
 			print("Warning: failed to set attachment '" .. slotName .. "' for '" .. boneName .. "' - was not of type Visual");
@@ -118,48 +130,18 @@ function MActor:GetAttachmentList(boneName)
 	return t;
 end
 
-
--- Drawing bones (used for debugging)
-function MActor:DrawBones(transformed, boneColor, boneNameColor)
-	boneColor = boneColor or {0, 255, 0, 255}
-	local color = {love.graphics.getColor()};
-	local renderOrder = self:GetSkeleton().RenderOrder;
-	for i = 1, #renderOrder do
-		local boneName = renderOrder[i];
-		local boneData = transformed[boneName];
-		local x0, y0 = unpack(boneData.translation);
-		--love.graphics.circle("fill", x0, y0, 3, 4); -- Draw a dot at each bone origin
-		-- Render names for bones.
-		if (boneNameColor) then
-			love.graphics.setColor(unpack(boneNameColor));
-			love.graphics.print(boneName, x0, y0, boneData.rotation);
-		end
-		-- Render lines for bones.
-		love.graphics.setColor(unpack(boneColor));
-		if (boneData.parent and transformed[boneData.parent]) then
-			local parentData = transformed[boneData.parent]
-			x0, y0 = unpack(parentData.translation);
-			local x1, y1 = unpack(boneData.translation);
-			--print("Drawing parent bone:", x0, y0, x1, y1);
-			love.graphics.line(x0, y0, x1, y1); -- Draw a line for parent bones
-		end
-	end
-	love.graphics.setColor(unpack(color));
-end
-
+-- TODO: We may want to cache this at some point.
 function MActor:GetAttachmentRenderOrder()
 	local boneOrder = self:GetSkeleton().RenderOrder;
 	local realOrder = {};
-	--local attachOrders = {};
 	for i = 1, #boneOrder do
 		local boneName = boneOrder[i];
 		local boneLayer = self:GetSkeleton():GetBone(boneName):GetLayer();
 		local attachList = self:GetAttachmentList(boneName);
 		if (attachList and #attachList > 0) then
-			--attachOrders[boneName] = attachList;
 			for j = 1, #attachList do
 				local attachment = self:GetAttachment(boneName, attachList[j]);
-				table.insert(realOrder, {boneName, attachment, boneLayer + attachment:GetLayerOffset()});
+				table.insert(realOrder, {boneName, attachList[j], boneLayer + attachment:GetLayerOffset()});
 			end
 		end
 	end
@@ -176,66 +158,116 @@ function MActor:GetAttachmentRenderOrder()
 	return realOrder;
 end
 
-function MActor:DrawAttachment(transformed, boneName, attachment)
+function MActor:DrawAttachment(transformed, boneName, attachName)
+	local color = {love.graphics.getColor()};
 	local boneData = transformed[boneName];
+	local attachment = self:GetAttachment(boneName, attachName);
+	
 	love.graphics.push();
+	
 	-- Bone Transformations
 	love.graphics.translate(unpack(boneData.translation));
 	love.graphics.rotate(boneData.rotation);
 	love.graphics.scale(unpack(boneData.scale));
+	
 	-- Attachment Transformations
 	love.graphics.translate(attachment:GetTranslation());
 	love.graphics.rotate(attachment:GetRotation());
 	love.graphics.scale(attachment:GetScale());
+	
+	love.graphics.setColor(attachment:GetColor());
 	attachment:GetVisual():Draw();
+	
 	love.graphics.pop();
+	
+	love.graphics.setColor(unpack(color));
 end
-
--- Draw the whole skin.
-function MActor:DrawAttachments(transformed)
-	local renderOrder = self:GetAttachmentRenderOrder();
-	for i = 1, #renderOrder do
-		local boneName, attachment = unpack(renderOrder[i]);
-		self:DrawAttachment(transformed, boneName, attachment);
-	end
-end
-function MActor:DrawAttachmentsDebug(transformed, boxColor)
-	boxColor = boxColor or {0, 0, 255, 255};
+function MActor:DrawAttachmentDebug(transformed, boneName, attachName, lineColor, textColor)
+	lineColor = lineColor or {0, 0, 255, 255};
+	textColor = textColor or {255, 200, 0};
 	local color = {love.graphics.getColor()};
-	love.graphics.setColor(unpack(boxColor));
-	local renderOrder = self:GetSkeleton().RenderOrder;
-	for i = 1, #renderOrder do
-		local boneName = renderOrder[i];
-		local boneData = transformed[boneName];
-		if (self.Attachments[boneName]) then
-			for attachName, attach in pairs(self.Attachments[boneName]) do
-				local rBone = boneData.rotation;
-				local txBone, tyBone = unpack(boneData.translation);
-				local sxBone, syBone = unpack(boneData.scale);
-				
-				local rAttach = attach:GetRotation();
-				local txAttach, tyAttach = attach:GetTranslation();
-				local sxAttach, syAttach = attach:GetScale();
-				
-				local xOrig, yOrig = attach:GetVisual():GetOrigin();--attach:GetOrigin();
-				
-				-- Draw skin image outline:
-				local width, height = attach:GetVisual():GetDimensions();
-				love.graphics.push();
-				-- Bone Transformations
-				love.graphics.translate(txBone, tyBone);
-				love.graphics.rotate(rBone);
-				love.graphics.scale(sxBone, syBone);
-				-- Attachment Transformations
-				love.graphics.translate(txAttach, tyAttach);
-				love.graphics.rotate(rAttach);
-				love.graphics.scale(sxAttach, syAttach);
-				-- Draw debug box
-				love.graphics.rectangle("line", -xOrig, -yOrig, width, height);
-				love.graphics.pop();
-			end
-		end
+	
+	local attachment = self:GetAttachment(boneName, attachName);
+	local boneData = transformed[boneName];
+	
+	local rBone = boneData.rotation;
+	local txBone, tyBone = unpack(boneData.translation);
+	local sxBone, syBone = unpack(boneData.scale);
+	
+	local rAttach = attachment:GetRotation();
+	local txAttach, tyAttach = attachment:GetTranslation();
+	local sxAttach, syAttach = attachment:GetScale();
+	
+	local xOrig, yOrig = attachment:GetVisual():GetOrigin();
+	
+	-- Draw skin image outline:
+	local width, height = attachment:GetVisual():GetDimensions();
+	love.graphics.push();
+	
+	-- Bone Transformations
+	love.graphics.translate(txBone, tyBone);
+	love.graphics.rotate(rBone);
+	love.graphics.scale(sxBone, syBone);
+	
+	-- Attachment Transformations
+	love.graphics.translate(txAttach, tyAttach);
+	love.graphics.rotate(rAttach);
+	love.graphics.scale(sxAttach, syAttach);
+	
+	-- Draw debug box
+	love.graphics.setColor(unpack(lineColor));
+	love.graphics.rectangle("line", -xOrig, -yOrig, width, height);
+	
+	-- Draw debug text
+	love.graphics.setColor(unpack(textColor));
+	if (sxAttach ~= 0) then
+		sxAttach = 1/sxAttach;
 	end
+	if (syAttach ~= 0) then
+		syAttach = 1/syAttach;
+	end
+	love.graphics.scale(sxAttach, syAttach);
+	love.graphics.print(boneName .. ":" .. attachName, -xOrig + width/2, -yOrig + height/2);
+	
+	love.graphics.pop();
+	
+	love.graphics.setColor(unpack(color));
+end
+function MActor:DrawBoneDebug(transformed, boneName, lineColor, textColor)
+	lineColor = lineColor or {0, 255, 0, 255};
+	textColor = textColor or {255, 200, 0};
+	
+	local color = {love.graphics.getColor()};
+	local parentData = transformed[self:GetSkeleton():GetBone(boneName):GetParent()];
+	local boneData = transformed[boneName];
+	
+	local sx, sy = unpack(parentData.scale);
+	
+	love.graphics.push();
+	
+	-- Bone Transformations
+	love.graphics.translate(unpack(parentData.translation));
+	love.graphics.rotate(parentData.rotation);
+	love.graphics.scale(sx, sy);
+	
+	-- Draw debug line
+	love.graphics.setColor(unpack(lineColor));
+	local x, y = self:GetSkeleton():GetBone(boneName):GetOffset();
+	love.graphics.line(0, 0, x, y);
+	
+	-- Draw debug text
+	love.graphics.setColor(unpack(textColor));
+	if (sx ~= 0) then
+		sx = 1/sx;
+	end
+	if (sy ~= 0) then
+		sy = 1/sy;
+	end
+	love.graphics.scale(sx, sy);
+	love.graphics.print(boneName, 0, 0);
+	
+	love.graphics.pop();
+
 	love.graphics.setColor(unpack(color));
 end
 
@@ -250,10 +282,27 @@ function MActor:Draw()
 	if (not transformed) then
 		return;
 	end
-	self:DrawAttachments(transformed);
-	if (SHARED.DEBUG) then
-		self:DrawAttachmentsDebug(transformed);
-		self:DrawBones(transformed, nil, {255, 200, 0});
+	local debugBones = {};
+	local renderOrder = self:GetAttachmentRenderOrder();
+	for i = 1, #renderOrder do
+		local boneName, attachName = unpack(renderOrder[i]);
+		self:DrawAttachment(transformed, boneName, attachName);
+		if (self:GetDebug(boneName)) then
+			table.insert(debugBones, renderOrder[i]);
+		end
+	end
+	for i = 1, #debugBones do
+		local boneName, attachName = unpack(debugBones[i]);
+		local settings = self:GetDebugSettings(boneName);
+		
+		local lineColor, textColor;
+		lineColor = settings.boneLineColor or {0, 0, 0, 0};
+		textColor = settings.boneTextColor or {0, 0, 0, 0};
+		self:DrawBoneDebug(transformed, boneName, lineColor, textColor);
+		
+		lineColor = settings.attachmentLineColor or {0, 0, 0, 0};
+		textColor = settings.attachmentTextColor or {0, 0, 0, 0};
+		self:DrawAttachmentDebug(transformed, boneName, attachName, lineColor, textColor);
 	end
 end
 

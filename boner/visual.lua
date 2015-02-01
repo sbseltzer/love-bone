@@ -113,18 +113,33 @@ function MVisual:GetDimensions()
 end
 
 function MVisual:SetOrigin(x, y)
+	if (not x or not tonumber(x)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetOrigin", "number", type(x)));
+	elseif (not y or not tonumber(y)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetOrigin", "number", type(y)));
+	end
 	self.Origin = {x, y};
 end
 function MVisual:GetOrigin()
 	return unpack(self.Origin);
 end
-function MVisual:SetRotation(r)
-	self.Rotation = r;
+
+function MVisual:SetRotation(angle)
+	if (not angle or not tonumber(angle)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetRotation", "number", type(angle)));
+	end
+	self.Rotation = angle;
 end
 function MVisual:GetRotation()
 	return self.Rotation;
 end
+
 function MVisual:SetScale(x, y)
+	if (not x or not tonumber(x)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetScale", "number", type(x)));
+	elseif (not y or not tonumber(y)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetScale", "number", type(y)));
+	end
 	self.Scale = {x, y};
 end
 function MVisual:GetScale()

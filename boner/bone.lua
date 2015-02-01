@@ -58,13 +58,13 @@ function MBone:GetParent()
 end
 
 -- Position of this bone's origin relative to its parents origin.
-function MBone:SetOffset(offsetX, offsetY)
-	if (not offsetX or not tonumber(offsetX)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetOffset", "number", type(offsetX)));
-	elseif (not offsetY or not tonumber(offsetY)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetOffset", "number", type(offsetY)));
+function MBone:SetOffset(x, y)
+	if (not x or not tonumber(x)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetOffset", "number", type(x)));
+	elseif (not y or not tonumber(y)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetOffset", "number", type(y)));
 	end
-	self.Offset = {tonumber(offsetX), tonumber(offsetY)};
+	self.Offset = {tonumber(x), tonumber(y)};
 end
 function MBone:GetOffset()
 	return unpack(self.Offset);
@@ -82,26 +82,26 @@ function MBone:GetDefaultRotation()
 end
 
 -- Default local translation
-function MBone:SetDefaultTranslation(transX, transY)
-	if (not transX or not tonumber(transX)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetDefaultTranslation", "number", type(transX)));
-	elseif (not transY or not tonumber(transY)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetDefaultTranslation", "number", type(transY)));
+function MBone:SetDefaultTranslation(x, y)
+	if (not x or not tonumber(x)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetDefaultTranslation", "number", type(x)));
+	elseif (not y or not tonumber(y)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetDefaultTranslation", "number", type(y)));
 	end
-	self.Translation = {tonumber(transX), tonumber(transY)};
+	self.Translation = {tonumber(x), tonumber(y)};
 end
 function MBone:GetDefaultTranslation()
 	return unpack(self.Translation);
 end
 
 -- Default local scaling
-function MBone:SetDefaultScale(scaleX, scaleY)
-	if (not scaleX or not tonumber(scaleX)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetDefaultScale", "number", type(scaleX)));
-	elseif (not scaleY or not tonumber(scaleY)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetDefaultScale", "number", type(scaleY)));
+function MBone:SetDefaultScale(x, y)
+	if (not x or not tonumber(x)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetDefaultScale", "number", type(x)));
+	elseif (not y or not tonumber(y)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetDefaultScale", "number", type(y)));
 	end
-	self.Scale = {tonumber(scaleX), tonumber(scaleY)};
+	self.Scale = {tonumber(x), tonumber(y)};
 end
 function MBone:GetDefaultScale()
 	return unpack(self.Scale);
