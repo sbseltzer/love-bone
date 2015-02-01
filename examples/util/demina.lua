@@ -255,8 +255,8 @@ local function MakeSkeleton(fileData)
 		if (boneData.parentIndex >= 1) then
 			parent = bindData.bones[boneData.parentIndex].boneName;
 		end
-		local bone = boner.newBone(name, parent, layer, offset, defaultRotation, defaultTranslation, defaultScale);
-		skeleton:AddBone(bone);
+		local bone = boner.newBone(parent, layer, offset, defaultRotation, defaultTranslation, defaultScale);
+		skeleton:AddBone(name, bone);
 	end
 	skeleton:Validate();
 	--local bindAnim = boner.newAnimation("__bind__", skeleton);

@@ -68,8 +68,8 @@ for i = 1, NUM_SEGMENTS do
 	local rotation = 0;
 	local translation = {0, 0};
 	local scale = {1, 1};
-	local bone = boner.newBone(name, parent, i, offset, rotation, translation, scale);
-	mySkeleton:AddBone(bone);
+	local bone = boner.newBone(parent, i, offset, rotation, translation, scale);
+	mySkeleton:AddBone(name, bone);
 end
 ```
 
@@ -231,9 +231,7 @@ end
 
 ### Intermediate
 
-Tutorial coming soon.
-
-[Full Code](https://github.com/GeekWithALife/boner/blob/master/examples/intermediate/)
+Coming soon.
 
 ### Advanced
 
@@ -284,7 +282,7 @@ skeleton:Validate();
 Bones are objects that are used to create skeletons.
 
 ```lua
-local bone = boner.newBone(name, parent, layer, offset, defaultRotation, defaultTranslation, defaultScale);
+local bone = boner.newBone(parent, layer, offset, defaultRotation, defaultTranslation, defaultScale);
 ```
 
 ### Animation

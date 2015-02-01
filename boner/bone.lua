@@ -8,7 +8,7 @@ local SHARED = require("boner.shared");
 --]]
 local MBone = SHARED.Meta.Bone;
 MBone.__index = MBone;
-local function newBone(name, parent, layer, offset, defaultRotation, defaultTranslation, defaultScale)
+local function newBone(parent, layer, offset, defaultRotation, defaultTranslation, defaultScale)
 	layer = layer or 0;
 	
 	offset = offset or {0, 0};
@@ -26,7 +26,6 @@ local function newBone(name, parent, layer, offset, defaultRotation, defaultTran
 	defaultScale[2] = tonumber(defaultScale[2]) or 1;
 	
 	local bone = setmetatable({}, MBone);
-	bone:SetName(name);
 	bone:SetParent(parent);
 	bone:SetLayer(layer);
 	bone:SetOffset(unpack(offset));
@@ -34,14 +33,6 @@ local function newBone(name, parent, layer, offset, defaultRotation, defaultTran
 	bone:SetDefaultTranslation(unpack(defaultTranslation));
 	bone:SetDefaultScale(unpack(defaultScale));
 	return bone;
-end
-
--- Unique Bone reference name
-function MBone:SetName(name)
-	self.Name = name;
-end
-function MBone:GetName()
-	return self.Name;
 end
 
 -- Represents draw order for bones in the same skeleton

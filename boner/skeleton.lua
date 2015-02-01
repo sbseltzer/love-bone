@@ -14,7 +14,7 @@ local function newSkeleton()
 	local skeleton = setmetatable({}, MSkeleton);
 	skeleton.BoneNames = {};
 	skeleton.Bones = {};
-	skeleton.Bones[SKELETON_ROOT_NAME] = newBone(SKELETON_ROOT_NAME);
+	skeleton.Bones[SKELETON_ROOT_NAME] = newBone();
 	skeleton.RenderOrder = {};
 	skeleton.Valid = true;
 	return skeleton;
@@ -35,6 +35,11 @@ function MSkeleton:Validate()
 				self.Valid = false;
 				break;
 			else
+				if (parentName == boneName) then
+					print("Validation failed: Bone '" .. parentName .. "' cannot be its own parent");
+					self.Valid = false;
+					break;
+				end
 				local parent = self.Bones[parentName];
 				parent.Children = parent.Children or {};
 				print("Adding child",boneName,"to",parentName);
@@ -53,14 +58,11 @@ function MSkeleton:Validate()
 end
 
 -- Adds a bone to the skeleton.
-function MSkeleton:AddBone(boneObj)
-	if (not boneObj:GetName()) then
-		error("Attempt to add nameless bone!", 2);
-	end
+function MSkeleton:AddBone(boneName, boneObj)
 	if (not boneObj:GetParent()) then
 		boneObj:SetParent(SKELETON_ROOT_NAME);
 	end
-	self.Bones[boneObj:GetName()] = boneObj;
+	self.Bones[boneName] = boneObj;
 	self.Valid = false;
 end
 
