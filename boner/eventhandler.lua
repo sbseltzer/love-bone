@@ -16,7 +16,7 @@ end
 
 function MEventHandler:SetActor(actor)
 	if (not actor or type(actor) ~= "table") then
-		error(errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
+		error(SHARED.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
 	elseif (not SHARED.isMeta(actor, "Actor")) then
 		error(SHARED.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(SHARED.Meta.Actor), tostring(getmetatable(actor))));
 	end
@@ -43,7 +43,7 @@ function MEventHandler:Fire(animObj, eventName)
 	if (not animObj or not SHARED.isMeta(animObj, "Animation")) then
 		error(SHARED.errorArgs("BadMeta", 1, "Fire", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
-		error(errorArgs("BadArg", 2, "Fire", "string", type(eventName)));
+		error(SHARED.errorArgs("BadArg", 2, "Fire", "string", type(eventName)));
 	end
 	if (animObj and self.Callbacks[animObj] and eventName and self.Callbacks[animObj][eventName]) then
 		for i = 1, #self.Callbacks[animObj][eventName] do

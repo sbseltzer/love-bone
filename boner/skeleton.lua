@@ -59,6 +59,11 @@ end
 
 -- Adds a bone to the skeleton.
 function MSkeleton:SetBone(boneName, boneObj)
+	if (not boneName or type(boneName) ~= "string") then
+		error(SHARED.errorArgs("BadArg", 1, "SetBone", "string", type(boneName)));
+	elseif (not boneObj or not SHARED.isMeta(boneObj, "Bone")) then
+		error(SHARED.errorArgs("BadMeta", 2, "SetBone", "Bone", tostring(SHARED.Meta.Bone), tostring(getmetatable(boneObj))));
+	end
 	if (not boneObj:GetParent() and boneName ~= SKELETON_ROOT_NAME) then
 		boneObj:SetParent(SKELETON_ROOT_NAME);
 	end
@@ -84,14 +89,8 @@ function MSkeleton:BuildRenderOrder()
 	end
 end
 
-function MSkeleton:GetBoneNames()
-	-- TODO: Validate?
-	return {unpack(self.RenderOrder)};
-end
-
 -- Get a bone object.
 function MSkeleton:GetBone(boneName)
-	-- TODO: Validate?
 	return self.Bones[boneName];
 end
 

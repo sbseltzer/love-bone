@@ -54,14 +54,23 @@ end
 
 -- Skeleton reference
 function MActor:SetSkeleton(skeleton)
+	if (not skeleton or not SHARED.isMeta(skeleton, "Skeleton")) then
+		error(SHARED.errorArgs("BadMeta", 1, "SetSkeleton", "Skeleton", tostring(SHARED.Meta.Skeleton), tostring(getmetatable(skeleton))));
+	end
 	self.Skeleton = skeleton;
-	self:GetTransformer():Initialize(skeleton);
 end
 function MActor:GetSkeleton()
 	return self.Skeleton;
 end
 
 function MActor:SetAttachment(boneName, attachName, attachment)
+	if (not boneName or type(boneName) ~= "string") then
+		error(SHARED.errorArgs("BadArg", 1, "SetAttachment", "string", type(boneName)));
+	elseif (not attachName or type(attachName) ~= "string") then
+		error(SHARED.errorArgs("BadArg", 2, "SetAttachment", "string", type(attachName)));
+	elseif (not attachment or not SHARED.isMeta(attachment, "Attachment")) then
+		error(SHARED.errorArgs("BadMeta", 3, "SetAttachment", "Attachment", tostring(SHARED.Meta.Attachment), tostring(getmetatable(attachment))));
+	end
 	self.Attachments[boneName] = self.Attachments[boneName] or {};
 	self.Attachments[boneName][attachName] = attachment;
 end
@@ -82,7 +91,7 @@ function MActor:SetAttachmentVisuals(slotName, visuals)
 			attach:SetScale(1);
 			self:SetAttachment(boneName, slotName, attach);
 		else
-			print("Warning: failed to set attachment for '" .. boneName .. "' - was not of type Visual");
+			print("Warning: failed to set attachment '" .. slotName .. "' for '" .. boneName .. "' - was not of type Visual");
 		end
 	end
 end
@@ -154,9 +163,16 @@ function MActor:GetAttachmentRenderOrder()
 			end
 		end
 	end
-	table.sort(realOrder, function(a, b)
+	local orderFunc = function(a, b)
 		return a[3] < b[3];
-	end);
+	end;
+	local flipH, flipV = self:GetTransformer().FlipH, self:GetTransformer().FlipV;
+	if (flipH and not flipV or flipV and not flipH) then
+		orderFunc = function(a, b)
+			return a[3] > b[3];
+		end;
+	end
+	table.sort(realOrder, orderFunc);
 	return realOrder;
 end
 
@@ -226,6 +242,9 @@ end
 function MActor:Draw()
 	if (not self:GetSkeleton()) then
 		return;
+	elseif (not self:GetSkeleton():IsValid()) then
+		print("Warning: Attempted to draw invalid skeleton!");
+		return;
 	end
 	local transformed = self:GetTransformer().TransformGlobal;
 	if (not transformed) then
@@ -241,6 +260,9 @@ end
 -- Update the animation.
 function MActor:Update(dt)
 	if (not self:GetSkeleton()) then
+		return;
+	elseif (not self:GetSkeleton():IsValid()) then
+		print("Warning: Attempted to update invalid skeleton!");
 		return;
 	end
 	self:GetTransformer():CalculateLocal();

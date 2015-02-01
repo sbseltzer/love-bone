@@ -36,8 +36,11 @@ local function newBone(parent, layer, offset, defaultRotation, defaultTranslatio
 end
 
 -- Represents draw order for bones in the same skeleton
-function MBone:SetLayer(i)
-	self.Layer = i;
+function MBone:SetLayer(layer)
+	if (not layer or not tonumber(layer)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetLayer", "number", type(layer)));
+	end
+	self.Layer = tonumber(layer);
 end
 function MBone:GetLayer()
 	return self.Layer;
@@ -45,6 +48,9 @@ end
 
 -- Parent bone name
 function MBone:SetParent(boneName)
+	if (boneName and type(boneName) ~= "string") then
+		error(SHARED.errorArgs("BadArg", 1, "SetParent", "string", type(boneName)));
+	end
 	self.Parent = boneName;
 end
 function MBone:GetParent()
@@ -53,7 +59,12 @@ end
 
 -- Position of this bone's origin relative to its parents origin.
 function MBone:SetOffset(offsetX, offsetY)
-	self.Offset = {offsetX, offsetY};
+	if (not offsetX or not tonumber(offsetX)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetOffset", "number", type(offsetX)));
+	elseif (not offsetY or not tonumber(offsetY)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetOffset", "number", type(offsetY)));
+	end
+	self.Offset = {tonumber(offsetX), tonumber(offsetY)};
 end
 function MBone:GetOffset()
 	return unpack(self.Offset);
@@ -61,6 +72,9 @@ end
 
 -- Default local rotation
 function MBone:SetDefaultRotation(angle)
+	if (not angle or not tonumber(angle)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetDefaultRotation", "number", type(angle)));
+	end
 	self.Rotation = angle;
 end
 function MBone:GetDefaultRotation()
@@ -69,7 +83,12 @@ end
 
 -- Default local translation
 function MBone:SetDefaultTranslation(transX, transY)
-	self.Translation = {transX, transY};
+	if (not transX or not tonumber(transX)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetDefaultTranslation", "number", type(transX)));
+	elseif (not transY or not tonumber(transY)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetDefaultTranslation", "number", type(transY)));
+	end
+	self.Translation = {tonumber(transX), tonumber(transY)};
 end
 function MBone:GetDefaultTranslation()
 	return unpack(self.Translation);
@@ -77,7 +96,12 @@ end
 
 -- Default local scaling
 function MBone:SetDefaultScale(scaleX, scaleY)
-	self.Scale = {scaleX, scaleY};
+	if (not scaleX or not tonumber(scaleX)) then
+		error(SHARED.errorArgs("BadArg", 1, "SetDefaultScale", "number", type(scaleX)));
+	elseif (not scaleY or not tonumber(scaleY)) then
+		error(SHARED.errorArgs("BadArg", 2, "SetDefaultScale", "number", type(scaleY)));
+	end
+	self.Scale = {tonumber(scaleX), tonumber(scaleY)};
 end
 function MBone:GetDefaultScale()
 	return unpack(self.Scale);

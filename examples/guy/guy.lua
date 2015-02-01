@@ -32,8 +32,8 @@ local bodyParts = {};
 function love.load()
 
 	local skeleton = demina.ImportSkeleton("examples/assets/guy/guy_default.anim");
-	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
-	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
+	skeleton:GetBone("head"):SetLayer(7); -- Corrected head layer.
+	skeleton:BuildRenderOrder(); -- must rebuild the render order if we modify layers.
 	
 	local animWalk = demina.ImportAnimation("examples/assets/guy/guy_walk.anim", skeleton);
 	local animPump = demina.ImportAnimation("examples/assets/guy/guy_fistpump.anim", skeleton);
@@ -201,20 +201,10 @@ function love.keypressed(key, isrepeat)
 	elseif (key == "v") then
 		for i = 1, #bonedActors do
 			bonedActors[i]:GetTransformer().FlipV = not bonedActors[i]:GetTransformer().FlipV;
-			--[[if (bonedActors[i].State == "playing") then
-				bonedActors[i]:Pause();
-			else
-				bonedActors[i]:Start();
-			end]]
 		end
 	elseif (key == "h") then
 		for i = 1, #bonedActors do
 			bonedActors[i]:GetTransformer().FlipH = not bonedActors[i]:GetTransformer().FlipH;
-			--[[if (bonedActors[i].State == "playing") then
-				bonedActors[i]:Pause();
-			else
-				bonedActors[i]:Start();
-			end]]
 		end
 	elseif (key == "w") then
 		for i = 1, #bonedActors do

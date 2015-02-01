@@ -5,11 +5,11 @@ local lerp = SHARED.lerp;
 
 -- Helper methods for transformation tables.
 local function newTransformation(rotation, translateX, translateY, scaleX, scaleY, layer, visual, vFlip, hFlip)
-	rotation = rotation or 0;
-	translateX = translateX or 0;
-	translateY = translateY or 0;
-	scaleX = scaleX or 1;
-	scaleY = scaleY or 1;
+	rotation = tonumber(rotation) or 0;
+	translateX = tonumber(translateX) or 0;
+	translateY = tonumber(translateY) or 0;
+	scaleX = tonumber(scaleX) or 1;
+	scaleY = tonumber(scaleY) or 1;
 	return {rotation = rotation, translation = {translateX, translateY}, scale = {scaleX, scaleY}, layer = layer, visual = visual, vFlip = vFlip, hFlip = hFlip};
 end
 local function isValidTransformation(t)
@@ -38,7 +38,6 @@ local function isValidTransformationObject(obj)
 	if (type(obj) == "table") then
 		if (not SHARED.isMeta(obj, "Animation")) then
 			for boneName, trans in pairs(obj) do
-				--print(boneName, trans);
 				if (not isValidTransformation(trans)) then
 					return false;
 				end
@@ -86,14 +85,6 @@ function MTransformer:GetActor()
 	return self.Actor;
 end
 
--- Called by actor to initialize transformer.
-function MTransformer:Initialize(skeleton)
-	if (skeleton) then
-		self:CalculateLocal();
-		self:CalculateGlobal();
-	end
-end
-
 -- Adds a transformation to the list of transformer objects with an optional bone filter.
 function MTransformer:Register(name, obj, boneMask)
 	if (not obj) then
@@ -101,7 +92,7 @@ function MTransformer:Register(name, obj, boneMask)
 		self.Powers[name] = nil;
 		self.BoneMasks[name] = nil;
 		self.Variables[name] = nil;
-		for boneName, _ in pairs(self.Actor:GetSkeleton().Bones) do
+		for boneName, _ in ipairs(self.Actor:GetSkeleton().Bones) do
 			if (self.Priorities[boneName]) then
 				self.Priorities[boneName][name] = nil;
 			end
@@ -180,26 +171,9 @@ function MTransformer:GetActiveTransformations()
 	local actor = self:GetActor();
 	local transformations = {};
 	for name, power in pairs(self.Powers) do
-		if (power > 0) then
-			local obj = self.Transformations[name];
-			local trans;
-			if (obj) then
-				--[[if (SHARED.isMeta(obj, "Animation")) then
-					-- Calculate keyTime
-					-- TODO: Speed per transformation.
-					local animDuration = obj:GetDuration() / actor.Speed;
-					local keyTime = (actor.TimeElapsed % animDuration) * actor.Speed;
-					if (keyTime < 0) then
-						keyTime = animDuration + keyTime;
-					end
-					trans = {name = name, object = obj};
-				elseif (type(obj) == "function") then
-					trans = {name = name, object = obj};
-				elseif (type(obj) == "table") then
-					trans = {name = name, object = obj};
-				end]]
-				table.insert(transformations, {name = name, object = obj});
-			end
+		local obj = self.Transformations[name];
+		if (obj and power > 0) then
+			table.insert(transformations, {name = name, object = obj});
 		end
 	end
 	return transformations;
@@ -252,7 +226,6 @@ function MTransformer:GetRoot()
 	return self.RootTransformation;
 end
 
---
 function MTransformer:CalculateLocal(transformList, boneName)
 	transformList = transformList or self:GetActiveTransformations();
 	boneName = boneName or SKELETON_ROOT_NAME;
@@ -305,9 +278,6 @@ function MTransformer:CalculateLocal(transformList, boneName)
 			
 			local power = powers[name] or 0;
 			
-			--local targetRot = math.fmod(data.rotation, 2 * math.pi);
-			--local curRot = math.fmod(self.TransformLocal[boneName].rotation, 2 * math.pi);
-			
 			-- TODO: Replace lerp with something that won't be negatively affected by user-input? Perhaps that responsibility should rest on the user.
 			data.rotation = lerp(0, data.rotation, power);
 			data.translation[1] = lerp(0, data.translation[1], power);
@@ -355,6 +325,7 @@ function MTransformer:CalculateGlobal(boneName, parentData)
 	local boneObj = self.Actor:GetSkeleton():GetBone(boneName);
 	local xOffset, yOffset = boneObj:GetOffset();
 	
+	-- Do flipping
 	local shouldFlipH = self.FlipH;
 	if (self.FlipV) then
 		if (boneName == SKELETON_ROOT_NAME) then
@@ -413,6 +384,18 @@ function MTransformer:GetBoneScale(boneName)
 		return 1, 1;
 	end
 	return unpack(boneData.scale);
+end
+function MTransformer:GetBoneForward(boneName)
+	local ang = self:GetBoneAngle(boneName);
+	local fx, fy = math.cos(ang), math.sin(ang);
+	if (self.FlipH and not self.FlipV or self.FlipV and not self.FlipH) then
+		fx = -fx;
+	end
+	return fx, fy;
+end
+function MTransformer:GetBoneUp(boneName)
+	local uy, ux = self:GetBoneForward(boneName);
+	return ux, uy;
 end
 
 -- Getters for absolute attachment orientations

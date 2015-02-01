@@ -1,3 +1,6 @@
+--[[
+	Internal library utilities.
+--]]
 
 local SKELETON_ROOT_NAME = "__root__"; -- In conventional animation systems, this would be the root scene node.
 local SKIN_ATTACHMENT_NAME = "__skin__"; -- In conventional animation systems, this would be the root scene node.
@@ -16,8 +19,8 @@ local Meta = {
 };
 
 -- Returns true if the metatable for t matches the metatable associated with mName. 
-local function isMeta(t, mName)
-	return type(t) == "table" and getmetatable(t) == Meta[mName];
+local function isMeta(obj, mName)
+	return type(obj) == "table" and getmetatable(obj) == Meta[mName];
 end
 
 -- Error checking utilities
@@ -98,6 +101,6 @@ local function print_r(t, i, found)
 end
 
 return {DEBUG = DEBUG, SKELETON_ROOT_NAME = SKELETON_ROOT_NAME, SKIN_ATTACHMENT_NAME = SKIN_ATTACHMENT_NAME, 
-		Meta = Meta, isMeta = isMeta, 
+		Meta = Meta, isMeta = isMeta, errorArgs = errorArgs,
 		lerp = lerp, rotate = rotate, 
 		print_r = print_r};
