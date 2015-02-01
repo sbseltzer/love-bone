@@ -69,7 +69,7 @@ for i = 1, NUM_SEGMENTS do
 	local translation = {0, 0};
 	local scale = {1, 1};
 	local bone = boner.newBone(parent, i, offset, rotation, translation, scale);
-	mySkeleton:AddBone(name, bone);
+	mySkeleton:SetBone(name, bone);
 end
 ```
 
@@ -272,7 +272,7 @@ Every actor needs a skeleton.  Skeletons never change state.  They are merely a 
 
 ```lua
 local skeleton = boner.newSkeleton();
-skeleton:AddBone(bone);
+skeleton:SetBone(boneName, bone);
 ...
 skeleton:Validate();
 ```

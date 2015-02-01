@@ -25,7 +25,7 @@ function love.load()
 		local translation = {0, 0};
 		local scale = {1, 1};
 		local bone = boner.newBone(parent, i, offset, rotation, translation, scale);
-		mySkeleton:AddBone(name, bone);
+		mySkeleton:SetBone(name, bone);
 	end
 	
 	-- Validate the skeleton!

@@ -58,8 +58,8 @@ function MSkeleton:Validate()
 end
 
 -- Adds a bone to the skeleton.
-function MSkeleton:AddBone(boneName, boneObj)
-	if (not boneObj:GetParent()) then
+function MSkeleton:SetBone(boneName, boneObj)
+	if (not boneObj:GetParent() and boneName ~= SKELETON_ROOT_NAME) then
 		boneObj:SetParent(SKELETON_ROOT_NAME);
 	end
 	self.Bones[boneName] = boneObj;
@@ -68,7 +68,10 @@ end
 
 -- Rebuilds the rendering order of bones based on their current layer.
 function MSkeleton:BuildRenderOrder()
-	-- TODO: Validate?
+	if (not self:IsValid()) then
+		print("Warning: Could not build render order for invalid skeleton!");
+		return;
+	end
 	self.RenderOrder = {};
 	for boneName, bone in pairs(self.Bones) do
 		local i = 1;
@@ -93,7 +96,10 @@ function MSkeleton:GetBone(boneName)
 end
 
 function MSkeleton:GetBoneTree(name, t)
-	-- TODO: Validate?
+	if (not self:IsValid()) then
+		print("Warning: Could not get bone tree for invalid skeleton!");
+		return;
+	end
 	t = t or {};
 	table.insert(t, name);
 	local children = self:GetBone(name).Children;
@@ -108,6 +114,10 @@ end
 
 -- Returns the skeleton bind pose.
 function MSkeleton:GetBindPose()
+	if (not self:IsValid()) then
+		print("Warning: Could not get bind pose for invalid skeleton!");
+		return;
+	end
 	-- TODO: Validate?
 	-- TODO: Cache this?
 	local pose = {};
