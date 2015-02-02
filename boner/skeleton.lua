@@ -61,7 +61,7 @@ end
 function MSkeleton:SetBone(boneName, boneObj)
 	if (not boneName or type(boneName) ~= "string") then
 		error(SHARED.errorArgs("BadArg", 1, "SetBone", "string", type(boneName)));
-	elseif (not boneObj or not SHARED.isMeta(boneObj, "Bone")) then
+	elseif (not boneObj or not SHARED.isType(boneObj, "Bone")) then
 		error(SHARED.errorArgs("BadMeta", 2, "SetBone", "Bone", tostring(SHARED.Meta.Bone), tostring(getmetatable(boneObj))));
 	end
 	if (not boneObj:GetParent() and boneName ~= SKELETON_ROOT_NAME) then
@@ -94,20 +94,21 @@ function MSkeleton:GetBone(boneName)
 	return self.Bones[boneName];
 end
 
-function MSkeleton:GetBoneTree(name, t)
+-- Returns a list of bones that belong to the skeleton, starting from the optional rootName.
+function MSkeleton:GetBoneList(rootName, t)
 	if (not self:IsValid()) then
 		print("Warning: Could not get bone tree for invalid skeleton!");
 		return;
 	end
-	name = name or SKELETON_ROOT_NAME;
+	rootName = rootName or SKELETON_ROOT_NAME;
 	t = t or {};
-	table.insert(t, name);
-	local children = self:GetBone(name).Children;
+	table.insert(t, rootName);
+	local children = self:GetBone(rootName).Children;
 	if (not children or #children == 0) then
 		return t;
 	end
 	for i = 1, #children do
-		self:GetBoneTree(children[i], t);
+		self:GetBoneList(children[i], t);
 	end
 	return t;
 end

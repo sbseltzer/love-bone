@@ -33,5 +33,5 @@ return {
 	newAttachment = newAttachment,
 	newTransformer = newTransformer,
 	newEventHandler = newEventHandler,
-	isType = SHARED.isMeta
+	isType = SHARED.isType
 };

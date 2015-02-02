@@ -27,7 +27,7 @@ function love.load()
 		local c = newCharacter(skeleton);
 		c:RegisterAnimation("walk", animWalk);
 		
-		c:RegisterAnimation("pump", animPump, skeleton:GetBoneTree("front_upper_arm"));
+		c:RegisterAnimation("pump", animPump, skeleton:GetBoneList("front_upper_arm"));
 		c:SetAnimationLayer("pump", 1);
 		
 		c:RegisterSkin("default", skinDefault);
@@ -58,10 +58,10 @@ function love.keypressed(key, isrepeat)
 		for i = 1, #characters do
 			local curState = characters[i]:GetAnimationState(animName);
 			if (curState ~= "stopped") then
-				characters[i]:EndAnimation(animName, 3);
+				characters[i]:EndAnimation(animName, 2);
 				print("ending", characters[i]:GetAnimationState(animName));
 			else
-				characters[i]:StartAnimation(animName, 5);
+				characters[i]:StartAnimation(animName, 0.5);
 				print("starting", characters[i]:GetAnimationState(animName));
 			end
 		end

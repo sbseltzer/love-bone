@@ -111,7 +111,7 @@ myActor = boner.newActor(mySkeleton);
 
 Now we have an actor, but it's just a set of bones right now. We need to attach a skin to it.
 
-Before we can create the skin, we must first create a [Visual](#visual) for each possible [Bone](#bone) appearance:
+Before we can create the skin, we must first create a [Visual](#visual) object for each possible [Bone](#bone) appearance:
 
 ```lua
 -- Create the visual elements for the actor
@@ -133,6 +133,8 @@ for i = 1, 3 do
 end
 ```
 
+Attachments follow their assigned bone on an actor. Since bones are invisible, adding an attachment with no modifications to angle, position, or size, will appear wherever the bone is. This is how we make "skins" for our actors.
+
 Using the visuals we just made, make an [Attachment](#attachment) for each [Bone](#bone):
 
 ```lua
@@ -145,7 +147,7 @@ for i = 1, NUM_SEGMENTS do
 end
 ```
 
-These attachments create the skin for our actor, who is now visible to us. However, we can't look at this animation quite yet. 
+Our actor will be visible to us as soon as we call its `Draw` method. However, we can't look at this animation quite yet. 
 
 #### Adding transformations
 
@@ -251,8 +253,6 @@ Actors are what ties everything together.  They must hold a reference to a skele
 
 ```lua
 local myActor = boner.newActor(skeleton);
-...
-myActor:SetAnimation(animName);
 ```
 
 To use them, you must call their update and draw methods.
@@ -292,8 +292,7 @@ Animations are a convenient way to apply transformations to your actors.
 ```lua
 local animation = boner.newAnimation(skeleton);
 animation:AddKeyFrame(boneName, keyTime, rotation, translation, scale);
-...
-skeleton:AddAnimation(animation);
+animation:AddEvent(keyTime, eventName);
 ```
 
 ### Visual
@@ -316,15 +315,22 @@ Attachments are used to attach a Visual object to a bone on an Actor. Skins are 
 
 ```lua
 local attachment = boner.newAttachment(visual);
+attachment:SetVisual(visual);
+attachment:SetRotation(angle);
+attachment:SetTranslation(x, y);
+attachment:SetScale(x, y);
+attachment:SetColor(r, g, b, a);
+attachment:SetLayerOffset(n);
 myActor:SetAttachment(boneName, attachName, attachment);
 ```
 
 ### EventHandler
 
-Every actor has an EventHandler automatically created for them. You can use it to register event callbacks.
+Every actor has an EventHandler automatically created for them. You can use it to register animation event callbacks.
 
 ```lua
-myActor:GetEventHandler():Register(animName, eventName, funcCallback);
+local eventhandler = myActor:GetEventHandler();
+eventhandler:Register(animName, eventName, funcCallback);
 ```
 
 ### Transformer
@@ -332,9 +338,10 @@ myActor:GetEventHandler():Register(animName, eventName, funcCallback);
 Every actor has a Transformer automatically created for them. You use it to register bone transformations. This includes animations.
 
 ```lua
-myActor:GetTransformer():Register(transformName, animName | transformTable | transformFunc, boneMask);
-myActor:GetTransformer():SetPriotity(transformName, priority);
-myActor:GetTransformer():SetPower(transformName, power);
+local transformer = myActor:GetTransformer();
+transformer:Register(transformName, animation | transformTable | transformFunc, boneMask);
+transformer:SetPriotity(transformName, priority);
+transformer:SetPower(transformName, power);
 ```
 
 The transformer is what represents the bone positions of an individual actor.

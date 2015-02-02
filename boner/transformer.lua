@@ -35,7 +35,7 @@ local function isValidTransformation(t)
 			valid = valid and tonumber(t.layer);
 		end
 		if (t.visual) then
-			valid = valid and SHARED.isMeta(t.visual, "Visual");
+			valid = valid and SHARED.isType(t.visual, "Visual");
 		end
 	end
 	-- We don't need to check vFlip and hFlip as they are booleans.
@@ -43,7 +43,7 @@ local function isValidTransformation(t)
 end
 local function isValidTransformationObject(obj)
 	if (type(obj) == "table") then
-		if (not SHARED.isMeta(obj, "Animation")) then
+		if (not SHARED.isType(obj, "Animation")) then
 			for boneName, trans in pairs(obj) do
 				if (not isValidTransformation(trans)) then
 					return false;
@@ -86,7 +86,7 @@ end
 function MTransformer:SetActor(actor)
 	if (not actor or type(actor) ~= "table") then
 		error(SHARED.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
-	elseif (not SHARED.isMeta(actor, "Actor")) then
+	elseif (not SHARED.isType(actor, "Actor")) then
 		error(SHARED.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(SHARED.Meta.Actor), tostring(getmetatable(actor))));
 	end
 	self.Actor = actor;
@@ -123,7 +123,7 @@ function MTransformer:Register(name, obj, boneMask)
 		self.Transformations[name] = obj;
 		self.Powers[name] = 0;
 		local vars = {};
-		if (SHARED.isMeta(obj, "Animation")) then
+		if (SHARED.isType(obj, "Animation")) then
 			vars.time = 0;
 			vars.speed = 1;
 		end
@@ -248,7 +248,7 @@ function MTransformer:CalculateLocal(transformList, boneName)
 		local obj = transformList[i].object;
 		if (not self.BoneMasks[name] or self.BoneMasks[name][boneName]) then
 			local data;
-			if (SHARED.isMeta(obj, "Animation")) then
+			if (SHARED.isType(obj, "Animation")) then
 				local animDuration = obj:GetDuration();
 				local keyTime = tonumber(self:GetVariables(name).time) or 0;
 				local animSpeed = tonumber(self:GetVariables(name).speed) or 1;
@@ -368,85 +368,64 @@ function MTransformer:CalculateGlobal(boneName, parentData)
 	end
 end
 
--- Getters for absolute bone orientations
-function MTransformer:GetBoneAngle(boneName)
+-- Getters for absolute orientations (attachName is optional in all cases)
+function MTransformer:GetAngle(boneName, attachName)
+	boneName = boneName or SKELETON_ROOT_NAME;
 	local boneData = self.TransformGlobal[boneName];
-	if (not boneData or not boneData.rotation) then
-		return 0;
+	local attach = self:GetActor():GetAttachment(boneName, attachName);
+	local rotation = 0;
+	if (boneData and boneData.rotation) then
+		rotation = rotation + boneData.rotation;
 	end
-	return boneData.rotation;
+	if (attach) then
+		rotation = rotation + attach:GetRotation();
+	end
+	return rotation;
 end
-function MTransformer:GetBonePosition(boneName)
+function MTransformer:GetPosition(boneName, attachName)
+	boneName = boneName or SKELETON_ROOT_NAME;
 	local boneData = self.TransformGlobal[boneName];
-	local sx, sy = self:GetBoneScale(boneName);
-	local x, y = unpack(boneData.translation);
+	local attach = self:GetActor():GetAttachment(boneName, attachName);
+	local x, y = 0, 0;
+	if (boneData and boneData.translation) then
+		x = x + boneData.translation[1];
+		y = y + boneData.translation[2];
+	end
+	if (attach) then
+		local ax, ay = attach:GetTranslation();
+		x = x + ax;
+		y = y + ay;
+	end
 	return x, y;
 end
-function MTransformer:GetBoneScale(boneName)
+function MTransformer:GetScale(boneName, attachName)
+	boneName = boneName or SKELETON_ROOT_NAME;
 	local boneData = self.TransformGlobal[boneName];
-	if (not boneData or not boneData.scale) then
-		return 1, 1;
+	local attach = self:GetActor():GetAttachment(boneName, attachName);
+	local x, y = 1, 1;
+	if (boneData and boneData.scale) then
+		x = x * boneData.scale[1];
+		y = y * boneData.scale[2];
 	end
-	return unpack(boneData.scale);
+	if (attach) then
+		local ax, ay = attach:GetScale();
+		x = x * ax;
+		y = y * ay;
+	end
+	return x, y;
 end
-function MTransformer:GetBoneForward(boneName)
-	local ang = self:GetBoneAngle(boneName);
+function MTransformer:GetForward(boneName, attachName)
+	boneName = boneName or SKELETON_ROOT_NAME;
+	local ang = self:GetAngle(boneName, attachName);
 	local fx, fy = rotate(0, 0, ang, 1, 0);
 	if (self.FlipH and not self.FlipV or self.FlipV and not self.FlipH) then
 		fx = -fx;
 	end
 	return fx, fy;
 end
-function MTransformer:GetBoneUp(boneName)
-	local uy, ux = self:GetBoneForward(boneName);
-	return ux, -uy;
-end
-
--- Getters for absolute attachment orientations
-function MTransformer:GetAttachmentAngle(boneName, attachName)
-	local boneRot = self:GetBoneAngle(boneName) or 0;
-	local attach = self:GetActor():GetAttachment(boneName, attachName);
-	local attachRot;
-	if (attach) then
-		attachRot = attach:GetRotation();
-	else
-		attachRot = 0;
-	end
-	return boneRot + attachRot;
-end
-function MTransformer:GetAttachmentPosition(boneName, attachName)
-	local bonePos = {self:GetBonePosition(boneName)};
-	local attach = self:GetActor():GetAttachment(boneName, attachName);
-	local attachPos;
-	if (attach) then
-		attachPos = {attach:GetTranslation()};
-	else
-		attachPos = {0, 0};
-	end
-	attachPos = {rotate(0, 0, self:GetAttachmentAngle(boneName, attachName), attachPos[1], attachPos[2])};
-	return bonePos[1] + attachPos[1], bonePos[2] + attachPos[2];
-end
-function MTransformer:GetAttachmentScale(boneName, attachName)
-	local boneScale = {self:GetBoneScale(boneName)};
-	local attach = self:GetActor():GetAttachment(boneName, attachName);
-	local attachScale;
-	if (attach) then
-		attachScale = {attach:GetScale()};
-	else
-		attachScale = {1, 1};
-	end
-	return boneScale[1] * attachScale[1], boneScale[2] * attachScale[2];
-end
-function MTransformer:GetAttachmentForward(boneName, attachName)
-	local ang = self:GetAttachmentAngle(boneName, attachName);
-	local fx, fy = rotate(0, 0, ang, 1, 0);
-	if (self.FlipH and not self.FlipV or self.FlipV and not self.FlipH) then
-		fx = -fx;
-	end
-	return fx, fy;
-end
-function MTransformer:GetAttachmentUp(boneName, attachName)
-	local uy, ux = self:GetAttachmentForward(boneName, attachName);
+function MTransformer:GetUp(boneName, attachName)
+	boneName = boneName or SKELETON_ROOT_NAME;
+	local uy, ux = self:GetForward(boneName, attachName);
 	return ux, -uy;
 end
 

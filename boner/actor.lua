@@ -66,12 +66,12 @@ end
 
 -- Skeleton reference
 function MActor:SetSkeleton(skeleton)
-	if (not skeleton or not SHARED.isMeta(skeleton, "Skeleton")) then
+	if (not skeleton or not SHARED.isType(skeleton, "Skeleton")) then
 		error(SHARED.errorArgs("BadMeta", 1, "SetSkeleton", "Skeleton", tostring(SHARED.Meta.Skeleton), tostring(getmetatable(skeleton))));
 	end
 	if (self.Skeleton ~= skeleton) then
 		self.Debug = {};
-		self:SetDebug(skeleton:GetBoneTree(SKELETON_ROOT_NAME), false);
+		self:SetDebug(skeleton:GetBoneList(), false);
 	end
 	self.Skeleton = skeleton;
 end
@@ -84,7 +84,7 @@ function MActor:SetAttachment(boneName, attachName, attachment)
 		error(SHARED.errorArgs("BadArg", 1, "SetAttachment", "string", type(boneName)));
 	elseif (not attachName or type(attachName) ~= "string") then
 		error(SHARED.errorArgs("BadArg", 2, "SetAttachment", "string", type(attachName)));
-	elseif (not attachment or not SHARED.isMeta(attachment, "Attachment")) then
+	elseif (not attachment or not SHARED.isType(attachment, "Attachment")) then
 		error(SHARED.errorArgs("BadMeta", 3, "SetAttachment", "Attachment", tostring(SHARED.Meta.Attachment), tostring(getmetatable(attachment))));
 	end
 	self.Attachments[boneName] = self.Attachments[boneName] or {};
@@ -93,20 +93,6 @@ end
 function MActor:GetAttachment(boneName, attachName)
 	if (self.Attachments[boneName]) then
 		return self.Attachments[boneName][attachName];
-	end
-end
-
--- A helper function to setting skins.
-function MActor:SetAttachmentVisuals(slotName, visuals)
-	slotName = slotName or SKIN_ATTACHMENT_NAME;
-	for boneName, visual in pairs(visuals) do
-		if (SHARED.isMeta(visual, "Visual")) then
-			local attach = newAttachment();
-			attach:SetVisual(visual);
-			self:SetAttachment(boneName, slotName, attach);
-		else
-			print("Warning: failed to set attachment '" .. slotName .. "' for '" .. boneName .. "' - was not of type Visual");
-		end
 	end
 end
 
@@ -164,7 +150,12 @@ function MActor:DrawAttachment(transformed, boneName, attachName)
 	local color = {love.graphics.getColor()};
 	local boneData = transformed[boneName];
 	local attachment = self:GetAttachment(boneName, attachName);
+	local vis = attachment:GetVisual();
 	
+	if (not vis) then
+		print("Invalid attachment:", boneName, attachName);
+		return;
+	end
 	love.graphics.push();
 	
 	-- Bone Transformations
@@ -178,7 +169,7 @@ function MActor:DrawAttachment(transformed, boneName, attachName)
 	love.graphics.scale(attachment:GetScale());
 	
 	love.graphics.setColor(attachment:GetColor());
-	attachment:GetVisual():Draw();
+	vis:Draw();
 	
 	love.graphics.pop();
 	

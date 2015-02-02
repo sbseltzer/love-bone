@@ -19,9 +19,11 @@ local function newVisual(vis, ...)
 	return t;
 end
 
+-- TODO: Add more things to this?
 function MVisual:SetVisualData(vis, ...)
+	local validTypes = "string or userdata";
 	if (vis == nil) then
-		error("Attempt to set visual to nil!", 2);
+		error(SHARED.errorArgs("BadArg", 1, "SetVisualData", validTypes, "nil"));
 	end
 	local vType = type(vis);
 	-- Strings are assumed to be image paths
@@ -33,42 +35,39 @@ function MVisual:SetVisualData(vis, ...)
 			vis = love.graphics.newImage(vis);
 		-- Any drawables can just be used as they are.
 		elseif(not vis:typeOf("Drawable")) then
-			error("Invalid userdata object for visual: Must be a Drawable type!", 2);
+			error(SHARED.errorArgs("BadArg", 1, "SetVisualData", "Drawable", vis:type()));
 		end
-	--elseif (vType == "table" and SHARED.isMeta(vis, "Actor")) then
-		-- Maybe...
 	else
-		error("Invalid visual type!", 2);
+		error(SHARED.errorArgs("BadArg", 1, "SetVisualData", validTypes, type(vis)));
 	end
 	-- Attempt to get a quad for texture types.
 	local args = {...};
 	if (vis.typeOf and (vis:typeOf("Texture") or vis:typeOf("SpriteBatch"))) then
+		-- If there are 4 args after the visual data, we expect quad params.
 		if (#args >= 4) then
-			local x, y, w, h = ...;
-			if (tonumber(x) and tonumber(y) and tonumber(w) and tonumber(h)) then
-				self.Quad = love.graphics.newQuad(x, y, w, h);
+			for i = 1, #args do
+				if (not tonumber(args[i])) then
+					error(SHARED.errorArgs("BadArg", 1 + i, "SetVisualData", "number", type(args[i])));
+				end
 			end
+			self.Quad = love.graphics.newQuad(...);
+		-- If there is 1 arg after the visual data, we expect a quad object.
 		elseif (#args >= 1) then
 			local quad = args[1];
-			if (quad and type(quad) == "userdata" and quad:typeOf("Quad")) then
-				self.Quad = quad;
+			if (not quad or type(quad) ~= "userdata") then
+				error(SHARED.errorArgs("BadArg", 2, "SetVisualData", "userdata", type(quad)));
+			elseif (not quad:typeOf("Quad")) then
+				error(SHARED.errorArgs("BadArg", 2, "SetVisualData", "Quad", quad:type()));
 			end
+			self.Quad = quad;
 		end
-		-- If a Sprite ID was already set for this attachment
-		--[[if (self.SpriteID) then
-			-- If our previous visual was a sprite batch and is different from the new visual, remove it from the sprite batch.
-			if (self.Visual:typeOf("SpriteBatch") and vis ~= self.Visual) then
-				self.Visual:set(self.SpriteID, 0, 0, 0, 0, 0);
-				self.SpriteID = nil;
-			end
-		end]]
 	else
 		self.Quad = nil;
 	end
 	self.Visual = vis;
 end
 function MVisual:GetVisualData()
-	return self.Visual, self.Quad; --, self.SpriteID;
+	return self.Visual, self.Quad;
 end
 
 function MVisual:GetDimensions()
@@ -79,8 +78,6 @@ function MVisual:GetDimensions()
 	elseif (type(vis) == "userdata") then
 		if (vis:typeOf("Texture")) then
 			return vis:getDimensions();
-		--[[elseif (vis:typeOf("SpriteBatch")) then
-			return vis:getTexture():getDimensions();]]
 		elseif (vis:typeOf("ParticleSystem")) then
 			local distribution, dx, dy = vis:getAreaSpread();
 			local w, h = 1, 1;
@@ -147,25 +144,16 @@ function MVisual:GetScale()
 end
 
 function MVisual:Draw()
-	local vis, quad = self:GetVisualData(); --, spriteID
-	local x, y = 0, 0;--attach:GetTranslation();
-	local r = self:GetRotation(); --+ attach:GetRotation();
+	local vis, quad = self:GetVisualData();
+	local x, y = 0, 0;
+	local r = self:GetRotation();
 	local sx, sy = self:GetScale();
 	local ox, oy = self:GetOrigin();
 	local params = {x, y, r, sx, sy, ox, oy};
 	if (quad) then
 		table.insert(params, 1, quad);
 	end
-	--print(unpack(params));
-	--[[if (vis.typeOf and vis:typeOf("SpriteBatch")) then
-		if (not self.SpriteID) then
-			self.SpriteID = vis:add(unpack(params));
-		else
-			vis:set(self.SpriteID, unpack(params));
-		end
-	else]]
-		love.graphics.draw(vis, unpack(params));
-	--end
+	love.graphics.draw(vis, unpack(params));
 end
 
 return newVisual;

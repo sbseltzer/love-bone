@@ -15,6 +15,9 @@ local function newCharacter(skeleton, skinData)
 	t.Blend = {};
 	t.State = {};
 	t.Skins = {default = skinData};
+	if (skinData) then
+		self:SetSkin("default");
+	end
 	return t;
 end
 
@@ -29,7 +32,19 @@ function MCharacter:RegisterSkin(skinName, skinData)
 end
 
 function MCharacter:SetSkin(skinName)
-	self.Actor:SetAttachmentVisuals("skin", self.Skins[skinName]);
+	local bones = self.Actor:GetSkeleton():GetBoneList();
+	for i = 1, #bones do
+		local boneName = bones[i];
+		local vis = self.Skins[skinName][boneName];
+		if (vis and boner.isType(vis, "Visual")) then
+			local attach = self.Actor:GetAttachment(boneName, "skin");
+			if (not attach) then
+				self.Actor:SetAttachment(boneName, "skin", boner.newAttachment(vis));
+			else
+				attach:SetVisual(vis);
+			end
+		end
+	end
 end
 
 function MCharacter:SetPosition(x, y)

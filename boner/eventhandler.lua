@@ -18,7 +18,7 @@ end
 function MEventHandler:SetActor(actor)
 	if (not actor or type(actor) ~= "table") then
 		error(SHARED.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
-	elseif (not SHARED.isMeta(actor, "Actor")) then
+	elseif (not SHARED.isType(actor, "Actor")) then
 		error(SHARED.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(SHARED.Meta.Actor), tostring(getmetatable(actor))));
 	end
 	self.Actor = actor;
@@ -28,7 +28,7 @@ function MEventHandler:GetActor()
 end
 
 function MEventHandler:Register(animObj, eventName, funcCallback)
-	if (not animObj or not SHARED.isMeta(animObj, "Animation")) then
+	if (not animObj or not SHARED.isType(animObj, "Animation")) then
 		error(SHARED.errorArgs("BadMeta", 1, "Register", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
 		error(SHARED.errorArgs("BadArg", 2, "Register", "string", type(eventName)));
@@ -41,7 +41,7 @@ function MEventHandler:Register(animObj, eventName, funcCallback)
 end
 
 function MEventHandler:Fire(animObj, eventName)
-	if (not animObj or not SHARED.isMeta(animObj, "Animation")) then
+	if (not animObj or not SHARED.isType(animObj, "Animation")) then
 		error(SHARED.errorArgs("BadMeta", 1, "Fire", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
 		error(SHARED.errorArgs("BadArg", 2, "Fire", "string", type(eventName)));
@@ -57,7 +57,7 @@ end
 function MEventHandler:Check(animObj, keyTime)
 	if (not animObj or type(animObj) ~= "table") then
 		error(SHARED.errorArgs("BadArg", 1, "Check", "table", type(animObj)));
-	elseif (not SHARED.isMeta(animObj, "Animation")) then
+	elseif (not SHARED.isType(animObj, "Animation")) then
 		error(SHARED.errorArgs("BadMeta", 1, "Check", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not keyTime or type(keyTime) ~= "number") then
 		error(SHARED.errorArgs("BadArg", 2, "Check", "number", type(keyTime)));

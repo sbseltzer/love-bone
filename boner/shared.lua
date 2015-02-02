@@ -19,7 +19,7 @@ local Meta = {
 };
 
 -- Returns true if the metatable for t matches the metatable associated with mName. 
-local function isMeta(obj, mName)
+local function isType(obj, mName)
 	return type(obj) == "table" and getmetatable(obj) == Meta[mName];
 end
 
@@ -101,6 +101,6 @@ local function print_r(t, i, found)
 end
 
 return {DEBUG = DEBUG, SKELETON_ROOT_NAME = SKELETON_ROOT_NAME, SKIN_ATTACHMENT_NAME = SKIN_ATTACHMENT_NAME, 
-		Meta = Meta, isMeta = isMeta, errorArgs = errorArgs,
+		Meta = Meta, isType = isType, errorArgs = errorArgs,
 		lerp = lerp, rotate = rotate, 
 		print_r = print_r};

@@ -22,7 +22,7 @@ end
 
 -- Initialize the first frame (time=0) to have all bones in their bind-pose.
 function MAnimation:InitializeKeyFrames(skeleton)
-	if (not skeleton or not SHARED.isMeta(skeleton, "Skeleton")) then
+	if (not skeleton or not SHARED.isType(skeleton, "Skeleton")) then
 		error(SHARED.errorArgs("BadMeta", 1, "InitializeKeyFrames", "Skeleton", tostring(SHARED.Meta.Skeleton), tostring(getmetatable(skeleton))));
 	elseif (not skeleton:IsValid()) then
 		error("bad argument #1 to 'InitializeKeyFrames' (skeleton is invalid, has Skeleton:Validate() been called?)");

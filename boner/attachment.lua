@@ -9,7 +9,9 @@ local MAttachment = SHARED.Meta.Attachment;
 MAttachment.__index = MAttachment;
 local function newAttachment(visual)
 	local t = setmetatable({}, MAttachment);
-	t:SetVisual(visual);
+	if (visual) then
+		t:SetVisual(visual);
+	end
 	--t.Origin = {0,0};
 	t:SetRotation(0);
 	t:SetTranslation(0, 0);
@@ -20,6 +22,9 @@ local function newAttachment(visual)
 end
 
 function MAttachment:SetVisual(vis)
+	if (not vis or not SHARED.isType(vis, "Visual")) then
+		error(SHARED.errorArgs("BadMeta", 1, "SetVisual", "Visual", tostring(SHARED.Meta.Visual), tostring(getmetatable(vis))));
+	end
 	self.Visual = vis;
 end
 function MAttachment:GetVisual()

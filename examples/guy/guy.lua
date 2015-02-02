@@ -28,7 +28,6 @@ local curSkin = 1;
 local curPart = 0;
 local bodyParts = {};
 
-
 function love.load()
 
 	local skeleton = demina.ImportSkeleton("examples/assets/guy/guy_default.anim");
@@ -54,7 +53,15 @@ function love.load()
 	for i = 1, NUM_ACTORS do
 		local bonedActor = boner.newActor(skeleton);
 		bonedActor.Skins = {skinDefault, skinGuy};
-		bonedActor:SetAttachmentVisuals("skin", skinDefault);
+		bonedActor.SetSkinAttachments = function(self, skinData)
+			for boneName, visual in pairs(skinData) do
+				if (boner.isType(visual, "Visual")) then
+					local attach = boner.newAttachment(visual);
+					self:SetAttachment(boneName, "skin", attach);
+				end
+			end
+		end
+		bonedActor:SetSkinAttachments(skinDefault);
 		local root = bonedActor:GetTransformer():GetRoot();
 		root.translation[1] = actorX;
 		root.translation[2] = actorY;
@@ -63,7 +70,7 @@ function love.load()
 		local point = function(actor, boneName)
 			if (boneName == "back_upper_arm") then
 				local mx, my = love.mouse.getPosition();
-				local bx, by = actor:GetTransformer():GetBonePosition(boneName);
+				local bx, by = actor:GetTransformer():GetPosition(boneName);
 				local Ax, Ay = 1, 0;
 				local Bx, By = mx - bx, my - by;
 				local length = math.sqrt(math.pow(Bx, 2) + math.pow(By, 2));
@@ -95,23 +102,23 @@ function love.load()
 		local transformer = bonedActor:GetTransformer();
 		
 		transformer:Register("anim_main", animWalk);
-		--bonedActor:GetTransformer():SetPriority("anim_main", skeleton:GetBoneTree("torso"), 0);
+		--bonedActor:GetTransformer():SetPriority("anim_main", skeleton:GetBoneList("torso"), 0);
 		transformer:SetPower("anim_main", 0);
 		
-		transformer:Register("anim_gest", animPump, skeleton:GetBoneTree("front_upper_arm"));
-		transformer:SetPriority("anim_gest", skeleton:GetBoneTree("front_upper_arm"), 1);
+		transformer:Register("anim_gest", animPump, skeleton:GetBoneList("front_upper_arm"));
+		transformer:SetPriority("anim_gest", skeleton:GetBoneList("front_upper_arm"), 1);
 		transformer:SetPower("anim_gest", 0);
 		
-		transformer:Register("anim_ctrl", point, skeleton:GetBoneTree("back_upper_arm"));
-		transformer:SetPriority("anim_ctrl", skeleton:GetBoneTree("back_upper_arm"), 1);
+		transformer:Register("anim_ctrl", point, skeleton:GetBoneList("back_upper_arm"));
+		transformer:SetPriority("anim_ctrl", skeleton:GetBoneList("back_upper_arm"), 1);
 		transformer:SetPower("anim_ctrl", 0);
 		
-		transformer:Register("anim_shot", shoot, skeleton:GetBoneTree("back_lower_arm"));
-		transformer:SetPriority("anim_shot", skeleton:GetBoneTree("back_lower_arm"), 2);
+		transformer:Register("anim_shot", shoot, skeleton:GetBoneList("back_lower_arm"));
+		transformer:SetPriority("anim_shot", skeleton:GetBoneList("back_lower_arm"), 2);
 		transformer:SetPower("anim_shot", 0);
 		
-		transformer:Register("anim_zomg", zomg.object, skeleton:GetBoneTree("head"));
-		transformer:SetPriority("anim_zomg", skeleton:GetBoneTree("head"), 1);
+		transformer:Register("anim_zomg", zomg.object, skeleton:GetBoneList("head"));
+		transformer:SetPriority("anim_zomg", skeleton:GetBoneList("head"), 1);
 		transformer:SetPower("anim_zomg", 0);
 		
 		local boomCallback = function(actor, animName, eventName)
@@ -258,7 +265,7 @@ function love.keypressed(key, isrepeat)
 			attachmentTextColor = {0, 200, 255, 255}
 		};
 		for i = 1, #bonedActors do
-			bonedActors[i]:SetDebug(bonedActors[i]:GetSkeleton():GetBoneTree("__root__"), not bonedActors[i]:GetDebug("__root__"), settings);
+			bonedActors[i]:SetDebug(bonedActors[i]:GetSkeleton():GetBoneList("__root__"), not bonedActors[i]:GetDebug("__root__"), settings);
 		end
 		--boner.setDebug(not boner.getDebug());
 	elseif (key == "f") then
@@ -292,7 +299,7 @@ function love.keypressed(key, isrepeat)
 	elseif (key == "s") then
 		for i = 1, #bonedActors do
 			local skins = bonedActors[i].Skins;
-			bonedActors[i]:SetAttachmentVisuals("skin", skins[(curSkin % #skins) + 1]);
+			bonedActors[i]:SetSkinAttachments(skins[(curSkin % #skins) + 1]);
 		end
 		curSkin = curSkin + 1;
 	elseif (key == "up") then
@@ -318,18 +325,18 @@ function love.mousepressed(x, y, button)
 			local attach = bonedActors[i]:GetAttachment("back_hand", "gun");
 			if (attach:GetScale() > 0 and bonedActors[i]:GetTransformer():GetPower("anim_ctrl") == 1 and (not bonedActors[i].clickTime or love.timer.getTime() - bonedActors[i].clickTime > 0.5)) then
 				
-				local sx, sy = bonedActors[i]:GetTransformer():GetAttachmentScale("back_hand", "gun");
+				local sx, sy = bonedActors[i]:GetTransformer():GetScale("back_hand", "gun");
 				local w, h = attach:GetVisual():GetDimensions();
-				local fx, fy = bonedActors[i]:GetTransformer():GetAttachmentForward("back_hand", "gun");
-				local ux, uy = bonedActors[i]:GetTransformer():GetAttachmentUp("back_hand", "gun");
+				local fx, fy = bonedActors[i]:GetTransformer():GetForward("back_hand", "gun");
+				local ux, uy = bonedActors[i]:GetTransformer():GetUp("back_hand", "gun");
 				h = h * 0.6;
 				local offset = {sx * ((fx * w) + (ux * h)), sy * ((fy * w) + (uy * h))};
 				--print(fx, fy);
-				local gunX, gunY = bonedActors[i]:GetTransformer():GetAttachmentPosition("back_hand", "gun")
+				local gunX, gunY = bonedActors[i]:GetTransformer():GetPosition("back_hand", "gun")
 				gunX = gunX + offset[1]
 				gunY = gunY + offset[2]
 				
-				local armX, armY = bonedActors[i]:GetTransformer():GetBonePosition("back_upper_arm");
+				local armX, armY = bonedActors[i]:GetTransformer():GetPosition("back_upper_arm");
 				
 				-- TODO: Figure out why using fx and fy doesn't work right.
 				local dirX, dirY = x - armX, y - armY;
@@ -340,7 +347,7 @@ function love.mousepressed(x, y, button)
 				local pewspeed = 100;
 				local p = {
 					pos = {gunX, gunY},
-					rot = bonedActors[i]:GetTransformer():GetAttachmentAngle("back_hand", "gun"),
+					rot = bonedActors[i]:GetTransformer():GetAngle("back_hand", "gun"),
 					dir = {dirX, dirY},
 					speed = pewspeed
 				}
