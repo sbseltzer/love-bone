@@ -1,9 +1,10 @@
+--[[
+	Attachment
+	An oriented visual representation of a bone on an actor.
+--]]
 
 local SHARED = require("boner.shared");
 
---[[
-	
---]]
 local MAttachment = SHARED.Meta.Attachment;
 MAttachment.__index = MAttachment;
 local function newAttachment(visual)

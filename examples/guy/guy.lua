@@ -163,11 +163,11 @@ function love.update(dt)
 	for i = 1, #bonedActors do
 		local transformer = bonedActors[i]:GetTransformer();
 		for transformName, vars in pairs(transformer:GetVariables()) do
-			if (not transformer:IsType(transformName, "Animation") or not vars.paused) then
+			if (not boner.isType(transformer:GetObject(transformName), "Animation") or not vars.paused) then
 				local direction = increasePower[transformName] or 0;
 				transformer:SetPower(transformName, transformer:GetPower(transformName) + direction * dt);
 			end
-			if (transformer:IsType(transformName, "Animation") and transformer:GetPower(transformName) > 0 and not vars.paused) then
+			if (boner.isType(transformer:GetObject(transformName), "Animation") and transformer:GetPower(transformName) > 0 and not vars.paused) then
 				vars.time = vars.time + dt;
 			end
 		end
@@ -193,7 +193,7 @@ function love.keypressed(key, isrepeat)
 		for i = 1, #bonedActors do
 			local transformer = bonedActors[i]:GetTransformer();
 			for transformName, vars in pairs(transformer:GetVariables()) do
-				if (transformer:IsType(transformName, "Animation")) then
+				if (boner.isType(transformer:GetObject(transformName), "Animation")) then
 					vars.paused = not vars.paused;
 				end
 			end
@@ -264,6 +264,7 @@ function love.keypressed(key, isrepeat)
 	elseif (key == "f") then
 		for i = 1, #bonedActors do
 			local attach = bonedActors[i]:GetAttachment("back_hand", "gun");
+			attach:SetRotation(attach:GetRotation() + math.rad(15));
 			if (attach:GetScale() > 0) then
 				attach:SetScale(0, 0);
 			else
@@ -319,23 +320,27 @@ function love.mousepressed(x, y, button)
 				
 				local sx, sy = bonedActors[i]:GetTransformer():GetAttachmentScale("back_hand", "gun");
 				local w, h = attach:GetVisual():GetDimensions();
-				local fx, fy = bonedActors[i]:GetTransformer():GetAttachmentForward();
-				local ux, uy = bonedActors[i]:GetTransformer():GetAttachmentUp();
+				local fx, fy = bonedActors[i]:GetTransformer():GetAttachmentForward("back_hand", "gun");
+				local ux, uy = bonedActors[i]:GetTransformer():GetAttachmentUp("back_hand", "gun");
 				h = h * 0.6;
-				local offset = {sx * ((fx * w) + (ux * h)), -sy * ((fy * w) + (uy * h))};
-				local gunX, gunY = bonedActors[i]:GetTransformer():GetAttachmentPosition("back_hand", "gun", offset)
+				local offset = {sx * ((fx * w) + (ux * h)), sy * ((fy * w) + (uy * h))};
+				--print(fx, fy);
+				local gunX, gunY = bonedActors[i]:GetTransformer():GetAttachmentPosition("back_hand", "gun")
+				gunX = gunX + offset[1]
+				gunY = gunY + offset[2]
 				
 				local armX, armY = bonedActors[i]:GetTransformer():GetBonePosition("back_upper_arm");
 				
+				-- TODO: Figure out why using fx and fy doesn't work right.
 				local dirX, dirY = x - armX, y - armY;
 				local length = math.sqrt(math.pow(dirX,2) + math.pow(dirY,2));
 				dirX = dirX / length;
-				dirY = dirY / length;
+				dirY = dirY / length;--[[]]
 				
 				local pewspeed = 100;
 				local p = {
 					pos = {gunX, gunY},
-					rot = bonedActors[i]:GetTransformer():GetBoneAngle("back_hand") + math.pi/2,
+					rot = bonedActors[i]:GetTransformer():GetAttachmentAngle("back_hand", "gun"),
 					dir = {dirX, dirY},
 					speed = pewspeed
 				}

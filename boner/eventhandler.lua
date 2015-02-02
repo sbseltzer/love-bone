@@ -1,9 +1,10 @@
+--[[
+	EventHandler
+	Registers and listens for animation events on an actor.
+--]]
 
 local SHARED = require("boner.shared");
 
---[[
-	
---]]
 local MEventHandler = SHARED.Meta.EventHandler;
 MEventHandler.__index = MEventHandler;
 local function newEventHandler(actor)

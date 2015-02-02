@@ -1,5 +1,6 @@
 #TODO
 A todo list in no particular order.
+- Add support for layers, visuals, and flipping in animation keyframes.
 - Convert all transformation-related math to matrix multiplication.
 - Add multithreading for calculations.
 - Validate input.

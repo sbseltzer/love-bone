@@ -231,7 +231,7 @@ end
 
 ### Intermediate
 
-Coming soon.
+This tutorial will show how to make a simple Actor wrapper for simpler animation playback. Coming soon.
 
 ### Advanced
 

@@ -1,11 +1,11 @@
+--[[
+	Bone
+	Defines bone hierarchies, the shape of a skeleton, the skeleton bind-pose, and bone rendering order.
+	These are at the very bottom of the data structure chain.
+--]]
 
 local SHARED = require("boner.shared");
 
---[[
-	Bone
-	Bones define bone hierarchies, the shape of a skeleton, the skeleton bind-pose, and bone rendering order.
-	These are at the very bottom of the data structure chain.
---]]
 local MBone = SHARED.Meta.Bone;
 MBone.__index = MBone;
 local function newBone(parent, layer, offset, defaultRotation, defaultTranslation, defaultScale)

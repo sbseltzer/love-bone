@@ -1,13 +1,13 @@
-
-local SHARED = require("boner.shared");
-local newBone = require("boner.bone");
-local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
-
 --[[
 	Skeleton
 	A simple containment data structure for bones, animations, and skins.
 	Actors hold a reference to a skeleton, which defines what animations and skins it can use.
 --]]
+
+local SHARED = require("boner.shared");
+local newBone = require("boner.bone");
+local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
+
 local MSkeleton = SHARED.Meta.Skeleton;
 MSkeleton.__index = MSkeleton;
 local function newSkeleton()

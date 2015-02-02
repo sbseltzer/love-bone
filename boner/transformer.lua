@@ -1,3 +1,10 @@
+--[[
+	Transformer
+	This is what makes the actor move.
+	To make the actor do anything, you must register transformations with its transformer.
+	The transformer is also used as an interface to the bone orientations of an actor.
+--]]
+
 local SHARED = require("boner.shared");
 local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
 local rotate = SHARED.rotate;
@@ -49,13 +56,10 @@ local function isValidTransformationObject(obj)
 	return true;
 end
 
-
---[[
-	The actor bone transformation code took up so much space that it really deserved its own file.
---]]
+-- Transformer Meta
 local MTransformer = SHARED.Meta.Transformer;
 MTransformer.__index = MTransformer;
-
+-- Constructor
 local function newTransformer(actor)
 	local t = setmetatable({}, MTransformer);
 	
@@ -78,14 +82,19 @@ local function newTransformer(actor)
 	return t;
 end
 
+-- Actor accessors
 function MTransformer:SetActor(actor)
+	if (not actor or type(actor) ~= "table") then
+		error(SHARED.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
+	elseif (not SHARED.isMeta(actor, "Actor")) then
+		error(SHARED.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(SHARED.Meta.Actor), tostring(getmetatable(actor))));
+	end
 	self.Actor = actor;
 end
 function MTransformer:GetActor()
 	return self.Actor;
 end
 
--- Adds a transformation to the list of transformer objects with an optional bone filter.
 function MTransformer:Register(name, obj, boneMask)
 	if (not obj) then
 		self.Transformations[name] = nil;
@@ -126,13 +135,8 @@ function MTransformer:Register(name, obj, boneMask)
 		return vars;
 	end
 end
-
-function MTransformer:IsType(name, typeName)
-	if (typeName == "Animation") then
-		return SHARED.isMeta(self.Transformations[name], typeName);
-	else
-		return type(self.Transformations[name]) == typeName;
-	end
+function MTransformer:GetObject(name)
+	return self.Transformations[name];
 end
 
 function MTransformer:SetPower(name, power)
@@ -179,7 +183,7 @@ function MTransformer:GetActiveTransformations()
 	return transformations;
 end
 
--- TODO: Replace the first loop with a priority queue or something.
+-- TODO: This could probably be optimized/refactored.
 function MTransformer:GetModifiedPower(boneName, transformations)
 	if (not transformations or #transformations == 0) then
 		return {};
@@ -372,7 +376,7 @@ function MTransformer:GetBoneAngle(boneName)
 	end
 	return boneData.rotation;
 end
-function MTransformer:GetBonePosition(boneName, offset)
+function MTransformer:GetBonePosition(boneName)
 	local boneData = self.TransformGlobal[boneName];
 	local sx, sy = self:GetBoneScale(boneName);
 	local x, y = unpack(boneData.translation);
@@ -387,7 +391,7 @@ function MTransformer:GetBoneScale(boneName)
 end
 function MTransformer:GetBoneForward(boneName)
 	local ang = self:GetBoneAngle(boneName);
-	local fx, fy = math.cos(ang), math.sin(ang);
+	local fx, fy = rotate(0, 0, ang, 1, 0);
 	if (self.FlipH and not self.FlipV or self.FlipV and not self.FlipH) then
 		fx = -fx;
 	end
@@ -395,7 +399,7 @@ function MTransformer:GetBoneForward(boneName)
 end
 function MTransformer:GetBoneUp(boneName)
 	local uy, ux = self:GetBoneForward(boneName);
-	return ux, uy;
+	return ux, -uy;
 end
 
 -- Getters for absolute attachment orientations
@@ -410,7 +414,7 @@ function MTransformer:GetAttachmentAngle(boneName, attachName)
 	end
 	return boneRot + attachRot;
 end
-function MTransformer:GetAttachmentPosition(boneName, attachName, offset)
+function MTransformer:GetAttachmentPosition(boneName, attachName)
 	local bonePos = {self:GetBonePosition(boneName)};
 	local attach = self:GetActor():GetAttachment(boneName, attachName);
 	local attachPos;
@@ -419,9 +423,8 @@ function MTransformer:GetAttachmentPosition(boneName, attachName, offset)
 	else
 		attachPos = {0, 0};
 	end
-	offset = offset or {0, 0};
-	offset = {rotate(0, 0, self:GetAttachmentAngle(boneName, attachName), attachPos[1] + offset[1], attachPos[2] + offset[2])};
-	return bonePos[1] + offset[1], bonePos[2] + offset[2];
+	attachPos = {rotate(0, 0, self:GetAttachmentAngle(boneName, attachName), attachPos[1], attachPos[2])};
+	return bonePos[1] + attachPos[1], bonePos[2] + attachPos[2];
 end
 function MTransformer:GetAttachmentScale(boneName, attachName)
 	local boneScale = {self:GetBoneScale(boneName)};
@@ -436,7 +439,7 @@ function MTransformer:GetAttachmentScale(boneName, attachName)
 end
 function MTransformer:GetAttachmentForward(boneName, attachName)
 	local ang = self:GetAttachmentAngle(boneName, attachName);
-	local fx, fy = math.cos(ang), math.sin(ang);
+	local fx, fy = rotate(0, 0, ang, 1, 0);
 	if (self.FlipH and not self.FlipV or self.FlipV and not self.FlipH) then
 		fx = -fx;
 	end
@@ -444,7 +447,7 @@ function MTransformer:GetAttachmentForward(boneName, attachName)
 end
 function MTransformer:GetAttachmentUp(boneName, attachName)
 	local uy, ux = self:GetAttachmentForward(boneName, attachName);
-	return ux, uy;
+	return ux, -uy;
 end
 
 return newTransformer;

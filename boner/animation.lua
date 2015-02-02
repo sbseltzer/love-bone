@@ -1,12 +1,12 @@
-
-local SHARED = require("boner.shared");
-local lerp = SHARED.lerp;
-
 --[[
 	Animation
 	Animations are basically keyframe data containers.
 	They also come with utility methods for finding keyframe ranges and interpolating between them.
 --]]
+
+local SHARED = require("boner.shared");
+local lerp = SHARED.lerp;
+
 local MAnimation = SHARED.Meta.Animation;
 MAnimation.__index = MAnimation;
 local function newAnimation(skeleton)

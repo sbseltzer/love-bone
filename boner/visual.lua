@@ -1,13 +1,13 @@
-
-local SHARED = require("boner.shared");
-
 --[[
 	Visual
 	Used by Attachments as a wrapper/abstraction object for anything that could be used to render as an attachment.
 	In most cases, the backing visual element will be some type of Drawable.
-	The advantage of abstraction is in its utility. The backing visual element could be an image, a particle emitter, or even a canvas.
+	The backing visual element could be an image, a particle emitter, a canvas, etc.
 	We could even extend this to objects with a draw method (like our Actor object).
 --]]
+
+local SHARED = require("boner.shared");
+
 local MVisual = SHARED.Meta.Visual;
 MVisual.__index = MVisual;
 local function newVisual(vis, ...)

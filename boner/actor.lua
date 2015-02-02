@@ -1,3 +1,8 @@
+--[[
+	Actor
+	This is what ties everything together. 
+	Each actor has a reference to a skeleton, its own transformer/eventhandler, and a list of attachments.
+--]]
 
 local SHARED = require("boner.shared");
 local newVisual = require("boner.visual");
@@ -12,9 +17,6 @@ local print_r = SHARED.print_r;
 local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
 local SKIN_ATTACHMENT_NAME = SHARED.SKIN_ATTACHMENT_NAME;
 
---[[
-	Actor
---]]
 local MActor = SHARED.Meta.Actor;
 MActor.__index = MActor;
 local function newActor(skeleton, skinData)

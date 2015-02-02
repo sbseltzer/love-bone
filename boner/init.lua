@@ -32,5 +32,6 @@ return {
 	newVisual = newVisual,
 	newAttachment = newAttachment,
 	newTransformer = newTransformer,
-	newEventHandler = newEventHandler
+	newEventHandler = newEventHandler,
+	isType = SHARED.isMeta
 };
