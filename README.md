@@ -724,6 +724,8 @@ rootRef = actor:GetTransformer():GetRoot();
 rootRef.rotation = math.rad(90);
 rootRef.translation = {200, 0};
 rootRef.scale = {0.5, 0.5}
+```
+
 ---
 
 The following methods return the absolute (world) orientation of a bone or attachment.  These can be very useful for game logic.
