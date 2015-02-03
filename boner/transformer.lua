@@ -136,7 +136,7 @@ function MTransformer:Register(name, obj, boneMask)
 		return vars;
 	end
 end
-function MTransformer:GetRegistered(name)
+function MTransformer:GetTransform(name)
 	return self.Transformations[name];
 end
 
