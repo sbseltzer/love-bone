@@ -96,8 +96,8 @@ function MTransformer:GetActor()
 end
 
 -- TODO: Add dummyproofing
-function MTransformer:Register(name, obj, boneMask)
-	if (not obj) then
+function MTransformer:Register(name, transformation, boneMask)
+	if (not transformation) then
 		self.Transformations[name] = nil;
 		self.Powers[name] = nil;
 		self.BoneMasks[name] = nil;
@@ -120,11 +120,11 @@ function MTransformer:Register(name, obj, boneMask)
 	else
 		self.BoneMasks[name] = nil;
 	end
-	if (isValidTransformationObject(obj)) then
-		self.Transformations[name] = obj;
+	if (isValidTransformationObject(transformation)) then
+		self.Transformations[name] = transformation;
 		self.Powers[name] = 0;
 		local vars = {};
-		if (SHARED.isType(obj, "Animation")) then
+		if (SHARED.isType(transformation, "Animation")) then
 			vars.time = 0;
 			vars.speed = 1;
 		end
@@ -308,7 +308,7 @@ function MTransformer:CalculateLocal(transformList, boneName)
 	end
 end
 
-function MTransformer:CalculateGlobal(boneName, parentData)
+function MTransformer:CalculateWorld(boneName, parentData)
 	boneName = boneName or SKELETON_ROOT_NAME;
 	parentData = parentData or self:GetRoot() or newTransformation();
 	
@@ -364,7 +364,7 @@ function MTransformer:CalculateGlobal(boneName, parentData)
 	local children = self.Actor:GetSkeleton().Bones[boneName].Children;
 	if (children) then
 		for i = 1, #children do
-			self:CalculateGlobal(children[i], boneData);
+			self:CalculateWorld(children[i], boneData);
 		end
 	end
 end

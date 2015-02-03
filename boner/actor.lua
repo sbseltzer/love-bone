@@ -317,7 +317,7 @@ function MActor:Update(dt)
 		return;
 	end
 	self:GetTransformer():CalculateLocal();
-	self:GetTransformer():CalculateGlobal();
+	self:GetTransformer():CalculateWorld();
 end
 
 return newActor;

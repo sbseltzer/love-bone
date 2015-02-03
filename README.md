@@ -384,6 +384,17 @@ skeleton:Validate();
 
 **`GetBoneList(boneName):`** returns a list of bone names that are part of the bone hierarchy of `boneName`, including itself. If `boneName` is nil, it returns a list of all bone names.
 
+
+---
+
+**`BuildRenderOrder():`** rebuilds the render order of the bones for this skeleton based on their currently set layer number.
+
+```lua
+bone = skeleton:GetBone("head");
+bone:SetLayer(bone:GetLayer() + 1);
+skeleton:BuildRenderOrder();
+```
+
 ---
 
 **`Validate():`** checks the bone hierarchy and marks the skeleton as either valid or invalid.
@@ -507,7 +518,7 @@ eventhandler:Register(animName, eventName, funcCallback);
 
 ### Transformer
 
-Every actor has a Transformer automatically created for them. You use it to register bone transformations. This includes animations.
+Every actor has a Transformer automatically created for them. The transformer is what calculates and represents the bone orientations of an individual actor.
 
 ```lua
 local transformer = actor:GetTransformer();
@@ -516,23 +527,56 @@ transformer:SetPriotity(transformName, priority);
 transformer:SetPower(transformName, power);
 ```
 
-The transformer is what represents the bone positions of an individual actor.
+Three types of transformations are currently supported.
+
+| Transformation | Description |
+| :------------- | :---------- |
+| Animation | Animation object. |
+| Table | Raw transformation table reference to use. |
+| Function | Function to call which returns a transformation table. |
+
+Transformation tables have the following attributes:
+
+| Variable | Description |
+| :------- | :---------- |
+| rotation | The angle to rotate by relative to its parent. |
+| translation | The x/y coordinates to move by relative to its parent. |
+| scale | The x/y scaling factors to scale by relative to its parent. |
+
+Transformation functions return a transformation table, and take the following arguments:
+
+| Variable | Description |
+| :------- | :---------- |
+| actor | Reference to the actor. |
+| boneName | Name of the bone that's currently being transformed. |
+| vars | Reference to the unique variable state table owned by this transformation. |
 
 #### Methods
 
 ---
 
-**`Register(name, obj, boneMask):`** registers a transformation with an optional bone mask.
+Before a transformation can be used, it must be registered with the transformer.
+
+**`Register(name, transformation, boneMask):`** registers a transformation with an optional bone mask.
 
 **`GetTransform(name):`** returns the transformation registed with `name`.
 
 ```lua
 transformer = actor:GetTransformer();
 transformer:Register("walk", myWalkAnim);
-transformer:Register("fistpump", myFistPumpAnim, actor:GetSkeleton():GetBoneList("arm"));
 ...
-fistpump = transformer:GetTransform("fistpump");
+fistpump = transformer:GetTransform("walk");
 ```
+
+The bone mask allows you to tell the transformer the specific set of bones that the transformation should affect.
+
+For instance:
+
+```lua
+transformer:Register("fistpump", myFistPumpAnim, actor:GetSkeleton():GetBoneList("arm"));
+```
+
+This will register the animation `myFistPumpAnim` with a bone mask containing the list of all bones that are part of the arm bone hierarchy. This mean that the transformation will only affect the arm and its children.
 
 ---
 
@@ -552,18 +596,24 @@ fistpump = transformer:GetTransform("fistpump");
 
 ---
 
-**`GetRoot():`** 
+**`GetRoot():`** returns a reference to the root transformation table. Modifying this table will apply changes to the root node of the actor.
 
 ---
 
-**`GetAngle(boneName, attachName):`** 
+The following methods return the absolute (world) orientation of a bone or attachment.
 
-**`GetPosition(boneName, attachName):`** 
+If `boneName` is nil, it will default to the root transformation bone.
 
-**`GetScale(boneName, attachName):`** 
+If `attachName` is nil, the method will return bone orientation. Otherwise, it will return attachment orientation.
 
-**`GetForward(boneName, attachName):`** 
+**`GetAngle(boneName, attachName):`** returns the current angle of a bone or attachment.
 
-**`GetUp(boneName, attachName):`** 
+**`GetPosition(boneName, attachName):`** returns the current position of a bone or attachment.
+
+**`GetScale(boneName, attachName):`** returns the current scale of a bone or attachment.
+
+**`GetForward(boneName, attachName):`** returns the current forward vector of a bone or attachment.
+
+**`GetUp(boneName, attachName):`** returns the current up vector of a bone or attachment.
 
 ---
