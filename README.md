@@ -451,6 +451,22 @@ animation:AddKeyFrame(boneName, keyTime, rotation, translation, scale);
 animation:AddEvent(keyTime, eventName);
 ```
 
+#### Methods
+
+---
+
+**`AddKeyFrame(boneName, keyTime, rotation, translation, scale):`** adds a keyframe to the animation.
+
+---
+
+**`AddEvent(keyTime, eventName):`** adds an event trigger to the animation.
+
+---
+
+**`GetDuration():`** returns the animation duration in seconds.
+
+---
+
 ### Visual
 
 Visuals are an abstraction for visible elements. They could be an image, a canvas, a particle emitter, and much more!

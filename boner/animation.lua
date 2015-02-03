@@ -92,6 +92,12 @@ function MAnimation:AddEvent(keyTime, eventName)
 	end
 	table.insert(self.Events, i, {t = keyTime, e = eventName});
 end
+
+-- Returns the total duration of an animation in keyframe time.
+function MAnimation:GetDuration()
+	return self.Duration;
+end
+
 function MAnimation:GetEventsInRange(lastCheckTime, curTime)
 	local t = {};
 	for i = 1, #self.Events do
@@ -104,10 +110,6 @@ function MAnimation:GetEventsInRange(lastCheckTime, curTime)
 	return t;
 end
 
--- Returns the total duration of an animation in keyframe time.
-function MAnimation:GetDuration()
-	return self.Duration;
-end
 
 -- TODO: Add separate tracks for each possible transformation?
 -- Returns two values: prevKeyframe, nextKeyframe
