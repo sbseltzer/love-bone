@@ -594,11 +594,13 @@ This will register the animation `myFistPumpAnim` with a bone mask containing th
 
 ---
 
-Transformation power is a valid between 0 and 1 that represents how strong of an effect the transformation has on bones, where 0 is not affecting the bone at all, and 1 is completely affecting the bone.
+Transformation power is a number between 0 and 1 that represents how strong of an effect the transformation has on bones, where 0 is not affecting the bone at all, and 1 is completely affecting the bone.
 
-**`SetPower(name, power):`** 
+Power defaults to 0 for all transformations.
 
-**`GetPower(name):`** 
+**`SetPower(name, power):`** sets the desired transformation power. Values given for `power` that are outside the range [0, 1] will be clamped.
+
+**`GetPower(name):`** returns desired transformation power.
 
 ---
 
@@ -608,9 +610,9 @@ Since any number of transformations could be attempting to modify the same set o
 
 To remedy this, each transformation has a priority level for modifying each bone. By default they all have a priority level of 0 (no priority).
 
-**`SetPriority(name, boneList, priority):`** 
+**`SetPriority(name, boneList, priority):`** sets priority level of the named transformation for all bone names in `boneList`.
 
-**`GetPriority(name, boneName):`** 
+**`GetPriority(name, boneName):`** returns the priority level of the named transformation for bone with name `boneName`.
 
 Whenever a bone has multiple transformations of varying priority levels acting on it, lower priority levels internally receive a modified transformation power that changes based on the average power of the next priority level up.
 
@@ -620,7 +622,7 @@ This means that if the average power of a priority level is 1, all priority leve
 
 ---
 
-**`GetVariables(name):`** 
+**`GetVariables(name):`** returns a reference to the a persistent table owned by the transformation of name `name`. Intended to be used for keeping track of state.
 
 ---
 
