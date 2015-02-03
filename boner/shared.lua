@@ -3,7 +3,6 @@
 --]]
 
 local SKELETON_ROOT_NAME = "__root__"; -- In conventional animation systems, this would be the root scene node.
-local SKIN_ATTACHMENT_NAME = "__skin__"; -- In conventional animation systems, this would be the root scene node.
 
 -- Metatables
 local Meta = {
@@ -23,13 +22,30 @@ local function isType(obj, mName)
 end
 
 -- Error checking utilities
-local Error = {
+local ErrorString = {
 	BadArg = "bad argument #%d to '%s' (%s expected, got %s)",
-	BadMeta = "bad argument #%d to '%s' (%s[%s] expected, got [%s])",
+	BadMeta = "bad argument #%d to '%s' (%s[%s] expected, got [%s])"
 };
 local function errorArgs(errorType, ...)
-	return string.format(Error[errorType], ...), 2;
+	return string.format(ErrorString[errorType], ...), 2;
 end
+local ErrorFunction = {
+	BadType = function(argNum, funcName, typeList, var)
+		local final = table.remove(typeList, #typeList);
+		local types = table.concat(typeList, ", ");
+		types = types .. ", or " .. final;
+		return errorArgs("BadArg", argNum, funcName, types, type(var));
+	end,
+	BadMeta = function(argNum, funcName, metaList, var)
+		for k, v in pairs(metaList) do
+			metaList[k] = v .. "[" .. tostring(Meta[v]) .. "]";
+		end
+		local final = table.remove(metaList, #metaList);
+		local types = table.concat(metaList, ", ");
+		types = types .. ", or " .. final;
+		return errorArgs("BadArg", argNum, funcName, types, "[" .. tostring(getmetatable(var)) .. "]");
+	end
+};
 
 -- Linear Interpolation function.
 local function lerp(v0, v1, t)
@@ -99,7 +115,7 @@ local function print_r(t, i, found)
 	end
 end
 
-return {DEBUG = DEBUG, SKELETON_ROOT_NAME = SKELETON_ROOT_NAME, SKIN_ATTACHMENT_NAME = SKIN_ATTACHMENT_NAME, 
+return {DEBUG = DEBUG, SKELETON_ROOT_NAME = SKELETON_ROOT_NAME,
 		Meta = Meta, isType = isType, errorArgs = errorArgs,
 		lerp = lerp, rotate = rotate, 
 		print_r = print_r};

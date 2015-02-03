@@ -15,7 +15,6 @@ local lerp = SHARED.lerp;
 local print_r = SHARED.print_r;
 
 local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
-local SKIN_ATTACHMENT_NAME = SHARED.SKIN_ATTACHMENT_NAME;
 
 local MActor = SHARED.Meta.Actor;
 MActor.__index = MActor;

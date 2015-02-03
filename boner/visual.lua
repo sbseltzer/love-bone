@@ -15,7 +15,7 @@ local function newVisual(vis, ...)
 	t:SetVisualData(vis, ...);
 	t:SetOrigin(0, 0);
 	t:SetRotation(0);
-	t:SetScale(1,1);
+	t:SetScale(1, 1);
 	return t;
 end
 
