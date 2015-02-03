@@ -240,6 +240,8 @@ In this tutorial, we will build upon the basic tutorial with some intermediate c
 - Animation events
 - Animation layering/blending
 
+Coming soon.
+
 ### Advanced
 
 Coming soon.
