@@ -271,6 +271,7 @@ end
 ---
 
 **`SetSkeleton(skeleton):`** sets the skeleton reference to use.
+
 **`GetSkeleton():`** returns a reference of the currently used skeleton. See [Skeleton](#skeleton) for more details.
 
 ```lua
@@ -300,6 +301,7 @@ eventhandler = actor:GetEventHandler();
 ---
 
 **`SetAttachment(boneName, attachName, attachment):`** puts an attachment in the attachName slot of the bone with name boneName. See [Attachment](#attachment) for more details.
+
 **`GetAttachment(boneName, attachName):`** returns the attachment in the attachName slot of the bone with name boneName.
 
 ```lua
@@ -312,6 +314,7 @@ attachment = actor:GetAttachment("hand", "gun");
 ---
 
 **`SetDebug(boneName|boneList, enabled, settings):`** enables or disables debug rendering for one or more bones. If enabled, debug rendering will use the provided settings.
+
 **`GetDebug(boneName):`** returns the enabled status and the settings table for debug rendering of the named bone.
 
 The `settings` table has the following values. Any nil values default to `{0, 0, 0, 0}`.
