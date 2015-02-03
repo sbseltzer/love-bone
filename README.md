@@ -372,6 +372,26 @@ skeleton:SetBone(boneName, bone);
 skeleton:Validate();
 ```
 
+#### Methods
+
+---
+
+**`SetBone(boneName, bone):`** adds `bone` with name `boneName` to the skeleton bone structure. Adding bones to a valid skeleton invalidates the skeleton.
+
+**`GetBone(boneName):`** returns the bone with name `boneName`.
+
+---
+
+**`GetBoneList(boneName):`** returns a list of bone names that are part of the bone hierarchy of `boneName`, including itself. If `boneName` is nil, it returns a list of all bone names.
+
+---
+
+**`Validate():`** checks the bone hierarchy and marks the skeleton as either valid or invalid.
+
+**`IsValid():`** returns whether the skeleton has been marked as valid or not.
+
+---
+
 ### Bone
 
 Bones are objects that are used to create skeletons.
