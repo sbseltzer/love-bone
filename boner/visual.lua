@@ -12,7 +12,7 @@ local MVisual = SHARED.Meta.Visual;
 MVisual.__index = MVisual;
 local function newVisual(vis, ...)
 	local t = setmetatable({}, MVisual);
-	t:SetVisualData(vis, ...);
+	t:SetData(vis, ...);
 	t:SetOrigin(0, 0);
 	t:SetRotation(0);
 	t:SetScale(1, 1);
@@ -20,10 +20,10 @@ local function newVisual(vis, ...)
 end
 
 -- TODO: Add more things to this?
-function MVisual:SetVisualData(vis, ...)
+function MVisual:SetData(vis, ...)
 	local validTypes = "string or userdata";
 	if (vis == nil) then
-		error(SHARED.errorArgs("BadArg", 1, "SetVisualData", validTypes, "nil"));
+		error(SHARED.errorArgs("BadArg", 1, "SetData", validTypes, "nil"));
 	end
 	local vType = type(vis);
 	-- Strings are assumed to be image paths
@@ -35,10 +35,10 @@ function MVisual:SetVisualData(vis, ...)
 			vis = love.graphics.newImage(vis);
 		-- Any drawables can just be used as they are.
 		elseif(not vis:typeOf("Drawable")) then
-			error(SHARED.errorArgs("BadArg", 1, "SetVisualData", "Drawable", vis:type()));
+			error(SHARED.errorArgs("BadArg", 1, "SetData", "Drawable", vis:type()));
 		end
 	else
-		error(SHARED.errorArgs("BadArg", 1, "SetVisualData", validTypes, type(vis)));
+		error(SHARED.errorArgs("BadArg", 1, "SetData", validTypes, type(vis)));
 	end
 	-- Attempt to get a quad for texture types.
 	local args = {...};
@@ -47,7 +47,7 @@ function MVisual:SetVisualData(vis, ...)
 		if (#args >= 4) then
 			for i = 1, #args do
 				if (not tonumber(args[i])) then
-					error(SHARED.errorArgs("BadArg", 1 + i, "SetVisualData", "number", type(args[i])));
+					error(SHARED.errorArgs("BadArg", 1 + i, "SetData", "number", type(args[i])));
 				end
 			end
 			self.Quad = love.graphics.newQuad(...);
@@ -55,9 +55,9 @@ function MVisual:SetVisualData(vis, ...)
 		elseif (#args >= 1) then
 			local quad = args[1];
 			if (not quad or type(quad) ~= "userdata") then
-				error(SHARED.errorArgs("BadArg", 2, "SetVisualData", "userdata", type(quad)));
+				error(SHARED.errorArgs("BadArg", 2, "SetData", "userdata", type(quad)));
 			elseif (not quad:typeOf("Quad")) then
-				error(SHARED.errorArgs("BadArg", 2, "SetVisualData", "Quad", quad:type()));
+				error(SHARED.errorArgs("BadArg", 2, "SetData", "Quad", quad:type()));
 			end
 			self.Quad = quad;
 		end
@@ -66,12 +66,12 @@ function MVisual:SetVisualData(vis, ...)
 	end
 	self.Visual = vis;
 end
-function MVisual:GetVisualData()
+function MVisual:GetData()
 	return self.Visual, self.Quad;
 end
 
 function MVisual:GetDimensions()
-	local vis, quad = self:GetVisualData();
+	local vis, quad = self:GetData();
 	if (quad) then
 		local x, y, w, h = quad:getViewport();
 		return w, h;
@@ -144,7 +144,7 @@ function MVisual:GetScale()
 end
 
 function MVisual:Draw()
-	local vis, quad = self:GetVisualData();
+	local vis, quad = self:GetData();
 	local x, y = 0, 0;
 	local r = self:GetRotation();
 	local sx, sy = self:GetScale();

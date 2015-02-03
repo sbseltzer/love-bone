@@ -470,12 +470,6 @@ sx, sy = bone:GetDefaultScale();
 
 Animations are a convenient way to apply transformations to your actors.
 
-```lua
-local animation = boner.newAnimation(skeleton);
-animation:AddKeyFrame(boneName, keyTime, rotation, translation, scale);
-animation:AddEvent(keyTime, eventName);
-```
-
 #### Methods
 
 ---
@@ -484,7 +478,13 @@ animation:AddEvent(keyTime, eventName);
 
 ---
 
-**`AddEvent(keyTime, eventName):`** adds an event trigger to the animation. For more information, see [EventHandler](#eventhandler);
+**`AddEvent(keyTime, eventName):`** adds an event trigger to the animation.
+
+For more information, see [EventHandler](#eventhandler);
+
+---
+
+**`GetEventNames():`** returns the list of existing event trigger names for this animation.
 
 ---
 
@@ -498,34 +498,117 @@ Visuals are an abstraction for visible elements. They could be an image, a canva
 
 ```lua
 local visual;
-visual = boner.newVisual(imagePath | imageData | image | canvas, quad | x, y, w, h)
-visual = boner.newVisual(particleEmitter)
-visual = boner.newVisual(mesh)
+visual = boner.newVisual(imagePath | imageData | image | canvas, quad | x, y, w, h);
+visual = boner.newVisual(particleEmitter);
+visual = boner.newVisual(mesh);
 
 local vw, vh = visual:GetDimensions();
 visual:SetOrigin(vw/2, vh/2);
 ```
 
+#### Methods
+
+---
+
+**`SetData(vis, ...):`** sets internal data structure to represent the visual (usually a Drawable type).
+
+```lua
+visual:SetData(imagePath | imageData | image | canvas, quad | x, y, w, h);
+visual:SetData(particleEmitter);
+visual:SetData(mesh);
+```
+
+**`GetData():`** returns the visual data, and a quad if applicable.
+
+```lua
+visual:SetData("gun.png", 0, 0, 32, 16);
+local image, quad = visual:GetData();
+```
+
+---
+
+**`GetDimensions():`** returns the dimensions of the visual. The meaning of this depends on what its backing data is. Textures with quads will return the quad size. Textures without quads will return the image size. Anything else returns a predicted size based on the objects attributes (i.e. Meshes will compute a bounding box).
+
+---
+
+**`SetOrigin(x, y):`** sets the render origin of the visual.
+
+**`GetOrigin():`** returns the render origin of the visual.
+
+---
+
+**`SetRotation(angle):`** sets the rotation of the visual relative to the attachment using it. This is useful if you made a sprite sheet with sprites at odd angles to save space, and want them treated as though they are at a different angle.
+
+**`GetOrigin():`** returns the rotation of the visual relative to the attachment using it.
+
+---
+
+**`SetScale(x, y):`** sets the scale of the visual relative to the attachment using it.
+
+**`GetScale():`** returns the scale of the visual relative to the attachment using it.
+
+---
+
 ### Attachment
 
 Attachments are used to attach a Visual object to a bone on an Actor. Skins are simply attachments without any special transformations applied to them.
 
+In many cases, multiple attachments could use the same visual (i.e. images). In some cases, you may want to have each attachment have a unique visual. It all depends on your individual needs.
+
 ```lua
 local attachment = boner.newAttachment(visual);
-attachment:SetVisual(visual);
-attachment:SetRotation(angle);
-attachment:SetTranslation(x, y);
-attachment:SetScale(x, y);
-attachment:SetColor(r, g, b, a);
-attachment:SetLayerOffset(n);
 actor:SetAttachment(boneName, attachName, attachment);
 ```
+
+#### Methods
+
+---
+
+**`SetVisual(visual):`** sets the reference to the visual representation of the attachment. For more details, see [Visual](#visual).
+
+**`GetVisual():`** returns the reference to the attachment visual.
+
+---
+
+**`SetRotation(angle):`** sets the angle of the attachment relative to its bone.
+
+**`GetRotation():`** returns the angle of the attachment relative to its bone.
+
+---
+
+**`SetTranslation(x, y):`** sets the position of the attachment relative to its bone.
+
+**`GetTranslation():`** returns the position of the attachment relative to its bone.
+
+---
+
+**`SetScale(x, y):`** sets the scale of the attachment relative to its bone.
+
+**`GetScale():`** returns the scale of the attachment relative to its bone.
+
+---
+
+**`SetLayerOffset(n):`** sets the render layer of the attachment relative to its bone.
+
+**`GetLayerOffset():`** returns the render layer of the attachment relative to its bone.
+
+---
+
+**`SetColor(r, g, b, a):`** sets the color of the attachment.
+
+**`GetColor():`** returns the color of the attachment.
+
+---
+
 
 ### EventHandler
 
 Every actor has an EventHandler automatically created for them. You can use it to register animation event callbacks.
 
+```lua
+local eventhandler = actor:GetEventHandler();
 ```
+
 #### Methods
 
 ---
@@ -533,10 +616,10 @@ Every actor has an EventHandler automatically created for them. You can use it t
 **`Register(animObj, eventName, callback):`** registers a function to be called when `animObj` fires an event trigger for `eventName`.
 
 ```lua
-local eventhandler = actor:GetEventHandler();
 eventhandler:Register(myWalkAnim, "foot_down", function(actor, animObj)
 	stepSound:play();
 end);
+```
 
 ---
 
@@ -546,9 +629,6 @@ Every actor has a Transformer automatically created for them. The transformer is
 
 ```lua
 local transformer = actor:GetTransformer();
-transformer:SetTransform(transformName, animation | transformTable | transformFunc, boneMask);
-transformer:SetPriotity(transformName, priority);
-transformer:SetPower(transformName, power);
 ```
 
 Three types of transformations are currently supported.
