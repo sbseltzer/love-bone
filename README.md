@@ -10,7 +10,7 @@ Edit main.lua to change which example you want to test.
   * [Basic](#basic)
   * [Intermediate](#intermediate)
   * [Advanced](#advanced)
-* [Objects](#objects)
+* [Documentation](#documentation)
   * [Actor](#actor)
   * [Skeleton](#skeleton)
   * [Bone](#bone)
@@ -239,7 +239,7 @@ This tutorial will show how to make a simple Actor wrapper for simpler animation
 
 Coming soon.
 
-## Objects
+## Documentation
 
 The object heirarchy is as follows.
 
@@ -252,19 +252,111 @@ The object heirarchy is as follows.
 Actors are what ties everything together.  They must hold a reference to a skeleton definition before they can be used.
 
 ```lua
-local myActor = boner.newActor(skeleton);
+local actor = boner.newActor(skeleton);
 ```
 
 To use them, you must call their update and draw methods.
 
 ```lua
 function love.update(dt)
-	myActor:Update(dt);
+	actor:Update();
 end
 function love.draw()
-	myActor:Draw();
+	actor:Draw();
 end
 ```
+
+#### Methods
+
+---
+
+**`SetSkeleton(skeleton):`** sets the skeleton reference to use.
+**`GetSkeleton():`** returns a reference of the currently used skeleton. See [Skeleton](#skeleton) for more details.
+
+```lua
+skeleton = boner.newSkeleton();
+...
+actor:SetSkeleton(skeleton);
+...
+skeleton = actor:GetSkeleton();
+```
+
+---
+
+**`GetTransformer():`** returns a reference to the actors unique transformer object. See [Transformer](#transformer) for more details.
+
+```lua
+transformer = actor:GetTransformer();
+```
+
+---
+
+**`GetEventHandler():`** returns a reference to the actors unique event handler object. See [EventHandler](#eventhandler) for more details.
+
+```lua
+eventhandler = actor:GetEventHandler();
+```
+
+---
+
+**`SetAttachment(boneName, attachName, attachment):`** puts an attachment in the attachName slot of the bone with name boneName. See [Attachment](#attachment) for more details.
+**`GetAttachment(boneName, attachName):`** returns the attachment in the attachName slot of the bone with name boneName.
+
+```lua
+attachment = boner.newAttachment(boner.newVisual("images/gun.png"));
+actor:SetAttachment("hand", "gun", attachment);
+...
+attachment = actor:GetAttachment("hand", "gun");
+```
+
+---
+
+**`SetDebug(boneName|boneList, enabled, settings):`** enables or disables debug rendering for one or more bones. If enabled, debug rendering will use the provided settings.
+**`GetDebug(boneName):`** returns the enabled status and the settings table for debug rendering of the named bone.
+
+The `settings` table has the following values. Any nil values default to `{0, 0, 0, 0}`.
+
+| Variable | Description |
+| :------- | :---------- |
+| boneLineColor | Color of bone lines. |
+| boneTextColor | Color of bone name text. |
+| attachmentLineColor | Color of attachment outlines. |
+| attachmentTextColor | Color of attachment name text. |
+
+In this case, colors are represented as tables with 4 numbers representing the RGBA values for the color.
+
+```lua
+settings = {};
+settings.boneLineColor = {255, 0, 0, 255};
+settings.boneTextColor = {0, 255, 0, 255};
+settings.attachmentLineColor = {0, 0, 255, 255};
+settings.attachmentTextColor = {255, 0, 255, 255};
+actor:SetDebug({"head", "hand"}, true, settings);
+...
+enabled, settings = actor:GetDebug("head");
+```
+
+---
+
+**`Draw():`** draws attachments according to their render order.
+
+```lua
+function love.draw()
+	actor:Draw();
+end
+```
+
+---
+
+**`Update():`** updates the transformer for this actor.
+
+```lua
+function love.update(dt)
+	actor:Update();
+end
+```
+
+---
 
 ### Skeleton
 
@@ -321,7 +413,7 @@ attachment:SetTranslation(x, y);
 attachment:SetScale(x, y);
 attachment:SetColor(r, g, b, a);
 attachment:SetLayerOffset(n);
-myActor:SetAttachment(boneName, attachName, attachment);
+actor:SetAttachment(boneName, attachName, attachment);
 ```
 
 ### EventHandler
@@ -329,7 +421,7 @@ myActor:SetAttachment(boneName, attachName, attachment);
 Every actor has an EventHandler automatically created for them. You can use it to register animation event callbacks.
 
 ```lua
-local eventhandler = myActor:GetEventHandler();
+local eventhandler = actor:GetEventHandler();
 eventhandler:Register(animName, eventName, funcCallback);
 ```
 
@@ -338,7 +430,7 @@ eventhandler:Register(animName, eventName, funcCallback);
 Every actor has a Transformer automatically created for them. You use it to register bone transformations. This includes animations.
 
 ```lua
-local transformer = myActor:GetTransformer();
+local transformer = actor:GetTransformer();
 transformer:Register(transformName, animation | transformTable | transformFunc, boneMask);
 transformer:SetPriotity(transformName, priority);
 transformer:SetPower(transformName, power);

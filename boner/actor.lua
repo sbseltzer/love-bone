@@ -50,18 +50,24 @@ function MActor:GetEventHandler()
 	return self.EventHandler;
 end
 
-function MActor:SetDebug(boneList, on, settings)
-	for i = 1, #boneList do
-		self.Debug[boneList[i]] = self.Debug[boneList[i]] or {};
-		self.Debug[boneList[i]].enabled = on;
-		self.Debug[boneList[i]].settings = settings;
+function MActor:SetDebug(bones, enabled, settings)
+	bones = bones or SKELETON_ROOT_NAME;
+	enabled = enabled or false;
+	settings = settings or {};
+	if (type(bones) == "string") then
+		bones = {bones};
+	elseif (type(bones) ~= "table") then
+		error(SHARED.errorArgs("BadArg", 1, "SetDebug", "string or table", type(bones)));
+	end
+	for i = 1, #bones do
+		self.Debug[bones[i]] = self.Debug[bones[i]] or {};
+		self.Debug[bones[i]].enabled = enabled;
+		self.Debug[bones[i]].settings = settings;
 	end
 end
 function MActor:GetDebug(boneName)
-	return self.Debug[boneName].enabled;
-end
-function MActor:GetDebugSettings(boneName)
-	return self.Debug[boneName].settings;
+	boneName = boneName or SKELETON_ROOT_NAME;
+	return self.Debug[boneName].enabled, self.Debug[boneName].settings;
 end
 
 -- Skeleton reference
@@ -106,7 +112,7 @@ function MActor:GetAttachmentList(boneName)
 		else
 			return {};
 		end
-	else
+	else -- TODO: Drop support for this.
 		for boneName, attachList in pairs(self.Attachments) do
 			if (attachList) then
 				for attachName, attach in pairs(attachList) do
@@ -249,7 +255,8 @@ function MActor:DrawBoneDebug(transformed, boneName, lineColor, textColor)
 	love.graphics.line(0, 0, x, y);
 	
 	-- Draw debug text
-	love.graphics.setColor(unpack(textColor));
+	love.graphics.translate(x, y);
+	love.graphics.rotate(-parentData.rotation + boneData.rotation);
 	if (sx ~= 0) then
 		sx = 1/sx;
 	end
@@ -257,6 +264,8 @@ function MActor:DrawBoneDebug(transformed, boneName, lineColor, textColor)
 		sy = 1/sy;
 	end
 	love.graphics.scale(sx, sy);
+	
+	love.graphics.setColor(unpack(textColor));
 	love.graphics.print(boneName, 0, 0);
 	
 	love.graphics.pop();
@@ -280,13 +289,14 @@ function MActor:Draw()
 	for i = 1, #renderOrder do
 		local boneName, attachName = unpack(renderOrder[i]);
 		self:DrawAttachment(transformed, boneName, attachName);
-		if (self:GetDebug(boneName)) then
-			table.insert(debugBones, renderOrder[i]);
+		local enabled, settings = self:GetDebug(boneName);
+		if (enabled) then
+			table.insert(debugBones, {names=renderOrder[i],settings=settings});
 		end
 	end
 	for i = 1, #debugBones do
-		local boneName, attachName = unpack(debugBones[i]);
-		local settings = self:GetDebugSettings(boneName);
+		local boneName, attachName = unpack(debugBones[i].names);
+		local settings = debugBones[i].settings;
 		
 		local lineColor, textColor;
 		lineColor = settings.boneLineColor or {0, 0, 0, 0};

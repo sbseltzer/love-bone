@@ -4,7 +4,6 @@
 
 local SKELETON_ROOT_NAME = "__root__"; -- In conventional animation systems, this would be the root scene node.
 local SKIN_ATTACHMENT_NAME = "__skin__"; -- In conventional animation systems, this would be the root scene node.
-local DEBUG = false;
 
 -- Metatables
 local Meta = {

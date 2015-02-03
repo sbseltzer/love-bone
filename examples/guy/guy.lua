@@ -258,14 +258,13 @@ function love.keypressed(key, isrepeat)
 			--end
 		end
 	elseif (key == "d") then
-		local settings = {
-			boneLineColor = {0, 255, 0, 255},
-			boneTextColor = {255, 200, 0, 255},
-			attachmentLineColor = {255, 0, 0, 255},
-			attachmentTextColor = {0, 200, 255, 255}
-		};
+		local settings = {};
+		settings.boneLineColor = {0, 255, 0, 255};
+		settings.boneTextColor = {255, 200, 0, 255};
+		settings.attachmentLineColor = {255, 0, 0, 255};
+		settings.attachmentTextColor = {0, 200, 255, 255};
 		for i = 1, #bonedActors do
-			bonedActors[i]:SetDebug(bonedActors[i]:GetSkeleton():GetBoneList("__root__"), not bonedActors[i]:GetDebug("__root__"), settings);
+			bonedActors[i]:SetDebug(bonedActors[i]:GetSkeleton():GetBoneList(), not bonedActors[i]:GetDebug(), settings);
 		end
 		--boner.setDebug(not boner.getDebug());
 	elseif (key == "f") then

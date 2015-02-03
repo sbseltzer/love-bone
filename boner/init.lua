@@ -13,18 +13,8 @@ local newAttachment = require("boner.attachment");
 local newTransformer = require("boner.transformer");
 local newEventHandler = require("boner.eventhandler");
 
--- Enable/disable debug rendering.
-local function setDebug(b)
-	SHARED.DEBUG = b;
-end
-local function getDebug()
-	return SHARED.DEBUG;
-end
-
 -- Return the library.
 return {
-	setDebug = setDebug,
-	getDebug = getDebug;
 	newBone = newBone,
 	newSkeleton = newSkeleton,
 	newAnimation = newAnimation, 
