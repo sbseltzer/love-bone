@@ -95,6 +95,7 @@ function MTransformer:GetActor()
 	return self.Actor;
 end
 
+-- TODO: Add dummyproofing
 function MTransformer:Register(name, obj, boneMask)
 	if (not obj) then
 		self.Transformations[name] = nil;
@@ -135,8 +136,22 @@ function MTransformer:Register(name, obj, boneMask)
 		return vars;
 	end
 end
-function MTransformer:GetObject(name)
+function MTransformer:GetRegistered(name)
 	return self.Transformations[name];
+end
+
+function MTransformer:SetPriority(name, boneList, priority)
+	for i = 1, #boneList do
+		local boneName = boneList[i];
+		self.Priorities[boneName] = self.Priorities[boneName] or {};
+		self.Priorities[boneName][name] = priority;
+	end
+end
+function MTransformer:GetPriority(name, boneName)
+	if (self.Priorities[boneName] == nil) then
+		return -1;
+	end
+	return self.Priorities[boneName][name];
 end
 
 function MTransformer:SetPower(name, power)
@@ -148,20 +163,6 @@ function MTransformer:GetPower(name)
 		return -1;
 	end
 	return self.Powers[name];
-end
-
-function MTransformer:SetPriority(name, boneList, priority)
-	for i = 1, #boneList do
-		local boneName = boneList[i];
-		self.Priorities[boneName] = self.Priorities[boneName] or {};
-		self.Priorities[boneName][name] = priority;
-	end
-end
-function MTransformer:GetPriority(name, boneName, priority)
-	if (self.Priorities[boneName] == nil) then
-		return -1;
-	end
-	return self.Priorities[boneName][name];
 end
 
 function MTransformer:GetVariables(name)

@@ -170,11 +170,11 @@ function love.update(dt)
 	for i = 1, #bonedActors do
 		local transformer = bonedActors[i]:GetTransformer();
 		for transformName, vars in pairs(transformer:GetVariables()) do
-			if (not boner.isType(transformer:GetObject(transformName), "Animation") or not vars.paused) then
+			if (not boner.isType(transformer:GetRegistered(transformName), "Animation") or not vars.paused) then
 				local direction = increasePower[transformName] or 0;
 				transformer:SetPower(transformName, transformer:GetPower(transformName) + direction * dt);
 			end
-			if (boner.isType(transformer:GetObject(transformName), "Animation") and transformer:GetPower(transformName) > 0 and not vars.paused) then
+			if (boner.isType(transformer:GetRegistered(transformName), "Animation") and transformer:GetPower(transformName) > 0 and not vars.paused) then
 				vars.time = vars.time + dt;
 			end
 		end
@@ -200,7 +200,7 @@ function love.keypressed(key, isrepeat)
 		for i = 1, #bonedActors do
 			local transformer = bonedActors[i]:GetTransformer();
 			for transformName, vars in pairs(transformer:GetVariables()) do
-				if (boner.isType(transformer:GetObject(transformName), "Animation")) then
+				if (boner.isType(transformer:GetRegistered(transformName), "Animation")) then
 					vars.paused = not vars.paused;
 				end
 			end
