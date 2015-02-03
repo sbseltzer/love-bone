@@ -279,7 +279,7 @@ function MActor:Draw()
 		print("Warning: Attempted to draw invalid skeleton!");
 		return;
 	end
-	local transformed = self:GetTransformer().TransformGlobal;
+	local transformed = self:GetTransformer().TransformWorld;
 	if (not transformed) then
 		return;
 	end

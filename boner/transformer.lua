@@ -63,10 +63,8 @@ MTransformer.__index = MTransformer;
 local function newTransformer(actor)
 	local t = setmetatable({}, MTransformer);
 	
-	t:SetActor(actor);
-	
 	t.TransformLocal = {};
-	t.TransformGlobal = {};
+	t.TransformWorld = {};
 	
 	t.Transformations = {};
 	t.Powers = {};
@@ -78,6 +76,8 @@ local function newTransformer(actor)
 	t.FlipV = false;
 	
 	t.RootTransformation = newTransformation();
+	
+	t:SetActor(actor);
 	
 	return t;
 end
@@ -186,18 +186,19 @@ end
 
 -- TODO: This could probably be optimized/refactored.
 function MTransformer:GetModifiedPower(boneName, transformations)
+	-- No transformations? No power.
 	if (not transformations or #transformations == 0) then
 		return {};
 	end
+	
+	-- Make sure priorities on each transformation for this bone default to zero.
 	self.Priorities[boneName] = self.Priorities[boneName] or {};
-	if (not self.Priorities[boneName]) then
-		return {};
-	end
 	for i = 1, #transformations do
 		local transName = transformations[i].name;
 		self.Priorities[boneName][transName] = self.Priorities[boneName][transName] or 0;
 	end
 	
+	-- Sort priorities for this bone into priority layers.
 	local sortedPriority = {};
 	local realPowers = {};
 	for transName, priority in pairs(self.Priorities[boneName]) do
@@ -224,6 +225,7 @@ function MTransformer:GetModifiedPower(boneName, transformations)
 			realPowers[layerTransNames[j]] = self.Powers[layerTransNames[j]] * (1 - layerPowerPrev);
 		end
 	end
+	
 	return realPowers;
 end
 
@@ -319,9 +321,9 @@ function MTransformer:CalculateWorld(boneName, parentData)
 	parentData.scale[1] = parentData.scale[1] or 1;
 	parentData.scale[2] = parentData.scale[2] or 1;
 	
-	self.TransformGlobal[boneName] = self.TransformGlobal[boneName] or {};
+	self.TransformWorld[boneName] = self.TransformWorld[boneName] or {};
 	
-	local boneData = self.TransformGlobal[boneName];
+	local boneData = self.TransformWorld[boneName];
 	boneData.rotation = 0;
 	boneData.translation = {0, 0};
 	boneData.scale = {1, 1};
@@ -372,7 +374,7 @@ end
 -- Getters for absolute orientations (attachName is optional in all cases)
 function MTransformer:GetAngle(boneName, attachName)
 	boneName = boneName or SKELETON_ROOT_NAME;
-	local boneData = self.TransformGlobal[boneName];
+	local boneData = self.TransformWorld[boneName];
 	local attach = self:GetActor():GetAttachment(boneName, attachName);
 	local rotation = 0;
 	if (boneData and boneData.rotation) then
@@ -385,7 +387,7 @@ function MTransformer:GetAngle(boneName, attachName)
 end
 function MTransformer:GetPosition(boneName, attachName)
 	boneName = boneName or SKELETON_ROOT_NAME;
-	local boneData = self.TransformGlobal[boneName];
+	local boneData = self.TransformWorld[boneName];
 	local attach = self:GetActor():GetAttachment(boneName, attachName);
 	local x, y = 0, 0;
 	if (boneData and boneData.translation) then
@@ -401,7 +403,7 @@ function MTransformer:GetPosition(boneName, attachName)
 end
 function MTransformer:GetScale(boneName, attachName)
 	boneName = boneName or SKELETON_ROOT_NAME;
-	local boneData = self.TransformGlobal[boneName];
+	local boneData = self.TransformWorld[boneName];
 	local attach = self:GetActor():GetAttachment(boneName, attachName);
 	local x, y = 1, 1;
 	if (boneData and boneData.scale) then

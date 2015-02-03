@@ -433,24 +433,38 @@ local bone = boner.newBone(parent, layer, offset, defaultRotation, defaultTransl
 
 ---
 
-**`SetDefaultRotation(angle):`** sets the default rotation of the bone relative to its parent.
+The following are used to set the bind pose for the skeleton. These orientations are used to automatically generate a default keyframe at time 0 when creating new animations.
+
+**`SetDefaultRotation(angle):`** sets the default rotation in radians of the bone relative to its parent.
 
 **`GetDefaultRotation():`** returns the default rotation of the bone relative to its parent.
 
----
+```lua
+bone:SetDefaultRotation(math.rad(15));
+...
+angle = math.deg(bone:GetDefaultRotation());
+```
 
 **`SetDefaultTranslation(x, y):`** sets the default translation of the bone relative to its offset.
 
 **`GetDefaultTranslation():`** returns the default translation of the bone relative to its offset.
 
----
+```lua
+bone:SetDefaultTranslation(10, 10);
+...
+x, y = bone:GetDefaultTranslation();
+```
 
 **`SetDefaultScale(x, y):`** sets the default scale of the bone relative to its parent.
 
 **`GetDefaultScale():`** returns the default scale of the bone relative to its parent.
 
+```lua
+bone:SetDefaultScale(0.5, 0.5);
+...
+sx, sy = bone:GetDefaultScale();
+```
 ---
-
 
 ### Animation
 
@@ -470,7 +484,7 @@ animation:AddEvent(keyTime, eventName);
 
 ---
 
-**`AddEvent(keyTime, eventName):`** adds an event trigger to the animation.
+**`AddEvent(keyTime, eventName):`** adds an event trigger to the animation. For more information, see [EventHandler](#eventhandler);
 
 ---
 
@@ -568,7 +582,7 @@ transformer:Register("walk", myWalkAnim);
 myWalkAnim = transformer:GetTransform("walk");
 ```
 
-The `boneMask` allows you to tell the transformer the specific set of bones that the transformation should affect.
+The `boneMask` allows you to tell the transformer the specific set of bones that the transformation should affect. If `boneMask` nil, it will default to the set of all bones.
 
 For instance:
 
@@ -580,15 +594,29 @@ This will register the animation `myFistPumpAnim` with a bone mask containing th
 
 ---
 
-**`SetPriotity(name, boneList, priority):`** 
-
-**`GetPriotity(name, boneName):`** 
-
----
+Transformation power is a valid between 0 and 1 that represents how strong of an effect the transformation has on bones, where 0 is not affecting the bone at all, and 1 is completely affecting the bone.
 
 **`SetPower(name, power):`** 
 
 **`GetPower(name):`** 
+
+---
+
+When multiple transformations affect the same bone, they will each apply their transformations according to their power with no regard for one another. This is not always the desired effect.
+
+Since any number of transformations could be attempting to modify the same set of bones, there needs to be a way of telling the transformer about cases where a certain transformation should be prioritized.
+
+To remedy this, each transformation has a priority level for modifying each bone. By default they all have a priority level of 0 (no priority).
+
+**`SetPriority(name, boneList, priority):`** 
+
+**`GetPriority(name, boneName):`** 
+
+Whenever a bone has multiple transformations of varying priority levels acting on it, lower priority levels internally receive a modified transformation power that changes based on the average power of the next priority level up.
+
+For example, if the average power of priority level 0 is 1 and the average power of priority level 1 and 0.7, the powers of priority level 0 will be modified such that their new average power is 0.3.
+
+This means that if the average power of a priority level is 1, all priority levels below it will receive a modified power of 0.
 
 ---
 
@@ -598,9 +626,15 @@ This will register the animation `myFistPumpAnim` with a bone mask containing th
 
 **`GetRoot():`** returns a reference to the root transformation table. Modifying this table will apply changes to the root node of the actor.
 
+```lua
+rootRef = actor:GetTransformer():GetRoot();
+-- Rotate the actor 90 degrees, translate 200 pixels to the right, and scale by 1/2. 
+rootRef.rotation = math.rad(90);
+rootRef.translation = {200, 0};
+rootRef.scale = {0.5, 0.5}
 ---
 
-The following methods return the absolute (world) orientation of a bone or attachment.
+The following methods return the absolute (world) orientation of a bone or attachment.  These can be very useful for game logic.
 
 If `boneName` is nil, it will default to the root transformation bone.
 
