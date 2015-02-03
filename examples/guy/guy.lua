@@ -67,8 +67,12 @@ function love.load()
 		root.translation[2] = actorY;
 		bonedActor:SetAttachment("back_hand", "gun", attachmentThing);
 		bodyParts = bonedActor:GetAttachmentList();
-		local point = function(actor, boneName)
+		local point = function(actor, boneName, vars)
 			if (boneName == "back_upper_arm") then
+				local parentName = actor:GetSkeleton():GetBone(boneName):GetParent();
+				local parentAngle = actor:GetTransformer():GetAngle(parentName);
+				
+				-- Get point direction
 				local mx, my = love.mouse.getPosition();
 				local bx, by = actor:GetTransformer():GetPosition(boneName);
 				local Ax, Ay = 1, 0;
@@ -76,17 +80,19 @@ function love.load()
 				local length = math.sqrt(math.pow(Bx, 2) + math.pow(By, 2));
 				Bx = Bx/length;
 				By = By/length;
+				
+				-- Get point angle
 				local dot = Ax * Bx + Ay * By;
 				local rot = math.acos(dot);
 				if (By < 0) then
 					rot = -rot;
 				end
-				if (actor:GetTransformer().FlipH) then
-					rot = math.pi - rot;
-				end
-				if (actor:GetTransformer().FlipV) then
-					rot = -rot;
-				end
+				
+				-- Account for flipping.
+				rot = rot + actor:GetTransformer():GetAngle();
+				local sx, sy = actor:GetTransformer():GetScale();
+				rot = rot * (sy/math.abs(sy));
+				
 				return {rotation = rot - math.pi/2};
 			end
 		end

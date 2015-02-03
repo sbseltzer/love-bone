@@ -565,10 +565,10 @@ Before a transformation can be used, it must be registered with the transformer.
 transformer = actor:GetTransformer();
 transformer:Register("walk", myWalkAnim);
 ...
-fistpump = transformer:GetTransform("walk");
+myWalkAnim = transformer:GetTransform("walk");
 ```
 
-The bone mask allows you to tell the transformer the specific set of bones that the transformation should affect.
+The `boneMask` allows you to tell the transformer the specific set of bones that the transformation should affect.
 
 For instance:
 
