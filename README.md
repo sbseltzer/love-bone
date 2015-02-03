@@ -524,14 +524,14 @@ The transformer is what represents the bone positions of an individual actor.
 
 **`Register(name, obj, boneMask):`** registers a transformation with an optional bone mask.
 
-**`GetRegistered(name):`** returns the transformation registed with `name`.
+**`GetTransform(name):`** returns the transformation registed with `name`.
 
 ```lua
 transformer = actor:GetTransformer();
 transformer:Register("walk", myWalkAnim);
 transformer:Register("fistpump", myFistPumpAnim, actor:GetSkeleton():GetBoneList("arm"));
 ...
-fistpump = transformer:GetRegistered("fistpump");
+fistpump = transformer:GetTransform("fistpump");
 ```
 
 ---
