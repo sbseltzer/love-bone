@@ -108,23 +108,22 @@ function love.load()
 		local transformer = bonedActor:GetTransformer();
 		
 		transformer:SetTransform("anim_main", animWalk);
-		--bonedActor:GetTransformer():SetPriority("anim_main", skeleton:GetBoneList("torso"), 0);
 		transformer:SetPower("anim_main", 0);
 		
 		transformer:SetTransform("anim_gest", animPump, skeleton:GetBoneList("front_upper_arm"));
-		transformer:SetPriority("anim_gest", skeleton:GetBoneList("front_upper_arm"), 1);
+		transformer:SetPriority("anim_gest", 1, skeleton:GetBoneList("front_upper_arm"));
 		transformer:SetPower("anim_gest", 0);
 		
 		transformer:SetTransform("anim_ctrl", point, skeleton:GetBoneList("back_upper_arm"));
-		transformer:SetPriority("anim_ctrl", skeleton:GetBoneList("back_upper_arm"), 1);
+		transformer:SetPriority("anim_ctrl", 1, skeleton:GetBoneList("back_upper_arm"));
 		transformer:SetPower("anim_ctrl", 0);
 		
 		transformer:SetTransform("anim_shot", shoot, skeleton:GetBoneList("back_lower_arm"));
-		transformer:SetPriority("anim_shot", skeleton:GetBoneList("back_lower_arm"), 2);
+		transformer:SetPriority("anim_shot", 2, skeleton:GetBoneList("back_lower_arm"));
 		transformer:SetPower("anim_shot", 0);
 		
 		transformer:SetTransform("anim_zomg", zomg.object, skeleton:GetBoneList("head"));
-		transformer:SetPriority("anim_zomg", skeleton:GetBoneList("head"), 1);
+		transformer:SetPriority("anim_zomg", 1, skeleton:GetBoneList("head"));
 		transformer:SetPower("anim_zomg", 0);
 		
 		local boomCallback = function(actor, animObj, eventName)

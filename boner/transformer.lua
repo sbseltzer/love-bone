@@ -140,9 +140,13 @@ function MTransformer:GetTransform(name)
 	return self.Transformations[name];
 end
 
-function MTransformer:SetPriority(name, boneList, priority)
-	for i = 1, #boneList do
-		local boneName = boneList[i];
+function MTransformer:SetPriority(name, priority, bones)
+	if (type(bones) == "string") then
+		bones = {bones};
+	end
+	bones = bones or self:GetActor():GetSkeleton():GetBoneList();
+	for i = 1, #bones do
+		local boneName = bones[i];
 		self.Priorities[boneName] = self.Priorities[boneName] or {};
 		self.Priorities[boneName][name] = priority;
 	end

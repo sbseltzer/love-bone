@@ -70,7 +70,7 @@ function MCharacter:SetAnimationLayer(animName, layer)
 			table.insert(boneList, boneName);
 		end
 	end
-	transformer:SetPriority(transformName, boneList, layer);
+	transformer:SetPriority(transformName, layer, boneList);
 end
 
 function MCharacter:StartAnimation(animName, blendTime)

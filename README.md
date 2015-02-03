@@ -8,7 +8,7 @@ Edit main.lua to swap between which [examples](https://github.com/GeekWithALife/
 
 ## Table of Contents
 * [Introduction](#introduction)
-* [Usage](#usage)
+* [Tutorials](#tutorials)
   * [Basic](#basic)
   * [Intermediate](#intermediate)
   * [Advanced](#advanced)
@@ -28,7 +28,7 @@ BÖNER is loosely modelled after advanced animation frameworks like ASSIMP.  It'
 
 You could say that BÖNER is meant to be used as the backbone for animations in your game. It takes care of the really hard stuff.
 
-## Usage
+## Tutorials
 
 ### Basic
 
@@ -235,7 +235,10 @@ end
 
 ### Intermediate
 
-This tutorial will show how to make a simple Actor wrapper for simpler animation playback. Coming soon.
+In this tutorial, we will build upon the basic tutorial with some intermediate concepts.
+- Writing a reskin method
+- Animation events
+- Animation layering/blending
 
 ### Advanced
 
@@ -702,7 +705,7 @@ Since any number of transformations could be attempting to modify the same set o
 
 To remedy this, each transformation has a priority level for modifying each bone. By default they all have a priority level of 0 (no priority).
 
-**`SetPriority(name, boneList, priority):`** sets priority level of the named transformation for all bone names in `boneList`.
+**`SetPriority(name, priority, boneList):`** sets priority level of the named transformation for all bone names in `boneList`. If a string is provided for `boneList`, it will be converted to a table containing only that bone. If `boneList` is left blank, it defaults to all bones.
 
 **`GetPriority(name, boneName):`** returns the priority level of the named transformation for bone with name `boneName`.
 
