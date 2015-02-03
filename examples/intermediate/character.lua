@@ -25,7 +25,7 @@ function MCharacter:RegisterAnimation(animName, anim, boneMask)
 	self.Animations[animName] = anim;
 	self.Blend[animName] = {direction = 0, time = 0, start = 0};
 	self.State[animName] = "stopped";
-	self.Actor:GetTransformer():Register("anim_" .. animName, anim, boneMask);
+	self.Actor:GetTransformer():SetTransform("anim_" .. animName, anim, boneMask);
 end
 function MCharacter:RegisterSkin(skinName, skinData)
 	self.Skins[skinName] = skinData;

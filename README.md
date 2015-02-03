@@ -155,7 +155,7 @@ First we need to register the animation with the [Transformer](#transformer) of 
 
 ```lua
 -- Register the animation as a transformation.
-myActor:GetTransformer():Register("anim_curl", myAnimation);
+myActor:GetTransformer():SetTransform("anim_curl", myAnimation);
 ```
 
 We're almost done, but before we finish up, we should reposition this actor so it's easier to see the full animation.
@@ -525,10 +525,20 @@ actor:SetAttachment(boneName, attachName, attachment);
 
 Every actor has an EventHandler automatically created for them. You can use it to register animation event callbacks.
 
+```
+#### Methods
+
+---
+
+**`Register(animObj, eventName, callback):`** registers a function to be called when `animObj` fires an event trigger for `eventName`.
+
 ```lua
 local eventhandler = actor:GetEventHandler();
-eventhandler:Register(animName, eventName, funcCallback);
-```
+eventhandler:Register(myWalkAnim, "foot_down", function(actor, animObj)
+	stepSound:play();
+end);
+
+---
 
 ### Transformer
 
@@ -536,7 +546,7 @@ Every actor has a Transformer automatically created for them. The transformer is
 
 ```lua
 local transformer = actor:GetTransformer();
-transformer:Register(transformName, animation | transformTable | transformFunc, boneMask);
+transformer:SetTransform(transformName, animation | transformTable | transformFunc, boneMask);
 transformer:SetPriotity(transformName, priority);
 transformer:SetPower(transformName, power);
 ```
@@ -571,13 +581,13 @@ Transformation functions return a transformation table, and take the following a
 
 Before a transformation can be used, it must be registered with the transformer.
 
-**`Register(name, transformation, boneMask):`** registers a transformation with an optional bone mask.
+**`SetTransform(name, transformation, boneMask):`** registers a transformation with an optional bone mask.
 
 **`GetTransform(name):`** returns the transformation registed with `name`.
 
 ```lua
 transformer = actor:GetTransformer();
-transformer:Register("walk", myWalkAnim);
+transformer:SetTransform("walk", myWalkAnim);
 ...
 myWalkAnim = transformer:GetTransform("walk");
 ```
@@ -587,7 +597,7 @@ The `boneMask` allows you to tell the transformer the specific set of bones that
 For instance:
 
 ```lua
-transformer:Register("fistpump", myFistPumpAnim, actor:GetSkeleton():GetBoneList("arm"));
+transformer:SetTransform("fistpump", myFistPumpAnim, actor:GetSkeleton():GetBoneList("arm"));
 ```
 
 This will register the animation `myFistPumpAnim` with a bone mask containing the list of all bones that are part of the arm bone hierarchy. This mean that the transformation will only affect the arm and its children.

@@ -71,7 +71,7 @@ function love.load()
 	end
 	
 	-- Register the animation as a transformation.
-	myActor:GetTransformer():Register("anim_curl", myAnimation);
+	myActor:GetTransformer():SetTransform("anim_curl", myAnimation);
 	
 	-- Move it toward the center and stand it upright.
 	myActor:GetTransformer():GetRoot().rotation = math.rad(-90);

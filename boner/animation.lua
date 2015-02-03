@@ -92,6 +92,17 @@ function MAnimation:AddEvent(keyTime, eventName)
 	end
 	table.insert(self.Events, i, {t = keyTime, e = eventName});
 end
+function MAnimation:GetEventNames()
+	local found = {};
+	local t = {};
+	for k, v in pairs(self.Events) do
+		if (not found[v.e]) then
+			table.insert(t, v.e);
+			found[v.e] = true;
+		end
+	end
+	return t;
+end
 
 -- Returns the total duration of an animation in keyframe time.
 function MAnimation:GetDuration()

@@ -27,17 +27,17 @@ function MEventHandler:GetActor()
 	return self.Actor;
 end
 
-function MEventHandler:Register(animObj, eventName, funcCallback)
+function MEventHandler:Register(animObj, eventName, callback)
 	if (not animObj or not SHARED.isType(animObj, "Animation")) then
 		error(SHARED.errorArgs("BadMeta", 1, "Register", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
 		error(SHARED.errorArgs("BadArg", 2, "Register", "string", type(eventName)));
-	elseif (not funcCallback or type(funcCallback) ~= "function") then
+	elseif (not callback or type(callback) ~= "function") then
 		error(SHARED.errorArgs("BadArg", 3, "Register", "function", type(eventName)));
 	end
 	self.Callbacks[animObj] = self.Callbacks[animObj] or {};
 	self.Callbacks[animObj][eventName] = self.Callbacks[animObj][eventName] or {};
-	table.insert(self.Callbacks[animObj][eventName], funcCallback);
+	table.insert(self.Callbacks[animObj][eventName], callback);
 end
 
 function MEventHandler:Fire(animObj, eventName)
@@ -48,7 +48,7 @@ function MEventHandler:Fire(animObj, eventName)
 	end
 	if (animObj and self.Callbacks[animObj] and eventName and self.Callbacks[animObj][eventName]) then
 		for i = 1, #self.Callbacks[animObj][eventName] do
-			self.Callbacks[animObj][eventName][i](self:GetActor(), animObj, eventName);
+			self.Callbacks[animObj][eventName][i](self:GetActor(), animObj);
 		end
 	end
 end

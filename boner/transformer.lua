@@ -96,7 +96,7 @@ function MTransformer:GetActor()
 end
 
 -- TODO: Add dummyproofing
-function MTransformer:Register(name, transformation, boneMask)
+function MTransformer:SetTransform(name, transformation, boneMask)
 	if (not transformation) then
 		self.Transformations[name] = nil;
 		self.Powers[name] = nil;

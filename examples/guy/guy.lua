@@ -107,27 +107,27 @@ function love.load()
 		
 		local transformer = bonedActor:GetTransformer();
 		
-		transformer:Register("anim_main", animWalk);
+		transformer:SetTransform("anim_main", animWalk);
 		--bonedActor:GetTransformer():SetPriority("anim_main", skeleton:GetBoneList("torso"), 0);
 		transformer:SetPower("anim_main", 0);
 		
-		transformer:Register("anim_gest", animPump, skeleton:GetBoneList("front_upper_arm"));
+		transformer:SetTransform("anim_gest", animPump, skeleton:GetBoneList("front_upper_arm"));
 		transformer:SetPriority("anim_gest", skeleton:GetBoneList("front_upper_arm"), 1);
 		transformer:SetPower("anim_gest", 0);
 		
-		transformer:Register("anim_ctrl", point, skeleton:GetBoneList("back_upper_arm"));
+		transformer:SetTransform("anim_ctrl", point, skeleton:GetBoneList("back_upper_arm"));
 		transformer:SetPriority("anim_ctrl", skeleton:GetBoneList("back_upper_arm"), 1);
 		transformer:SetPower("anim_ctrl", 0);
 		
-		transformer:Register("anim_shot", shoot, skeleton:GetBoneList("back_lower_arm"));
+		transformer:SetTransform("anim_shot", shoot, skeleton:GetBoneList("back_lower_arm"));
 		transformer:SetPriority("anim_shot", skeleton:GetBoneList("back_lower_arm"), 2);
 		transformer:SetPower("anim_shot", 0);
 		
-		transformer:Register("anim_zomg", zomg.object, skeleton:GetBoneList("head"));
+		transformer:SetTransform("anim_zomg", zomg.object, skeleton:GetBoneList("head"));
 		transformer:SetPriority("anim_zomg", skeleton:GetBoneList("head"), 1);
 		transformer:SetPower("anim_zomg", 0);
 		
-		local boomCallback = function(actor, animName, eventName)
+		local boomCallback = function(actor, animObj, eventName)
 			if (actor:GetTransformer():GetPower("anim_gest") > 0.8 and actor:GetTransformer():GetPower("anim_zomg") == 1) then
 				if (zomg.object.head.translation[2] <= -100 and zomg.direction < 0) then
 					zomg.direction = 1;
@@ -140,13 +140,10 @@ function love.load()
 		bonedActor:GetEventHandler():Register(animPump, "boom", boomCallback);
 		
 		local stepSound = love.audio.newSource( "examples/assets/guy/step.wav" );
-		local footDownCallback = function(actor, animName, eventName)
-			--print(actor, animName, eventName);
-			--if (actor:GetTransformer():GetPower("anim_main") > 0.2) then
-				stepSound:setVolume(actor:GetTransformer():GetPower("anim_main"));
-				stepSound:seek(0.1);
-				stepSound:play();
-			--end
+		local footDownCallback = function(actor, animObj, eventName)
+			stepSound:setVolume(actor:GetTransformer():GetPower("anim_main"));
+			stepSound:seek(0.1);
+			stepSound:play();
 		end
 		if (i == 1) then
 			bonedActor:GetEventHandler():Register(animWalk, "foot_down", footDownCallback);
