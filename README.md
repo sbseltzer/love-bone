@@ -400,6 +400,47 @@ Bones are objects that are used to create skeletons.
 local bone = boner.newBone(parent, layer, offset, defaultRotation, defaultTranslation, defaultScale);
 ```
 
+#### Methods
+
+---
+
+**`SetParent(parentName):`** sets the parent bone by bone name.
+
+**`GetParent():`** returns the parent bone name.
+
+---
+
+**`SetLayer(layer):`** sets the layer number for this bone. Determines draw order.
+
+**`GetLayer():`** returns the layer number for this bone.
+
+---
+
+**`SetOffset(x, y):`** sets the bone position relative to its parent.
+
+**`GetOffset():`** returns the bone position relative to its parent.
+
+---
+
+**`SetDefaultRotation(angle):`** sets the default rotation of the bone relative to its parent.
+
+**`GetDefaultRotation():`** returns the default rotation of the bone relative to its parent.
+
+---
+
+**`SetDefaultTranslation(x, y):`** sets the default translation of the bone relative to its offset.
+
+**`GetDefaultTranslation():`** returns the default translation of the bone relative to its offset.
+
+---
+
+**`SetDefaultScale(x, y):`** sets the default scale of the bone relative to its parent.
+
+**`GetDefaultScale():`** returns the default scale of the bone relative to its parent.
+
+---
+
+
 ### Animation
 
 Animations are a convenient way to apply transformations to your actors.
