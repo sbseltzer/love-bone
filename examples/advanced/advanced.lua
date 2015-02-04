@@ -7,7 +7,7 @@ local newCharacter = require("examples.advanced.character");
 local NUM_ACTORS = 1; -- Increase for stress testing
 local characters = {};
 local curSkin = 1;
-local toggleAnims = {"walk", "pump"}
+local toggleAnims = {"walk", "pump", "point"}
 
 -- "pews"
 local pews = {};
@@ -22,7 +22,37 @@ function love.load()
 	
 	local skinDefault = demina.ImportSkin("examples/assets/guy/guy_default.anim", skeleton);
 	local skinGuy = demina.ImportSkin("examples/assets/guy/guy_skin.anim", skeleton);
-	
+
+	local point = function(transformer, transName, boneName)
+		if (boneName == "back_upper_arm") then
+			-- Get point direction
+			local mx, my = love.mouse.getPosition();
+			local bx, by = transformer:GetPosition(boneName);
+			local Ax, Ay = 1, 0;
+			local Bx, By = mx - bx, my - by;
+			local length = math.sqrt(math.pow(Bx, 2) + math.pow(By, 2));
+			Bx = Bx/length;
+			By = By/length;
+			-- Get point angle
+			local dot = Ax * Bx + Ay * By;
+			local rot = math.acos(dot);
+			if (By < 0) then
+				rot = -rot;
+			end
+			-- Account for flipping.
+			rot = transformer:GetFlippedAngle(rot);
+			return {rotation = rot - math.pi/2};
+		end
+	end
+	local shoot = function(transformer, transName, boneName)
+		if (boneName == "back_lower_arm") then
+			local vars = transformer:GetVariables(transName);
+			if (vars.clickTime and love.timer.getTime() - vars.clickTime >= 0.1) then
+				transformer:SetPower(transName, 0);
+			end
+			return {rotation = -math.pi/3};
+		end
+	end
 	for i = 1, NUM_ACTORS do
 		local c = newCharacter(skeleton);
 		c:RegisterAnimation("walk", animWalk);
@@ -30,12 +60,27 @@ function love.load()
 		c:RegisterAnimation("pump", animPump, skeleton:GetBoneList("front_upper_arm"));
 		c:SetAnimationLayer("pump", 1);
 		
+		c:RegisterAnimation("point", point, skeleton:GetBoneList("back_upper_arm"));
+		c:SetAnimationLayer("point", 1);
+		
+		c:RegisterAnimation("shoot", shoot, skeleton:GetBoneList("back_lower_arm"));
+		c:SetAnimationLayer("shoot", 2);
+		
 		c:RegisterSkin("default", skinDefault);
 		c:RegisterSkin("guy", skinGuy);
 		
 		c:SetSkin("guy");
 		
 		c:SetPosition(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2);
+		
+		c.Shoot = function(self)
+			local vars = self.Actor:GetTransformer():GetVariables("shoot");
+			vars.clickTime = vars.clickTime or 0;
+			if (love.timer.getTime() - vars.clickTime > 0.5) then
+				self.Actor:GetTransformer():SetPower("shoot", 1);
+				vars.clickTime = love.timer.getTime();
+			end
+		end
 		table.insert(characters, c);
 	end
 end
@@ -58,10 +103,10 @@ function love.keypressed(key, isrepeat)
 		for i = 1, #characters do
 			local curState = characters[i]:GetAnimationState(animName);
 			if (curState ~= "stopped") then
-				characters[i]:EndAnimation(animName, 2);
+				characters[i]:EndAnimation(animName, 0.5);
 				print("ending", characters[i]:GetAnimationState(animName));
 			else
-				characters[i]:StartAnimation(animName, 0.5);
+				characters[i]:StartAnimation(animName, 1);
 				print("starting", characters[i]:GetAnimationState(animName));
 			end
 		end
@@ -87,8 +132,10 @@ function love.keypressed(key, isrepeat)
 	end
 end
 
-function love.keyreleased(key)
-	if (key == "escape") then
-		love.event.quit();
+function love.mousepressed(x, y, button)
+	if (button == "l") then
+		for i = 1, #characters do
+			characters[i]:Shoot();
+		end
 	end
 end

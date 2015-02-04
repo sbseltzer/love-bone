@@ -25,10 +25,13 @@ function MCharacter:RegisterAnimation(animName, anim, boneMask)
 	self.Animations[animName] = anim;
 	self.Blend[animName] = {direction = 0, time = 0, start = 0};
 	self.State[animName] = "stopped";
-	self.Actor:GetTransformer():SetTransform("anim_" .. animName, anim, boneMask);
+	self.Actor:GetTransformer():SetTransform(animName, anim, boneMask);
 end
 function MCharacter:RegisterSkin(skinName, skinData)
 	self.Skins[skinName] = skinData;
+end
+function MCharacter:RegisterEvent(animName, eventName, callback)
+	self.Actor:GetEventHandler():Register(self.Animations[animName], eventName, callback);
 end
 
 function MCharacter:SetSkin(skinName)
@@ -62,7 +65,7 @@ function MCharacter:GetAnimationState(animName)
 end
 
 function MCharacter:SetAnimationLayer(animName, layer)
-	local transformName = "anim_" .. animName;
+	local transformName = animName;
 	local transformer = self.Actor:GetTransformer();
 	local boneList = {};
 	for boneName, enabled in pairs(transformer.BoneMasks[transformName]) do
@@ -74,7 +77,7 @@ function MCharacter:SetAnimationLayer(animName, layer)
 end
 
 function MCharacter:StartAnimation(animName, blendTime)
-	local vars = self.Actor:GetTransformer():GetVariables("anim_" .. animName);
+	local vars = self.Actor:GetTransformer():GetVariables(animName);
 	vars.time = 0;
 	local curTime = vars.time or 0
 	self.Blend[animName] = {direction = 1, time = blendTime, start = curTime};
@@ -82,7 +85,7 @@ function MCharacter:StartAnimation(animName, blendTime)
 end
 
 function MCharacter:EndAnimation(animName, blendTime)
-	local vars = self.Actor:GetTransformer():GetVariables("anim_" .. animName);
+	local vars = self.Actor:GetTransformer():GetVariables(animName);
 	local curTime = vars.time or 0
 	self.Blend[animName] = {direction = -1, time = blendTime, start = curTime};
 end
@@ -96,7 +99,7 @@ function MCharacter:ToggleAnimationPlaying(animName)
 end
 
 function MCharacter:StopAnimation(animName)
-	local transformName = "anim_" .. animName;
+	local transformName = animName;
 	self.State[animName] = "stopped";
 	transformer:SetPower(transformName, 0);
 end
@@ -104,7 +107,7 @@ end
 function MCharacter:Update(dt)
 	for animName, _ in pairs(self.Animations) do
 		if (self.State[animName] == "playing") then
-			local transformName = "anim_" .. animName;
+			local transformName = animName;
 			local transformer = self.Actor:GetTransformer();
 			local vars = transformer:GetVariables(transformName);
 			

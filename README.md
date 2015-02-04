@@ -658,9 +658,9 @@ Transformation functions return a transformation table, and take the following a
 
 | Variable | Description |
 | :------- | :---------- |
-| actor | Reference to the actor. |
+| transformer | Reference to the transformer object. |
+| transName | Name of the transformation that is calling the function. |
 | boneName | Name of the bone that's currently being transformed. |
-| vars | Reference to the unique variable state table owned by this transformation. |
 
 #### Methods
 

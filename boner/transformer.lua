@@ -140,6 +140,25 @@ function MTransformer:GetTransform(name)
 	return self.Transformations[name];
 end
 
+-- This might be useful for mass-animation updating. Still needs work.
+function MTransformer:GetIterator(typeName)
+	local t = {};
+	for name, trans in pairs(self.Transformations) do
+		if (SHARED.isType(trans, typeName) or type(trans) == typeName and not SHARED.isType(trans, "Animation")) then
+			t[name] = self.Variables[name];
+		end
+	end
+	return pairs(t);
+end
+
+-- Utility function. Takes an angle that assumes an unflipped actor, and converts it to account for flipping.
+function MTransformer:GetFlippedAngle(angle)
+	angle = angle + self:GetAngle();
+	local sx, sy = self:GetScale();
+	angle = angle * (sy/math.abs(sy));
+	return angle;
+end
+
 function MTransformer:SetPriority(name, priority, bones)
 	if (type(bones) == "string") then
 		bones = {bones};
@@ -267,7 +286,7 @@ function MTransformer:CalculateLocal(transformList, boneName)
 				data = obj:Interpolate(boneName, keyTime);
 				self:GetActor():GetEventHandler():Check(obj, keyTime);
 			elseif (type(obj) == "function") then
-				data = obj(self:GetActor(), boneName, self:GetVariables(name));
+				data = obj(self, name, boneName);
 			elseif (type(obj) == "table") then
 				if (obj[boneName]) then
 					data = {};

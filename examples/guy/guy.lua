@@ -10,7 +10,7 @@ local bonedActors = {};
 local toggleTransforms = {
 	"anim_main",
 	"anim_gest",
-	"anim_ctrl",
+	"anim_point",
 	"anim_zomg"
 }
 local increasePower = {};
@@ -67,14 +67,11 @@ function love.load()
 		root.translation[2] = actorY;
 		bonedActor:SetAttachment("back_hand", "gun", attachmentThing);
 		bodyParts = bonedActor:GetAttachmentList();
-		local point = function(actor, boneName, vars)
+		local point = function(transformer, transName, boneName)
 			if (boneName == "back_upper_arm") then
-				local parentName = actor:GetSkeleton():GetBone(boneName):GetParent();
-				local parentAngle = actor:GetTransformer():GetAngle(parentName);
-				
 				-- Get point direction
 				local mx, my = love.mouse.getPosition();
-				local bx, by = actor:GetTransformer():GetPosition(boneName);
+				local bx, by = transformer:GetPosition(boneName);
 				local Ax, Ay = 1, 0;
 				local Bx, By = mx - bx, my - by;
 				local length = math.sqrt(math.pow(Bx, 2) + math.pow(By, 2));
@@ -89,17 +86,16 @@ function love.load()
 				end
 				
 				-- Account for flipping.
-				rot = rot + actor:GetTransformer():GetAngle();
-				local sx, sy = actor:GetTransformer():GetScale();
-				rot = rot * (sy/math.abs(sy));
+				rot = transformer:GetFlippedAngle(rot);
 				
 				return {rotation = rot - math.pi/2};
 			end
 		end
-		local shoot = function(actor, boneName)
+		local shoot = function(transformer, transName, boneName)
 			if (boneName == "back_lower_arm") then
-				if (actor.clickTime and love.timer.getTime() - actor.clickTime >= 0.1) then
-					actor:GetTransformer():SetPower("anim_shot", 0);
+				local vars = transformer:GetVariables(transName);
+				if (vars.clickTime and love.timer.getTime() - vars.clickTime >= 0.1) then
+					transformer:SetPower(transName, 0);
 				end
 				return {rotation = -math.pi/3};
 			end
@@ -114,9 +110,9 @@ function love.load()
 		transformer:SetPriority("anim_gest", 1, skeleton:GetBoneList("front_upper_arm"));
 		transformer:SetPower("anim_gest", 0);
 		
-		transformer:SetTransform("anim_ctrl", point, skeleton:GetBoneList("back_upper_arm"));
-		transformer:SetPriority("anim_ctrl", 1, skeleton:GetBoneList("back_upper_arm"));
-		transformer:SetPower("anim_ctrl", 0);
+		transformer:SetTransform("anim_point", point, skeleton:GetBoneList("back_upper_arm"));
+		transformer:SetPriority("anim_point", 1, skeleton:GetBoneList("back_upper_arm"));
+		transformer:SetPower("anim_point", 0);
 		
 		transformer:SetTransform("anim_shot", shoot, skeleton:GetBoneList("back_lower_arm"));
 		transformer:SetPriority("anim_shot", 2, skeleton:GetBoneList("back_lower_arm"));
@@ -324,45 +320,48 @@ function love.mousepressed(x, y, button)
 	if (button == "l") then
 		for i = 1, #bonedActors do
 			local attach = bonedActors[i]:GetAttachment("back_hand", "gun");
-			if (attach:GetScale() > 0 and bonedActors[i]:GetTransformer():GetPower("anim_ctrl") == 1 and (not bonedActors[i].clickTime or love.timer.getTime() - bonedActors[i].clickTime > 0.5)) then
-				
-				local sx, sy = bonedActors[i]:GetTransformer():GetScale("back_hand", "gun");
-				local w, h = attach:GetVisual():GetDimensions();
-				local fx, fy = bonedActors[i]:GetTransformer():GetForward("back_hand", "gun");
-				local ux, uy = bonedActors[i]:GetTransformer():GetUp("back_hand", "gun");
-				h = h * 0.6;
-				local offset = {sx * ((fx * w) + (ux * h)), sy * ((fy * w) + (uy * h))};
-				--print(fx, fy);
-				local gunX, gunY = bonedActors[i]:GetTransformer():GetPosition("back_hand", "gun")
-				gunX = gunX + offset[1]
-				gunY = gunY + offset[2]
-				
-				local armX, armY = bonedActors[i]:GetTransformer():GetPosition("back_upper_arm");
-				
-				-- TODO: Figure out why using fx and fy doesn't work right.
-				local dirX, dirY = x - armX, y - armY;
-				local length = math.sqrt(math.pow(dirX,2) + math.pow(dirY,2));
-				dirX = dirX / length;
-				dirY = dirY / length;--[[]]
-				
-				local pewspeed = 100;
-				local p = {
-					pos = {gunX, gunY},
-					rot = bonedActors[i]:GetTransformer():GetAngle("back_hand", "gun"),
-					dir = {dirX, dirY},
-					speed = pewspeed
-				}
-				local maxpews = 10 * NUM_ACTORS;
-				if (#pews < maxpews) then
-					table.insert(pews, p);
-				else
-					pews.index = pews.index or 0;
-					pews.index = (pews.index % maxpews);
-					pews.index = pews.index + 1;
-					pews[pews.index] = p;
+			if (attach:GetScale() > 0 and bonedActors[i]:GetTransformer():GetPower("anim_point") == 1) then
+				local vars = bonedActors[i]:GetTransformer():GetVariables("anim_shot");
+				vars.clickTime = vars.clickTime or 0;
+				if (love.timer.getTime() - vars.clickTime > 0.5) then
+					local sx, sy = bonedActors[i]:GetTransformer():GetScale("back_hand", "gun");
+					local w, h = attach:GetVisual():GetDimensions();
+					local fx, fy = bonedActors[i]:GetTransformer():GetForward("back_hand", "gun");
+					local ux, uy = bonedActors[i]:GetTransformer():GetUp("back_hand", "gun");
+					h = h * 0.6;
+					local offset = {sx * ((fx * w) + (ux * h)), sy * ((fy * w) + (uy * h))};
+					--print(fx, fy);
+					local gunX, gunY = bonedActors[i]:GetTransformer():GetPosition("back_hand", "gun")
+					gunX = gunX + offset[1]
+					gunY = gunY + offset[2]
+					
+					local armX, armY = bonedActors[i]:GetTransformer():GetPosition("back_upper_arm");
+					
+					-- TODO: Figure out why using fx and fy doesn't work right.
+					local dirX, dirY = x - armX, y - armY;
+					local length = math.sqrt(math.pow(dirX,2) + math.pow(dirY,2));
+					dirX = dirX / length;
+					dirY = dirY / length;--[[]]
+					
+					local pewspeed = 100;
+					local p = {
+						pos = {gunX, gunY},
+						rot = bonedActors[i]:GetTransformer():GetAngle("back_hand", "gun"),
+						dir = {dirX, dirY},
+						speed = pewspeed
+					}
+					local maxpews = 10 * NUM_ACTORS;
+					if (#pews < maxpews) then
+						table.insert(pews, p);
+					else
+						pews.index = pews.index or 0;
+						pews.index = (pews.index % maxpews);
+						pews.index = pews.index + 1;
+						pews[pews.index] = p;
+					end
+					bonedActors[i]:GetTransformer():SetPower("anim_shot", 1);
+					vars.clickTime = love.timer.getTime();
 				end
-				bonedActors[i].clickTime = love.timer.getTime();
-				bonedActors[i]:GetTransformer():SetPower("anim_shot", 1);
 			end
 		end
 	end
