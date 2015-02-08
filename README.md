@@ -1,4 +1,4 @@
-# BÖNER [WIP]
+# Löve Bone [WIP]
 
 An object-oriented 2D Skeletal Animation framework for LÖVE.
 
@@ -24,15 +24,15 @@ Edit main.lua to swap between which [examples](https://github.com/GeekWithALife/
 
 ## Introduction
 
-BÖNER is loosely modelled after advanced animation frameworks like ASSIMP.  It's designed to accommodate almost any animation scenario, but it can be a little complicated to use.
+Löve Bone is loosely modelled after advanced animation frameworks like ASSIMP.  It's designed to accommodate almost any animation scenario, but it can be a little complicated to use.
 
-You could say that BÖNER is meant to be used as the backbone for animations in your game. It takes care of the really hard stuff.
+You could say that Löve Bone is meant to be used as the backbone for animations in your game. It takes care of the really hard stuff.
 
 ## Tutorials
 
 ### Basic
 
-In this tutorial, we will go over the basics of the BÖNER API.
+In this tutorial, we will go over the basics of the Löve Bone API.
 - Building a skeleton
 - Making an animation for the skeleton
 - Making an actor that uses the skeleton
