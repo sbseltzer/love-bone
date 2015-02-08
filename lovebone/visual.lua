@@ -6,9 +6,9 @@
 	We could even extend this to objects with a draw method (like our Actor object).
 --]]
 
-local SHARED = require("boner.shared");
+local util = RequireLibPart("util");
 
-local MVisual = SHARED.Meta.Visual;
+local MVisual = util.Meta.Visual;
 MVisual.__index = MVisual;
 local function newVisual(vis, ...)
 	local t = setmetatable({}, MVisual);
@@ -23,7 +23,7 @@ end
 function MVisual:SetData(vis, ...)
 	local validTypes = "string or userdata";
 	if (vis == nil) then
-		error(SHARED.errorArgs("BadArg", 1, "SetData", validTypes, "nil"));
+		error(util.errorArgs("BadArg", 1, "SetData", validTypes, "nil"));
 	end
 	local vType = type(vis);
 	-- Strings are assumed to be image paths
@@ -35,10 +35,10 @@ function MVisual:SetData(vis, ...)
 			vis = love.graphics.newImage(vis);
 		-- Any drawables can just be used as they are.
 		elseif(not vis:typeOf("Drawable")) then
-			error(SHARED.errorArgs("BadArg", 1, "SetData", "Drawable", vis:type()));
+			error(util.errorArgs("BadArg", 1, "SetData", "Drawable", vis:type()));
 		end
 	else
-		error(SHARED.errorArgs("BadArg", 1, "SetData", validTypes, type(vis)));
+		error(util.errorArgs("BadArg", 1, "SetData", validTypes, type(vis)));
 	end
 	-- Attempt to get a quad for texture types.
 	local args = {...};
@@ -47,7 +47,7 @@ function MVisual:SetData(vis, ...)
 		if (#args >= 4) then
 			for i = 1, #args do
 				if (not tonumber(args[i])) then
-					error(SHARED.errorArgs("BadArg", 1 + i, "SetData", "number", type(args[i])));
+					error(util.errorArgs("BadArg", 1 + i, "SetData", "number", type(args[i])));
 				end
 			end
 			self.Quad = love.graphics.newQuad(...);
@@ -55,9 +55,9 @@ function MVisual:SetData(vis, ...)
 		elseif (#args >= 1) then
 			local quad = args[1];
 			if (not quad or type(quad) ~= "userdata") then
-				error(SHARED.errorArgs("BadArg", 2, "SetData", "userdata", type(quad)));
+				error(util.errorArgs("BadArg", 2, "SetData", "userdata", type(quad)));
 			elseif (not quad:typeOf("Quad")) then
-				error(SHARED.errorArgs("BadArg", 2, "SetData", "Quad", quad:type()));
+				error(util.errorArgs("BadArg", 2, "SetData", "Quad", quad:type()));
 			end
 			self.Quad = quad;
 		end
@@ -111,9 +111,9 @@ end
 
 function MVisual:SetOrigin(x, y)
 	if (not x or not tonumber(x)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetOrigin", "number", type(x)));
+		error(util.errorArgs("BadArg", 1, "SetOrigin", "number", type(x)));
 	elseif (not y or not tonumber(y)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetOrigin", "number", type(y)));
+		error(util.errorArgs("BadArg", 2, "SetOrigin", "number", type(y)));
 	end
 	self.Origin = {x, y};
 end
@@ -123,7 +123,7 @@ end
 
 function MVisual:SetRotation(angle)
 	if (not angle or not tonumber(angle)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetRotation", "number", type(angle)));
+		error(util.errorArgs("BadArg", 1, "SetRotation", "number", type(angle)));
 	end
 	self.Rotation = angle;
 end
@@ -133,9 +133,9 @@ end
 
 function MVisual:SetScale(x, y)
 	if (not x or not tonumber(x)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetScale", "number", type(x)));
+		error(util.errorArgs("BadArg", 1, "SetScale", "number", type(x)));
 	elseif (not y or not tonumber(y)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetScale", "number", type(y)));
+		error(util.errorArgs("BadArg", 2, "SetScale", "number", type(y)));
 	end
 	self.Scale = {x, y};
 end

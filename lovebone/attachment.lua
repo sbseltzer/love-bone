@@ -3,9 +3,9 @@
 	An oriented visual representation of a bone on an actor.
 --]]
 
-local SHARED = require("boner.shared");
+local util = RequireLibPart("util");
 
-local MAttachment = SHARED.Meta.Attachment;
+local MAttachment = util.Meta.Attachment;
 MAttachment.__index = MAttachment;
 local function newAttachment(visual)
 	local t = setmetatable({}, MAttachment);
@@ -22,8 +22,8 @@ local function newAttachment(visual)
 end
 
 function MAttachment:SetVisual(vis)
-	if (not vis or not SHARED.isType(vis, "Visual")) then
-		error(SHARED.errorArgs("BadMeta", 1, "SetVisual", "Visual", tostring(SHARED.Meta.Visual), tostring(getmetatable(vis))));
+	if (not vis or not util.isType(vis, "Visual")) then
+		error(util.errorArgs("BadMeta", 1, "SetVisual", "Visual", tostring(util.Meta.Visual), tostring(getmetatable(vis))));
 	end
 	self.Visual = vis;
 end
@@ -37,7 +37,7 @@ function MAttachment:SetColor(...)
 	color[4] = color[4] or 255;
 	for i = 1, 4 do
 		if (not tonumber(color[i])) then
-			error(SHARED.errorArgs("BadArg", i, "SetColor", "number", type(color[i])));
+			error(util.errorArgs("BadArg", i, "SetColor", "number", type(color[i])));
 		end
 		self.Color[i] = tonumber(color[i]);
 	end
@@ -48,7 +48,7 @@ end
 
 function MAttachment:SetLayerOffset(layer)
 	if (not layer or not tonumber(layer)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetLayerOffset", "number", type(layer)));
+		error(util.errorArgs("BadArg", 1, "SetLayerOffset", "number", type(layer)));
 	end
 	self.LayerOffset = tonumber(layer);
 end
@@ -65,7 +65,7 @@ end
 ]]
 function MAttachment:SetRotation(angle)
 	if (not angle or not tonumber(angle)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetRotation", "number", type(angle)));
+		error(util.errorArgs("BadArg", 1, "SetRotation", "number", type(angle)));
 	end
 	self.Rotation = tonumber(angle);
 end
@@ -75,9 +75,9 @@ end
 
 function MAttachment:SetTranslation(x, y)
 	if (not x or not tonumber(x)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetTranslation", "number", type(x)));
+		error(util.errorArgs("BadArg", 1, "SetTranslation", "number", type(x)));
 	elseif (not y or not tonumber(y)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetTranslation", "number", type(y)));
+		error(util.errorArgs("BadArg", 2, "SetTranslation", "number", type(y)));
 	end
 	self.Translation = {tonumber(x), tonumber(y)};
 end
@@ -87,9 +87,9 @@ end
 
 function MAttachment:SetScale(x, y)
 	if (not x or not tonumber(x)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetScale", "number", type(x)));
+		error(util.errorArgs("BadArg", 1, "SetScale", "number", type(x)));
 	elseif (not y or not tonumber(y)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetScale", "number", type(y)));
+		error(util.errorArgs("BadArg", 2, "SetScale", "number", type(y)));
 	end
 	self.Scale = {tonumber(x), tonumber(y)};
 end

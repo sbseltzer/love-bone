@@ -3,9 +3,9 @@
 	Registers and listens for animation events on an actor.
 --]]
 
-local SHARED = require("boner.shared");
+local util = RequireLibPart("util");
 
-local MEventHandler = SHARED.Meta.EventHandler;
+local MEventHandler = util.Meta.EventHandler;
 MEventHandler.__index = MEventHandler;
 local function newEventHandler(actor)
 	local t = setmetatable({}, MEventHandler);
@@ -17,9 +17,9 @@ end
 
 function MEventHandler:SetActor(actor)
 	if (not actor or type(actor) ~= "table") then
-		error(SHARED.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
-	elseif (not SHARED.isType(actor, "Actor")) then
-		error(SHARED.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(SHARED.Meta.Actor), tostring(getmetatable(actor))));
+		error(util.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
+	elseif (not util.isType(actor, "Actor")) then
+		error(util.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(util.Meta.Actor), tostring(getmetatable(actor))));
 	end
 	self.Actor = actor;
 end
@@ -28,12 +28,12 @@ function MEventHandler:GetActor()
 end
 
 function MEventHandler:Register(animObj, eventName, callback)
-	if (not animObj or not SHARED.isType(animObj, "Animation")) then
-		error(SHARED.errorArgs("BadMeta", 1, "Register", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
+	if (not animObj or not util.isType(animObj, "Animation")) then
+		error(util.errorArgs("BadMeta", 1, "Register", "Animation", tostring(util.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
-		error(SHARED.errorArgs("BadArg", 2, "Register", "string", type(eventName)));
+		error(util.errorArgs("BadArg", 2, "Register", "string", type(eventName)));
 	elseif (not callback or type(callback) ~= "function") then
-		error(SHARED.errorArgs("BadArg", 3, "Register", "function", type(eventName)));
+		error(util.errorArgs("BadArg", 3, "Register", "function", type(eventName)));
 	end
 	self.Callbacks[animObj] = self.Callbacks[animObj] or {};
 	self.Callbacks[animObj][eventName] = self.Callbacks[animObj][eventName] or {};
@@ -41,10 +41,10 @@ function MEventHandler:Register(animObj, eventName, callback)
 end
 
 function MEventHandler:Fire(animObj, eventName)
-	if (not animObj or not SHARED.isType(animObj, "Animation")) then
-		error(SHARED.errorArgs("BadMeta", 1, "Fire", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
+	if (not animObj or not util.isType(animObj, "Animation")) then
+		error(util.errorArgs("BadMeta", 1, "Fire", "Animation", tostring(util.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not eventName or type(eventName) ~= "string") then
-		error(SHARED.errorArgs("BadArg", 2, "Fire", "string", type(eventName)));
+		error(util.errorArgs("BadArg", 2, "Fire", "string", type(eventName)));
 	end
 	if (animObj and self.Callbacks[animObj] and eventName and self.Callbacks[animObj][eventName]) then
 		for i = 1, #self.Callbacks[animObj][eventName] do
@@ -56,11 +56,11 @@ end
 -- TODO: Support checks for animations playing backwards.
 function MEventHandler:Check(animObj, keyTime)
 	if (not animObj or type(animObj) ~= "table") then
-		error(SHARED.errorArgs("BadArg", 1, "Check", "table", type(animObj)));
-	elseif (not SHARED.isType(animObj, "Animation")) then
-		error(SHARED.errorArgs("BadMeta", 1, "Check", "Animation", tostring(SHARED.Meta.Animation), tostring(getmetatable(animObj))));
+		error(util.errorArgs("BadArg", 1, "Check", "table", type(animObj)));
+	elseif (not util.isType(animObj, "Animation")) then
+		error(util.errorArgs("BadMeta", 1, "Check", "Animation", tostring(util.Meta.Animation), tostring(getmetatable(animObj))));
 	elseif (not keyTime or type(keyTime) ~= "number") then
-		error(SHARED.errorArgs("BadArg", 2, "Check", "number", type(keyTime)));
+		error(util.errorArgs("BadArg", 2, "Check", "number", type(keyTime)));
 	end
 	
 	-- No events for this anim? Do nothing.

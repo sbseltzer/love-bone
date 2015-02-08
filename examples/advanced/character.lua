@@ -1,4 +1,4 @@
-local boner = require("boner");
+local boner = require(LIBNAME);
 --[[
 	Character
 	A wrapper for Actor with a focus on animations. 
@@ -23,7 +23,7 @@ end
 
 function MCharacter:RegisterAnimation(animName, anim, boneMask)
 	self.Animations[animName] = anim;
-	self.Blend[animName] = {direction = 0, time = 0, start = 0};
+	self.Blend[animName] = {direction = 0, time = 0};
 	self.State[animName] = "stopped";
 	self.Actor:GetTransformer():SetTransform(animName, anim, boneMask);
 end
@@ -32,6 +32,21 @@ function MCharacter:RegisterSkin(skinName, skinData)
 end
 function MCharacter:RegisterEvent(animName, eventName, callback)
 	self.Actor:GetEventHandler():Register(self.Animations[animName], eventName, callback);
+end
+--[[
+function MCharacter:SetAttachment(boneName, attachName, attachment)
+	
+end
+function MCharacter:GetAttachment(boneName, attachName)
+
+end
+--]]
+function MCharacter:GetOrientation(boneName, attachName)
+	return {
+		rotation = self.Actor:GetTransformer():GetAngle(boneName, attachName),
+		translation = {self.Actor:GetTransformer():GetPosition(boneName, attachName)},
+		scale = {self.Actor:GetTransformer():GetScale(boneName, attachName)}
+	};
 end
 
 function MCharacter:SetSkin(skinName)
@@ -50,6 +65,7 @@ function MCharacter:SetSkin(skinName)
 	end
 end
 
+-- Root Transformation accessors
 function MCharacter:SetPosition(x, y)
 	self.Actor:GetTransformer():GetRoot().translation = {x, y};
 end
@@ -58,6 +74,15 @@ function MCharacter:SetAngle(a)
 end
 function MCharacter:SetScale(x, y)
 	self.Actor:GetTransformer():GetRoot().scale = {x, y};
+end
+function MCharacter:GetPosition()
+	return unpack(self.Actor:GetTransformer():GetRoot().translation);
+end
+function MCharacter:GetAngle()
+	return self.Actor:GetTransformer():GetRoot().rotation;
+end
+function MCharacter:GetScale()
+	return unpack(self.Actor:GetTransformer():GetRoot().scale);
 end
 
 function MCharacter:GetAnimationState(animName)
@@ -79,15 +104,12 @@ end
 function MCharacter:StartAnimation(animName, blendTime)
 	local vars = self.Actor:GetTransformer():GetVariables(animName);
 	vars.time = 0;
-	local curTime = vars.time or 0
-	self.Blend[animName] = {direction = 1, time = blendTime, start = curTime};
+	self.Blend[animName] = {direction = 1, time = blendTime};
 	self.State[animName] = "playing";
 end
 
 function MCharacter:EndAnimation(animName, blendTime)
-	local vars = self.Actor:GetTransformer():GetVariables(animName);
-	local curTime = vars.time or 0
-	self.Blend[animName] = {direction = -1, time = blendTime, start = curTime};
+	self.Blend[animName] = {direction = -1, time = blendTime};
 end
 
 function MCharacter:ToggleAnimationPlaying(animName)
@@ -109,21 +131,27 @@ function MCharacter:Update(dt)
 		if (self.State[animName] == "playing") then
 			local transformName = animName;
 			local transformer = self.Actor:GetTransformer();
-			local vars = transformer:GetVariables(transformName);
 			
-			vars.time = vars.time + dt;
+			-- Update time for animations
+			local transform = transformer:GetTransform(transformName);
+			if (boner.isType(transform, "Animation")) then
+				local vars = transformer:GetVariables(transformName);
+				vars.time = vars.time + dt;
+			end
 			
-			local curTime = vars.time;
+			-- Calculate new power
 			local blend = self.Blend[animName];
 			local direction = blend.direction or 0;
-			
 			local power = transformer:GetPower(transformName);
 			power = power + direction * dt * (1/blend.time);
-			transformer:SetPower(transformName, power);
-			power = transformer:GetPower(transformName);
-			if (power == 0) then
+			
+			-- Stop animation if power is less than 0.
+			if (power <= 0) then
 				self.State[animName] = "stopped";
 			end
+			
+			-- Set power
+			transformer:SetPower(transformName, power);
 		end
 	end
 	self.Actor:Update();

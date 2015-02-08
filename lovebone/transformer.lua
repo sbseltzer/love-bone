@@ -5,10 +5,10 @@
 	The transformer is also used as an interface to the bone orientations of an actor.
 --]]
 
-local SHARED = require("boner.shared");
-local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
-local rotate = SHARED.rotate;
-local lerp = SHARED.lerp;
+local util = RequireLibPart("util");
+local SKELETON_ROOT_NAME = util.SKELETON_ROOT_NAME;
+local rotate = util.rotate;
+local lerp = util.lerp;
 
 -- Helper methods for transformation tables.
 local function newTransformation(rotation, translateX, translateY, scaleX, scaleY, layer, visual, vFlip, hFlip)
@@ -35,7 +35,7 @@ local function isValidTransformation(t)
 			valid = valid and tonumber(t.layer);
 		end
 		if (t.visual) then
-			valid = valid and SHARED.isType(t.visual, "Visual");
+			valid = valid and util.isType(t.visual, "Visual");
 		end
 	end
 	-- We don't need to check vFlip and hFlip as they are booleans.
@@ -43,7 +43,7 @@ local function isValidTransformation(t)
 end
 local function isValidTransformationObject(obj)
 	if (type(obj) == "table") then
-		if (not SHARED.isType(obj, "Animation")) then
+		if (not util.isType(obj, "Animation")) then
 			for boneName, trans in pairs(obj) do
 				if (not isValidTransformation(trans)) then
 					return false;
@@ -57,7 +57,7 @@ local function isValidTransformationObject(obj)
 end
 
 -- Transformer Meta
-local MTransformer = SHARED.Meta.Transformer;
+local MTransformer = util.Meta.Transformer;
 MTransformer.__index = MTransformer;
 -- Constructor
 local function newTransformer(actor)
@@ -85,9 +85,9 @@ end
 -- Actor accessors
 function MTransformer:SetActor(actor)
 	if (not actor or type(actor) ~= "table") then
-		error(SHARED.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
-	elseif (not SHARED.isType(actor, "Actor")) then
-		error(SHARED.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(SHARED.Meta.Actor), tostring(getmetatable(actor))));
+		error(util.errorArgs("BadArg", 1, "SetActor", "table", type(actor)));
+	elseif (not util.isType(actor, "Actor")) then
+		error(util.errorArgs("BadMeta", 1, "SetActor", "Actor", tostring(util.Meta.Actor), tostring(getmetatable(actor))));
 	end
 	self.Actor = actor;
 end
@@ -124,7 +124,7 @@ function MTransformer:SetTransform(name, transformation, boneMask)
 		self.Transformations[name] = transformation;
 		self.Powers[name] = 0;
 		local vars = {};
-		if (SHARED.isType(transformation, "Animation")) then
+		if (util.isType(transformation, "Animation")) then
 			vars.time = 0;
 			vars.speed = 1;
 		end
@@ -144,7 +144,7 @@ end
 function MTransformer:GetIterator(typeName)
 	local t = {};
 	for name, trans in pairs(self.Transformations) do
-		if (SHARED.isType(trans, typeName) or type(trans) == typeName and not SHARED.isType(trans, "Animation")) then
+		if (util.isType(trans, typeName) or type(trans) == typeName and not util.isType(trans, "Animation")) then
 			t[name] = self.Variables[name];
 		end
 	end
@@ -274,7 +274,7 @@ function MTransformer:CalculateLocal(transformList, boneName)
 		local obj = transformList[i].object;
 		if (not self.BoneMasks[name] or self.BoneMasks[name][boneName]) then
 			local data;
-			if (SHARED.isType(obj, "Animation")) then
+			if (util.isType(obj, "Animation")) then
 				local animDuration = obj:GetDuration();
 				local keyTime = tonumber(self:GetVariables(name).time) or 0;
 				local animSpeed = tonumber(self:GetVariables(name).speed) or 1;

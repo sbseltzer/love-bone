@@ -1,5 +1,5 @@
 local XmlParser = require("examples.util.XmlParser");
-local boner = require("boner");
+local boner = require(LIBNAME);
 -- Debug
 local function print_r(t, func, i, found)
 	func = func or print;

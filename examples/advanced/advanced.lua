@@ -1,5 +1,5 @@
 
-local boner = require("boner");
+local boner = require(LIBNAME);
 local demina = require("examples.util.demina");
 local newCharacter = require("examples.advanced.character");
 

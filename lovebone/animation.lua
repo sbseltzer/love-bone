@@ -4,10 +4,10 @@
 	They also come with utility methods for finding keyframe ranges and interpolating between them.
 --]]
 
-local SHARED = require("boner.shared");
-local lerp = SHARED.lerp;
+local util = RequireLibPart("util");
+local lerp = util.lerp;
 
-local MAnimation = SHARED.Meta.Animation;
+local MAnimation = util.Meta.Animation;
 MAnimation.__index = MAnimation;
 local function newAnimation(skeleton)
 	local t = setmetatable({}, MAnimation);
@@ -22,8 +22,8 @@ end
 
 -- Initialize the first frame (time=0) to have all bones in their bind-pose.
 function MAnimation:InitializeKeyFrames(skeleton)
-	if (not skeleton or not SHARED.isType(skeleton, "Skeleton")) then
-		error(SHARED.errorArgs("BadMeta", 1, "InitializeKeyFrames", "Skeleton", tostring(SHARED.Meta.Skeleton), tostring(getmetatable(skeleton))));
+	if (not skeleton or not util.isType(skeleton, "Skeleton")) then
+		error(util.errorArgs("BadMeta", 1, "InitializeKeyFrames", "Skeleton", tostring(util.Meta.Skeleton), tostring(getmetatable(skeleton))));
 	elseif (not skeleton:IsValid()) then
 		error("bad argument #1 to 'InitializeKeyFrames' (skeleton is invalid, has Skeleton:Validate() been called?)");
 	end

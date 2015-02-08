@@ -4,9 +4,9 @@
 	These are at the very bottom of the data structure chain.
 --]]
 
-local SHARED = require("boner.shared");
+local util = RequireLibPart("util");
 
-local MBone = SHARED.Meta.Bone;
+local MBone = util.Meta.Bone;
 MBone.__index = MBone;
 local function newBone(parent, layer, offset, defaultRotation, defaultTranslation, defaultScale)
 	layer = layer or 0;
@@ -38,7 +38,7 @@ end
 -- Represents draw order for bones in the same skeleton
 function MBone:SetLayer(layer)
 	if (not layer or not tonumber(layer)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetLayer", "number", type(layer)));
+		error(util.errorArgs("BadArg", 1, "SetLayer", "number", type(layer)));
 	end
 	self.Layer = tonumber(layer);
 end
@@ -49,7 +49,7 @@ end
 -- Parent bone name
 function MBone:SetParent(boneName)
 	if (boneName and type(boneName) ~= "string") then
-		error(SHARED.errorArgs("BadArg", 1, "SetParent", "string", type(boneName)));
+		error(util.errorArgs("BadArg", 1, "SetParent", "string", type(boneName)));
 	end
 	self.Parent = boneName;
 end
@@ -60,9 +60,9 @@ end
 -- Position of this bone's origin relative to its parents origin.
 function MBone:SetOffset(x, y)
 	if (not x or not tonumber(x)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetOffset", "number", type(x)));
+		error(util.errorArgs("BadArg", 1, "SetOffset", "number", type(x)));
 	elseif (not y or not tonumber(y)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetOffset", "number", type(y)));
+		error(util.errorArgs("BadArg", 2, "SetOffset", "number", type(y)));
 	end
 	self.Offset = {tonumber(x), tonumber(y)};
 end
@@ -73,7 +73,7 @@ end
 -- Default local rotation
 function MBone:SetDefaultRotation(angle)
 	if (not angle or not tonumber(angle)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetDefaultRotation", "number", type(angle)));
+		error(util.errorArgs("BadArg", 1, "SetDefaultRotation", "number", type(angle)));
 	end
 	self.Rotation = angle;
 end
@@ -84,9 +84,9 @@ end
 -- Default local translation
 function MBone:SetDefaultTranslation(x, y)
 	if (not x or not tonumber(x)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetDefaultTranslation", "number", type(x)));
+		error(util.errorArgs("BadArg", 1, "SetDefaultTranslation", "number", type(x)));
 	elseif (not y or not tonumber(y)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetDefaultTranslation", "number", type(y)));
+		error(util.errorArgs("BadArg", 2, "SetDefaultTranslation", "number", type(y)));
 	end
 	self.Translation = {tonumber(x), tonumber(y)};
 end
@@ -97,9 +97,9 @@ end
 -- Default local scaling
 function MBone:SetDefaultScale(x, y)
 	if (not x or not tonumber(x)) then
-		error(SHARED.errorArgs("BadArg", 1, "SetDefaultScale", "number", type(x)));
+		error(util.errorArgs("BadArg", 1, "SetDefaultScale", "number", type(x)));
 	elseif (not y or not tonumber(y)) then
-		error(SHARED.errorArgs("BadArg", 2, "SetDefaultScale", "number", type(y)));
+		error(util.errorArgs("BadArg", 2, "SetDefaultScale", "number", type(y)));
 	end
 	self.Scale = {tonumber(x), tonumber(y)};
 end

@@ -4,11 +4,11 @@
 	Actors hold a reference to a skeleton, which defines what animations and skins it can use.
 --]]
 
-local SHARED = require("boner.shared");
-local newBone = require("boner.bone");
-local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
+local util = RequireLibPart("util");
+local newBone = RequireLibPart("bone");
+local SKELETON_ROOT_NAME = util.SKELETON_ROOT_NAME;
 
-local MSkeleton = SHARED.Meta.Skeleton;
+local MSkeleton = util.Meta.Skeleton;
 MSkeleton.__index = MSkeleton;
 local function newSkeleton()
 	local skeleton = setmetatable({}, MSkeleton);
@@ -60,9 +60,9 @@ end
 -- Adds a bone to the skeleton.
 function MSkeleton:SetBone(boneName, boneObj)
 	if (not boneName or type(boneName) ~= "string") then
-		error(SHARED.errorArgs("BadArg", 1, "SetBone", "string", type(boneName)));
-	elseif (not boneObj or not SHARED.isType(boneObj, "Bone")) then
-		error(SHARED.errorArgs("BadMeta", 2, "SetBone", "Bone", tostring(SHARED.Meta.Bone), tostring(getmetatable(boneObj))));
+		error(util.errorArgs("BadArg", 1, "SetBone", "string", type(boneName)));
+	elseif (not boneObj or not util.isType(boneObj, "Bone")) then
+		error(util.errorArgs("BadMeta", 2, "SetBone", "Bone", tostring(util.Meta.Bone), tostring(getmetatable(boneObj))));
 	end
 	if (not boneObj:GetParent() and boneName ~= SKELETON_ROOT_NAME) then
 		boneObj:SetParent(SKELETON_ROOT_NAME);

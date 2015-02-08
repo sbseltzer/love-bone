@@ -1,6 +1,6 @@
 
 -- Include the library
-local boner = require("boner");
+local boner = require(LIBNAME);
 
 local myActor;
 function love.load()

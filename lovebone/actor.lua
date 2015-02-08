@@ -4,19 +4,19 @@
 	Each actor has a reference to a skeleton, its own transformer/eventhandler, and a list of attachments.
 --]]
 
-local SHARED = require("boner.shared");
-local newVisual = require("boner.visual");
-local newAttachment = require("boner.attachment");
-local newTransformer = require("boner.transformer");
-local newEventHandler = require("boner.eventhandler");
+local util = RequireLibPart("util");
+local newVisual = RequireLibPart("visual");
+local newAttachment = RequireLibPart("attachment");
+local newTransformer = RequireLibPart("transformer");
+local newEventHandler = RequireLibPart("eventhandler");
 
-local rotate = SHARED.rotate;
-local lerp = SHARED.lerp;
-local print_r = SHARED.print_r;
+local rotate = util.rotate;
+local lerp = util.lerp;
+local print_r = util.print_r;
 
-local SKELETON_ROOT_NAME = SHARED.SKELETON_ROOT_NAME;
+local SKELETON_ROOT_NAME = util.SKELETON_ROOT_NAME;
 
-local MActor = SHARED.Meta.Actor;
+local MActor = util.Meta.Actor;
 MActor.__index = MActor;
 local function newActor(skeleton, skinData)
 	local t = setmetatable({}, MActor);
@@ -56,7 +56,7 @@ function MActor:SetDebug(bones, enabled, settings)
 	if (type(bones) == "string") then
 		bones = {bones};
 	elseif (type(bones) ~= "table") then
-		error(SHARED.errorArgs("BadArg", 1, "SetDebug", "string or table", type(bones)));
+		error(util.errorArgs("BadArg", 1, "SetDebug", "string or table", type(bones)));
 	end
 	for i = 1, #bones do
 		self.Debug[bones[i]] = self.Debug[bones[i]] or {};
@@ -71,8 +71,8 @@ end
 
 -- Skeleton reference
 function MActor:SetSkeleton(skeleton)
-	if (not skeleton or not SHARED.isType(skeleton, "Skeleton")) then
-		error(SHARED.errorArgs("BadMeta", 1, "SetSkeleton", "Skeleton", tostring(SHARED.Meta.Skeleton), tostring(getmetatable(skeleton))));
+	if (not skeleton or not util.isType(skeleton, "Skeleton")) then
+		error(util.errorArgs("BadMeta", 1, "SetSkeleton", "Skeleton", tostring(util.Meta.Skeleton), tostring(getmetatable(skeleton))));
 	end
 	if (self.Skeleton ~= skeleton) then
 		self.Debug = {};
@@ -86,11 +86,11 @@ end
 
 function MActor:SetAttachment(boneName, attachName, attachment)
 	if (not boneName or type(boneName) ~= "string") then
-		error(SHARED.errorArgs("BadArg", 1, "SetAttachment", "string", type(boneName)));
+		error(util.errorArgs("BadArg", 1, "SetAttachment", "string", type(boneName)));
 	elseif (not attachName or type(attachName) ~= "string") then
-		error(SHARED.errorArgs("BadArg", 2, "SetAttachment", "string", type(attachName)));
-	elseif (not attachment or not SHARED.isType(attachment, "Attachment")) then
-		error(SHARED.errorArgs("BadMeta", 3, "SetAttachment", "Attachment", tostring(SHARED.Meta.Attachment), tostring(getmetatable(attachment))));
+		error(util.errorArgs("BadArg", 2, "SetAttachment", "string", type(attachName)));
+	elseif (not attachment or not util.isType(attachment, "Attachment")) then
+		error(util.errorArgs("BadMeta", 3, "SetAttachment", "Attachment", tostring(util.Meta.Attachment), tostring(getmetatable(attachment))));
 	end
 	self.Attachments[boneName] = self.Attachments[boneName] or {};
 	self.Attachments[boneName][attachName] = attachment;
