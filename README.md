@@ -2,7 +2,7 @@
 
 An object-oriented 2D Skeletal Animation framework for LÖVE.
 
-Tutorials and documentation can be found in the [Wiki](/wiki).
+Tutorials and documentation can be found in the [Wiki](https://github.com/GeekWithALife/love-bone/wiki).
 
 [Forum Thread](https://www.love2d.org/forums/viewtopic.php?f=5&t=79607)
 
