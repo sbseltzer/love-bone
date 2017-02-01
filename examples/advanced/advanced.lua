@@ -110,7 +110,7 @@ function love.keypressed(key, isrepeat)
 				print("starting", characters[i]:GetAnimationState(animName));
 			end
 		end
-	elseif (key == " ") then
+	elseif (key == "space") then
 		local animName = toggleAnims[tonumber(key)];
 		for i = 1, #characters do
 			for animName, _ in pairs(characters[i].Animations) do
@@ -140,7 +140,7 @@ function love.keypressed(key, isrepeat)
 end
 
 function love.mousepressed(x, y, button)
-	if (button == "l") then
+	if (button == 1) then
 		for i = 1, #characters do
 			characters[i]:Shoot();
 		end
