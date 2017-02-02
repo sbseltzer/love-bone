@@ -6,7 +6,7 @@ local myActor;
 function love.load()
 	-- Create the skeleton.
 	local mySkeleton = boner.newSkeleton();
-	
+
 	-- Add bones to the skeleton
 	local NUM_SEGMENTS = 9;
 	local boneLength = 50;
@@ -27,10 +27,10 @@ function love.load()
 		local bone = boner.newBone(parent, i, offset, rotation, translation, scale);
 		mySkeleton:SetBone(name, bone);
 	end
-	
+
 	-- Validate the skeleton!
 	mySkeleton:Validate();
-	
+
 	-- Create an animation.
 	local myAnimation = boner.newAnimation(mySkeleton);
 	for i = 1, NUM_SEGMENTS do
@@ -40,15 +40,15 @@ function love.load()
 		myAnimation:AddKeyFrame(name, 4.5, -math.rad(5*i), nil, nil);
 		myAnimation:AddKeyFrame(name, 5, math.rad(0), nil, nil);
 	end
-	
+
 	-- Create an actor.
 	myActor = boner.newActor(mySkeleton);
-	
+
 	-- Create the visual elements for the actor
 	local boneVisuals = {};
 	for i = 1, 3 do
 		local imageData = love.image.newImageData(boneLength, 20);
-		imageData:mapPixel(function(x, y, r, g, b, a) 
+		imageData:mapPixel(function(x, y, r, g, b, a)
 			local hasRed = i == 1;
 			local hasGreen = i == 2;
 			local hasBlue = i == 3;
@@ -61,7 +61,7 @@ function love.load()
 		local vw, vh = boneVisuals[i]:GetDimensions();
 		boneVisuals[i]:SetOrigin(0, vh/2);
 	end
-	
+
 	-- Add attachments to the actor using the visual elements.
 	for i = 1, NUM_SEGMENTS do
 		local name = boneName .. i;
@@ -69,16 +69,16 @@ function love.load()
 		local myAttachment = boner.newAttachment(vis);
 		myActor:SetAttachment(name, "skin", myAttachment);
 	end
-	
+
 	-- Register the animation as a transformation.
 	myActor:GetTransformer():SetTransform("anim_curl", myAnimation);
-	
+
 	-- Move it toward the center and stand it upright.
 	myActor:GetTransformer():GetRoot().rotation = math.rad(-90);
 	myActor:GetTransformer():GetRoot().translation = {love.graphics.getWidth() / 2, love.graphics.getHeight() / 1.25};
-	
+
 	-- Intermediate code:
-	
+
 	-- Adding a reskin method
 	myActor.SetSkin = function(self, skinData)
 		for boneName, visual in pairs(skinData) do
@@ -88,11 +88,11 @@ function love.load()
 			end
 		end
 	end
-	
+
 	-- Add event triggers
 	myAnimation:AddEvent(2, "some_event");
 	myAnimation:AddEvent(4, "some_event");
-	
+
 	-- Add event callbacks
 	myActor:GetEventHandler():Register(myAnimation, "some_event", function(actor, animObj)
 		if (actor:GetTransformer():GetPower("anim_spinr") == 0) then
@@ -103,7 +103,7 @@ function love.load()
 			actor:GetTransformer():SetPower("anim_spinl", 1);
 		end
 	end);
-	
+
 	-- Animation Layering
 	local spinRightAnim = boner.newAnimation(mySkeleton);
 	local spinLeftAnim = boner.newAnimation(mySkeleton);
@@ -136,7 +136,7 @@ end
 
 -- Tell the animation to start.
 function love.keypressed(key, isRepeat)
-	if (key == ' ') then
+	if (key == 'space') then
 		myActor:GetTransformer():SetPower("anim_curl", 1);
 	end
 end

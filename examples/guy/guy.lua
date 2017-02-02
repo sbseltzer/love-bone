@@ -33,21 +33,21 @@ function love.load()
 	local skeleton = demina.ImportSkeleton("examples/assets/guy/guy_default.anim");
 	skeleton:GetBone("head"):SetLayer(7); -- Corrected head layer.
 	skeleton:BuildRenderOrder(); -- must rebuild the render order if we modify layers.
-	
+
 	local animWalk = demina.ImportAnimation("examples/assets/guy/guy_walk.anim", skeleton);
 	local animPump = demina.ImportAnimation("examples/assets/guy/guy_fistpump.anim", skeleton);
 	local skinDefault = demina.ImportSkin("examples/assets/guy/guy_default.anim", skeleton);
 	local skinGuy = demina.ImportSkin("examples/assets/guy/guy_skin.anim", skeleton);
-	
+
 	local gun = boner.newVisual("examples/assets/guy/gun.png");
 	local aw, ah = gun:GetDimensions();
 	gun:SetOrigin(aw/10, ah/1.5);
-	
+
 	local attachmentThing = boner.newAttachment(gun);
 	attachmentThing:SetLayerOffset(1);
 	attachmentThing:SetScale(1.5, 1.5);
 	attachmentThing:SetRotation(math.pi/2);
-	
+
 	--demina.ImportSkin("guy/test.tdict", skeleton, "default");
 	local actorX, actorY = love.graphics.getWidth() / 2, love.graphics.getHeight() / 2;
 	for i = 1, NUM_ACTORS do
@@ -77,17 +77,17 @@ function love.load()
 				local length = math.sqrt(math.pow(Bx, 2) + math.pow(By, 2));
 				Bx = Bx/length;
 				By = By/length;
-				
+
 				-- Get point angle
 				local dot = Ax * Bx + Ay * By;
 				local rot = math.acos(dot);
 				if (By < 0) then
 					rot = -rot;
 				end
-				
+
 				-- Account for flipping.
 				rot = transformer:GetFlippedAngle(rot);
-				
+
 				return {rotation = rot - math.pi/2};
 			end
 		end
@@ -100,28 +100,28 @@ function love.load()
 				return {rotation = -math.pi/3};
 			end
 		end
-		
+
 		local transformer = bonedActor:GetTransformer();
-		
+
 		transformer:SetTransform("anim_main", animWalk);
 		transformer:SetPower("anim_main", 0);
-		
+
 		transformer:SetTransform("anim_gest", animPump, skeleton:GetBoneList("front_upper_arm"));
 		transformer:SetPriority("anim_gest", 1, skeleton:GetBoneList("front_upper_arm"));
 		transformer:SetPower("anim_gest", 0);
-		
+
 		transformer:SetTransform("anim_point", point, skeleton:GetBoneList("back_upper_arm"));
 		transformer:SetPriority("anim_point", 1, skeleton:GetBoneList("back_upper_arm"));
 		transformer:SetPower("anim_point", 0);
-		
+
 		transformer:SetTransform("anim_shot", shoot, skeleton:GetBoneList("back_lower_arm"));
 		transformer:SetPriority("anim_shot", 2, skeleton:GetBoneList("back_lower_arm"));
 		transformer:SetPower("anim_shot", 0);
-		
+
 		transformer:SetTransform("anim_zomg", zomg.object, skeleton:GetBoneList("head"));
 		transformer:SetPriority("anim_zomg", 1, skeleton:GetBoneList("head"));
 		transformer:SetPower("anim_zomg", 0);
-		
+
 		local boomCallback = function(actor, animObj, eventName)
 			if (actor:GetTransformer():GetPower("anim_gest") > 0.8 and actor:GetTransformer():GetPower("anim_zomg") == 1) then
 				if (zomg.object.head.translation[2] <= -100 and zomg.direction < 0) then
@@ -133,7 +133,7 @@ function love.load()
 			end
 		end
 		bonedActor:GetEventHandler():Register(animPump, "boom", boomCallback);
-		
+
 		local stepSound = love.audio.newSource( "examples/assets/guy/step.wav" );
 		local footDownCallback = function(actor, animObj, eventName)
 			stepSound:setVolume(actor:GetTransformer():GetPower("anim_main"));
@@ -194,7 +194,7 @@ function love.keypressed(key, isrepeat)
 		local name = toggleTransforms[tonumber(key)];
 		increasePower[name] = increasePower[name] or -1;
 		increasePower[name] = increasePower[name] * -1;
-	elseif (key == " ") then
+	elseif (key == "space") then
 		for i = 1, #bonedActors do
 			local transformer = bonedActors[i]:GetTransformer();
 			for transformName, vars in pairs(transformer:GetVariables()) do
@@ -317,7 +317,7 @@ function love.keyreleased(key)
 end
 
 function love.mousepressed(x, y, button)
-	if (button == "l") then
+	if (button == 1) then
 		for i = 1, #bonedActors do
 			local attach = bonedActors[i]:GetAttachment("back_hand", "gun");
 			if (attach:GetScale() > 0 and bonedActors[i]:GetTransformer():GetPower("anim_point") == 1) then
@@ -334,15 +334,15 @@ function love.mousepressed(x, y, button)
 					local gunX, gunY = bonedActors[i]:GetTransformer():GetPosition("back_hand", "gun")
 					gunX = gunX + offset[1]
 					gunY = gunY + offset[2]
-					
+
 					local armX, armY = bonedActors[i]:GetTransformer():GetPosition("back_upper_arm");
-					
+
 					-- TODO: Figure out why using fx and fy doesn't work right.
 					local dirX, dirY = x - armX, y - armY;
 					local length = math.sqrt(math.pow(dirX,2) + math.pow(dirY,2));
 					dirX = dirX / length;
 					dirY = dirY / length;--[[]]
-					
+
 					local pewspeed = 100;
 					local p = {
 						pos = {gunX, gunY},
@@ -369,8 +369,8 @@ end
 
 function love.mousereleased(x, y, button)
 	if (button == "l") then
-	
+
 	elseif(button == "r") then
-		
+
 	end
 end

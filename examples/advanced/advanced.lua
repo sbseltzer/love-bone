@@ -16,10 +16,10 @@ function love.load()
 	local skeleton = demina.ImportSkeleton("examples/assets/guy/guy_default.anim");
 	skeleton:GetBone("head"):SetLayer(skeleton:GetBone("head"):GetLayer()-3);
 	skeleton:BuildRenderOrder(); -- must rebuild it if we modify layers.
-	
+
 	local animWalk = demina.ImportAnimation("examples/assets/guy/guy_walk.anim", skeleton);
 	local animPump = demina.ImportAnimation("examples/assets/guy/guy_fistpump.anim", skeleton);
-	
+
 	local skinDefault = demina.ImportSkin("examples/assets/guy/guy_default.anim", skeleton);
 	local skinGuy = demina.ImportSkin("examples/assets/guy/guy_skin.anim", skeleton);
 
@@ -56,23 +56,23 @@ function love.load()
 	for i = 1, NUM_ACTORS do
 		local c = newCharacter(skeleton);
 		c:RegisterAnimation("walk", animWalk);
-		
+
 		c:RegisterAnimation("pump", animPump, skeleton:GetBoneList("front_upper_arm"));
 		c:SetAnimationLayer("pump", 1);
-		
+
 		c:RegisterAnimation("point", point, skeleton:GetBoneList("back_upper_arm"));
 		c:SetAnimationLayer("point", 1);
-		
+
 		c:RegisterAnimation("shoot", shoot, skeleton:GetBoneList("back_lower_arm"));
 		c:SetAnimationLayer("shoot", 2);
-		
+
 		c:RegisterSkin("default", skinDefault);
 		c:RegisterSkin("guy", skinGuy);
-		
+
 		c:SetSkin("guy");
-		
+
 		c:SetPosition(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2);
-		
+
 		c.Shoot = function(self)
 			local vars = self.Actor:GetTransformer():GetVariables("shoot");
 			vars.clickTime = vars.clickTime or 0;
@@ -110,7 +110,7 @@ function love.keypressed(key, isrepeat)
 				print("starting", characters[i]:GetAnimationState(animName));
 			end
 		end
-	elseif (key == " ") then
+	elseif (key == "space") then
 		local animName = toggleAnims[tonumber(key)];
 		for i = 1, #characters do
 			for animName, _ in pairs(characters[i].Animations) do
@@ -118,7 +118,14 @@ function love.keypressed(key, isrepeat)
 			end
 		end
 	elseif (key == "d") then
-		boner.setDebug(not boner.getDebug());
+		local settings = {};
+		settings.boneLineColor = {0, 255, 0, 255};
+		settings.boneTextColor = {255, 200, 0, 255};
+		settings.attachmentLineColor = {255, 0, 0, 255};
+		settings.attachmentTextColor = {0, 200, 255, 255};
+		for i = 1, #characters do
+			characters[i].Actor:SetDebug(characters[i].Actor:GetSkeleton():GetBoneList(), not characters[i].Actor:GetDebug(), settings);
+		end
 	elseif (key == "s") then
 		for i = 1, #characters do
 			local s = characters[i].Skins;
@@ -133,7 +140,7 @@ function love.keypressed(key, isrepeat)
 end
 
 function love.mousepressed(x, y, button)
-	if (button == "l") then
+	if (button == 1) then
 		for i = 1, #characters do
 			characters[i]:Shoot();
 		end
